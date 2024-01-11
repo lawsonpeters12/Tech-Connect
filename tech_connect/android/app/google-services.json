@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "656241231361",
+    "project_id": "techconnect-42543",
+    "storage_bucket": "techconnect-42543.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:656241231361:android:4b8a852a0bb254361a2200",
+        "android_client_info": {
+          "package_name": "com.example.tech_connect"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBMD608dOl90CeqUAR0Pk2HeUu2ZsGKn10"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
