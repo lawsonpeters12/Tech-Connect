@@ -17,7 +17,7 @@ class FirstPage extends StatefulWidget{
 class _FirstPageState extends State<FirstPage> {
 
   // this will keep track of the current page to display
-  int _selectedIndex = 0;
+  int _selectedIndex = 2;
 
   // this method updates the new selected index 
   void _navigateBottomBar(int index) {
@@ -59,8 +59,8 @@ class _FirstPageState extends State<FirstPage> {
             ),
           // ID icon
           BottomNavigationBarItem(
-            icon: Icon(Icons.credit_card_rounded),
-            label: 'ID',
+            icon: Icon(Icons.comment),
+            label: 'Chat',
             backgroundColor: Color.fromRGBO(77, 95, 128, 1),    
             ),
 
