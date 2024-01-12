@@ -3,10 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:tech_connect/components/click_button.dart';
 import 'package:tech_connect/components/text_field.dart';
 
-// void main() {
-//   runApp(MaterialApp(home: LoginPage())); // Use MaterialApp
-// }
-
 class LoginPage extends StatefulWidget {
   final Function()? onTap;
   const LoginPage({super.key, required this.onTap});
@@ -21,7 +17,7 @@ class _LoginPageState extends State<LoginPage> {
   final passwordTextController = TextEditingController();
   
   // sign in button
-  void signIn() async {
+  void logIn() async {
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword
         (email: emailTextController.text, 
@@ -43,7 +39,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[300],
+      backgroundColor: Color.fromRGBO(198, 218, 231, 100),
       body: SafeArea ( 
         child: Center(
           child: Padding(
@@ -54,8 +50,7 @@ class _LoginPageState extends State<LoginPage> {
                 // logo
                 Container(
                   width: 100, 
-                  child: Image.asset("images/techconnectlogo.png"),
-                ),
+                  child: Image.asset("images/logo.png"),),
                 
                 // welcome
                 const SizedBox(height: 50),
@@ -81,7 +76,7 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 50),
 
                 MyButton(
-                  onTap: signIn,
+                  onTap: logIn,
                   text: "Login"
                 ),
 
@@ -100,7 +95,7 @@ class _LoginPageState extends State<LoginPage> {
                         color: Colors.blue,
                       ),
                     ),
-                    )
+                    ),
                   ],
                 ),
               ],
