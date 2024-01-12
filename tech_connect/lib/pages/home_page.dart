@@ -1,8 +1,4 @@
-// ignore_for_file: prefer_const_constructors
 import 'package:flutter/material.dart';
-
-// Import the firebase_core and cloud_firestore plugin
-import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -17,7 +13,7 @@ class _HomePageState extends State<HomePage> {
   TextEditingController _messageController = TextEditingController();
   List<Map<String, dynamic>> _messages = [];
 
-  void _sendMessage() async {
+  void _sendMessage() {
     String message = _messageController.text;
     if (message.isNotEmpty) {
       // Get the current user
@@ -67,32 +63,32 @@ class _HomePageState extends State<HomePage> {
                     var messageData = message.data() as Map<String, dynamic>;
                     var timestamp = messageData['timestamp'] as Timestamp?;
 
-                    // Format the timestamp to display in HH:MM format
+                    // Displays the time next to the message in HH:MM format
                     var formattedTime = timestamp != null
-                        ? TimeOfDay.fromDateTime(timestamp.toDate()).format(context)
-                        : '00:00';
+                        ? TimeOfDay.fromDateTime(timestamp.toDate()).format(context) : "00:00";
 
-                    // Create a white box for each message
+                    // Creates a box for each message
                     messageWidgets.add(
                       Container(
                         margin: EdgeInsets.symmetric(vertical: 8),
                         padding: EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.white, // Set the color of the message box
-                          borderRadius: BorderRadius.circular(12), // Set the border radius for rounded corners
+                          color: Colors.white, 
+                          borderRadius: BorderRadius.circular(12), // Rounded corners for messages
                         ),
                         child: ListTile(
                           title: Text(
+                            // displays messages from the user in "user email : message" format
                             '${messageData['user']}: ${messageData['message']}',
                             style: TextStyle(
-                              color: Colors.black, // Set the text color for the message
-                              fontWeight: FontWeight.bold, // Set the font weight if needed
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold, 
                             ),
                           ),
                           subtitle: Text(
                             formattedTime,
                             style: TextStyle(
-                              color: Colors.grey, // Set the text color for the timestamp
+                              color: Colors.grey, 
                             ),
                           ),
                         ),
@@ -101,6 +97,7 @@ class _HomePageState extends State<HomePage> {
                   }
 
                   return ListView.builder(
+                    // new messages appear at bottom of list
                     reverse: true,
                     itemCount: messageWidgets.length,
                     itemBuilder: (context, index) => messageWidgets[index],
@@ -112,8 +109,8 @@ class _HomePageState extends State<HomePage> {
               margin: EdgeInsets.only(top: 8),
               padding: EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
-                color: Colors.white, // Set the color of the text input box
-                borderRadius: BorderRadius.circular(20), // Set the border radius for rounded corners
+                color: Colors.white, 
+                borderRadius: BorderRadius.circular(20), // rounded corners
               ),
               child: Row(
                 children: [
@@ -122,7 +119,7 @@ class _HomePageState extends State<HomePage> {
                       controller: _messageController,
                       decoration: InputDecoration(
                         hintText: 'Enter your message...',
-                        border: InputBorder.none, // Remove the default border
+                        border: InputBorder.none, 
                       ),
                       onSubmitted: (_) => _sendMessage(),
                     ),
