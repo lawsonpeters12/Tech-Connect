@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart' as parser;
 import 'package:http/http.dart' as http;
+import 'package:tech_connect/pages/id_page.dart';
 //import 'package:html/dom.dart' as dom;
 
 class HomePage extends StatefulWidget { 
@@ -11,7 +12,6 @@ class HomePage extends StatefulWidget {
 } 
   
 class _HomePageState extends State<HomePage> { 
-    
   // Strings to store the extracted Article titles 
   String event1 = 'event 1'; 
   String event2 = 'event 2'; 
@@ -111,7 +111,7 @@ class _HomePageState extends State<HomePage> {
         return ['', '','ERROR!','', '','']; 
       } 
     } else { 
-      return ['', '', 'ERROR: ${response.statusCode}.']; 
+      return ['', '', 'ERROR: ${response.statusCode}.','','','']; 
     } 
   } 
   
@@ -142,7 +142,12 @@ class _HomePageState extends State<HomePage> {
             
               Container(color: Colors.white, child: Row(
                 children: [
-                  SizedBox(height: 200,),
+                  SizedBox(height: 200), IconButton( icon: Icon(Icons.chat_bubble),
+             onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: ((context) => IDPage())));
+             },
+              color: Colors.blue,
+            ) 
                   
                 ],
               ),
