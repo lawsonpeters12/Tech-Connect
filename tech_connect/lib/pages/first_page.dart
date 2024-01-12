@@ -59,8 +59,8 @@ class _FirstPageState extends State<FirstPage> {
             ),
           // ID icon
           BottomNavigationBarItem(
-            icon: Icon(Icons.credit_card_rounded),
-            label: 'ID',
+            icon: Icon(Icons.comment),
+            label: 'Chat',
             backgroundColor: Color.fromRGBO(77, 95, 128, 1),    
             ),
 
