@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:file_picker/file_picker.dart';
 
 class IDPage extends StatefulWidget {
   const IDPage({Key? key}) : super(key: key);
@@ -30,6 +31,53 @@ class _IDPageState extends State<IDPage> {
       });
       _messageController.clear();
     }
+  }
+
+  Future<void> _openGallery() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      allowMultiple: false,
+    );
+  }
+
+  void _showCameraOptions() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Choose an option'),
+          content: Container(
+            height: 100, // Adjust the height as needed
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Column(
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.camera_alt),
+                      onPressed: () {
+                        // Handle camera button press
+                        Navigator.of(context).pop(); // Close the dialog
+                      },
+                    ),
+                    Text('Take picture'),
+                  ],
+                ),
+                Column(
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.image),
+                      onPressed: _openGallery, // Open gallery when image icon is pressed
+                    ),
+                    Text('Choose from gallery'),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -73,7 +121,7 @@ class _IDPageState extends State<IDPage> {
                         margin: EdgeInsets.symmetric(vertical: 8),
                         padding: EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.white, 
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(12), // Rounded corners for messages
                         ),
                         child: ListTile(
@@ -82,13 +130,13 @@ class _IDPageState extends State<IDPage> {
                             '${messageData['user']}: ${messageData['message']}',
                             style: TextStyle(
                               color: Colors.black,
-                              fontWeight: FontWeight.bold, 
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                           subtitle: Text(
                             formattedTime,
                             style: TextStyle(
-                              color: Colors.grey, 
+                              color: Colors.grey,
                             ),
                           ),
                         ),
@@ -97,7 +145,7 @@ class _IDPageState extends State<IDPage> {
                   }
 
                   return ListView.builder(
-                    // new messages appear at bottom of list
+                    // new messages appear at the bottom of the list
                     reverse: true,
                     itemCount: messageWidgets.length,
                     itemBuilder: (context, index) => messageWidgets[index],
@@ -109,7 +157,7 @@ class _IDPageState extends State<IDPage> {
               margin: EdgeInsets.only(top: 8),
               padding: EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
-                color: Colors.white, 
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(20), // rounded corners
               ),
               child: Row(
@@ -119,10 +167,14 @@ class _IDPageState extends State<IDPage> {
                       controller: _messageController,
                       decoration: InputDecoration(
                         hintText: 'Enter your message...',
-                        border: InputBorder.none, 
+                        border: InputBorder.none,
                       ),
                       onSubmitted: (_) => _sendMessage(),
                     ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.camera_alt),
+                    onPressed: _showCameraOptions,
                   ),
                   IconButton(
                     icon: Icon(Icons.send),
