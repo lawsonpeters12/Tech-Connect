@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:html/parser.dart' as parser;
 import 'package:http/http.dart' as http;
 import 'package:tech_connect/pages/id_page.dart';
-//import 'package:html/dom.dart' as dom;
+import 'package:html/dom.dart' as dom;
+
 
 class HomePage extends StatefulWidget { 
   const HomePage({super.key}); 
@@ -12,6 +13,42 @@ class HomePage extends StatefulWidget {
 } 
   
 class _HomePageState extends State<HomePage> { 
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 2, 
+      child: Scaffold(
+        backgroundColor: Color.fromRGBO(198, 218, 231, 100),
+      appBar: AppBar(backgroundColor: Color.fromRGBO(198, 218, 231, 100),
+        bottom: const TabBar(tabs: [
+          Tab(icon: Icon(Icons.home)),
+          Tab(icon: Icon(Icons.crisis_alert))
+        ]),
+        title: Row(mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          const Text('Home Page'),
+          Spacer(),
+          Image.asset('images/icon_image.png',
+          fit:BoxFit.contain,
+          height:60),
+        ],
+        
+        )
+        ),
+        body:const TabBarView(
+          children: [
+            Center( 
+            child: Column( 
+              mainAxisAlignment: MainAxisAlignment.center, 
+              
+          
+          )
+          ),
+          Center(child: Text('Alert and Crime'))
+        ],
+        )
+        )
+        );
+  }
   // Strings to store the extracted Article titles 
   String event1 = 'event 1'; 
   String event2 = 'event 2'; 
@@ -25,30 +62,23 @@ class _HomePageState extends State<HomePage> {
   bool isLoading = false; 
   
   Future<List<String>> extractData() async { 
-      
+
     // Getting the response from the targeted url 
-    final response = 
-        await http.Client().get(Uri.parse('https://events.latech.edu/day/categories/Academic%20Calendar')); 
+      final url = Uri.parse('https://events.latech.edu/academic-calendar/all');
       
-        // Status Code 200 means response has been received successfully 
+      final response = await http.Client().get(url);
+      // TODO learn ajax command to get these scrapers working right
+      var document = parser.parse(response.body);
+      List<String> data = document.getElementsByClassName("lw_events_title").map((e) => e.innerHtml).toList();
+
+      print(data);
+
+
+      var element = document.getElementById('lw_cal');
+
     if (response.statusCode == 200) { 
         
-    // Getting the html document from the response 
-      var document = parser.parse(response.body);
-      //var elements = document.querySelectorAll('title');
-     // print('something');
-      //elements.forEach(print);
-      //document.outerHtml;
-      //var document = response.body;
-      /*
-      var responseEvent1 = document 
-            .getElementsByClassName('lw_cal_upcoming_events'); 
-  
-        print(responseEvent1);
 
-      print(response.statusCode);
-      */
-      //print(response.body);
       try { 
       // Scraping the first event
         var responseEvent1 = document 
@@ -114,10 +144,11 @@ class _HomePageState extends State<HomePage> {
       return ['', '', 'ERROR: ${response.statusCode}.','','','']; 
     } 
   } 
-  
+  /*
   @override 
   Widget build(BuildContext context) { 
     return Scaffold( 
+      
       backgroundColor: Color.fromRGBO(198, 218, 231, 100),
       appBar: AppBar(backgroundColor: Color.fromRGBO(198, 218, 231, 100),
         title: Row(mainAxisAlignment: MainAxisAlignment.end,
@@ -141,15 +172,6 @@ class _HomePageState extends State<HomePage> {
           children: [ 
             
               Container(color: Colors.white, child: Row(
-                children: [
-                  SizedBox(height: 200), IconButton( icon: Icon(Icons.chat_bubble),
-             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: ((context) => IDPage())));
-             },
-              color: Colors.blue,
-            ) 
-                  
-                ],
               ),
               ),
               
@@ -174,21 +196,21 @@ class _HomePageState extends State<HomePage> {
                               fontSize: 20, fontWeight: FontWeight.bold)), 
                           Text(eventInfo1, style: TextStyle(fontSize:12, fontWeight: FontWeight.normal)),
                       SizedBox( 
-                        
-                        height: MediaQuery.of(context).size.height * 0.05, 
-                        
+                        height: MediaQuery.of(context).size.height * 0.15, 
                       ),
                       Text(event2, 
                           style: TextStyle( 
                               fontSize: 20, fontWeight: FontWeight.bold)), 
-                              Text(eventInfo2, style: TextStyle(fontSize:12, fontWeight: FontWeight.normal)),
+                              Text(eventInfo2, style: TextStyle(fontSize:12,
+                               fontWeight: FontWeight.normal)),
                       SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.05, 
+                        height: MediaQuery.of(context).size.height * 0.15, 
                       ), 
                       Text(event3, 
                           style: TextStyle( 
                               fontSize: 20, fontWeight: FontWeight.bold)), 
-                              Text(eventInfo3, style: TextStyle(fontSize:12, fontWeight: FontWeight.normal)),
+                              Text(eventInfo3, style: TextStyle(fontSize:12,
+                               fontWeight: FontWeight.normal)),
                         ],
                       ),
                        
@@ -231,7 +253,7 @@ class _HomePageState extends State<HomePage> {
             ) 
           ], 
         )), 
-      ), 
-    ); 
+      ),*/ 
+    //); 
   } 
-} 
+

@@ -1,9 +1,16 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:tech_connect/components/click_button.dart';
-import 'package:tech_connect/main.dart';
+import 'package:tech_connect/pages/register_page.dart';
+//import 'package:tech_connect/main.dart';
+
+
+FirebaseAuth _auth = FirebaseAuth.instance;
+final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
 
 class UserPage extends StatefulWidget{
   const UserPage({super.key});
@@ -16,6 +23,15 @@ class _UserPageState extends State<UserPage> {
   // log user out
   void logOut() async {
     await FirebaseAuth.instance.signOut();
+  }
+// checks if the user doc exists
+// TODO: get access to fire store and work on this
+  Future checkUserInFirestore(User user, String username) async {
+    DocumentSnapshot doc = await _firestore.collection('users').doc(user.uid).get();
+
+    if(!doc.exists){
+      print('User Does Not Exist');
+    }
   }
 
   @override

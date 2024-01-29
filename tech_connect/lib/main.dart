@@ -4,6 +4,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:tech_connect/auth/auth.dart';
 import 'package:tech_connect/firebase_options.dart';
+import 'package:tech_connect/pages/first_page.dart';
+// for coding and debugging
+import 'pages/home_page.dart';
+import 'pages/user_page.dart';
 
 
 void main() async {
@@ -22,7 +26,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: AuthPage(),
+      
+      // home: AuthPage(),
+      // home: UserPage(),
+      home: FirstPage(),
     );
   }
 }
