@@ -127,7 +127,7 @@ class _HomePageState extends State<HomePage> {
 
         actions: [
           Image.asset(
-            'images/icon_image.png',
+            "images/logo.png",
             fit:BoxFit.contain,
             height:60
           ),
