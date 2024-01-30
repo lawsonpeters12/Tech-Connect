@@ -119,16 +119,26 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) { 
     return Scaffold( 
       backgroundColor: Color.fromRGBO(198, 218, 231, 100),
-      appBar: AppBar(backgroundColor: Color.fromRGBO(198, 218, 231, 100),
-        title: Row(mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          const Text('Home Page'),
-          Spacer(),
-          Image.asset('images/icon_image.png',
-          fit:BoxFit.contain,
-          height:60),
-          
-        ],),
+      appBar: AppBar(
+        backgroundColor: Color.fromRGBO(198, 218, 231, 100),
+        title: Text('Home Page'),
+        leading: Container(),
+
+        actions: [
+          Image.asset(
+            'images/icon_image.png',
+            fit:BoxFit.contain,
+            height:60
+          ),
+          SizedBox(width: 550),
+          IconButton(
+            icon: Icon(Icons.send_outlined),
+            onPressed: (){
+
+            }
+          ),
+        SizedBox(width: 20),
+        ]
         ),
         
        
