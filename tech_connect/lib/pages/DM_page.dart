@@ -12,9 +12,13 @@ class DMPage extends StatelessWidget{
       backgroundColor: Color.fromRGBO(198, 218, 231, 100),
       appBar: AppBar(
         backgroundColor: Color.fromRGBO(198, 218, 231, 100),
+        leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context);
+            }
+          ),
         title: Text('DM Page'),
-        leading: Container(),
-
         actions: [
           Image.asset(
             "images/logo.png",
