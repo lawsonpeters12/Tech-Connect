@@ -13,42 +13,6 @@ class HomePage extends StatefulWidget {
 } 
   
 class _HomePageState extends State<HomePage> { 
-  Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2, 
-      child: Scaffold(
-        backgroundColor: Color.fromRGBO(198, 218, 231, 100),
-      appBar: AppBar(backgroundColor: Color.fromRGBO(198, 218, 231, 100),
-        bottom: const TabBar(tabs: [
-          Tab(icon: Icon(Icons.home)),
-          Tab(icon: Icon(Icons.crisis_alert))
-        ]),
-        title: Row(mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          const Text('Home Page'),
-          Spacer(),
-          Image.asset('images/icon_image.png',
-          fit:BoxFit.contain,
-          height:60),
-        ],
-        
-        )
-        ),
-        body:const TabBarView(
-          children: [
-            Center( 
-            child: Column( 
-              mainAxisAlignment: MainAxisAlignment.center, 
-              
-          
-          )
-          ),
-          Center(child: Text('Alert and Crime'))
-        ],
-        )
-        )
-        );
-  }
   // Strings to store the extracted Article titles 
   String event1 = 'event 1'; 
   String event2 = 'event 2'; 
@@ -125,7 +89,7 @@ class _HomePageState extends State<HomePage> {
             .children[0] 
             .children[0] 
             .children[0]; 
-  
+            
         print(responseInfo3.text.trim()); 
         // Converting the extracted titles into 
         // string and returning a list of Strings 
@@ -144,6 +108,67 @@ class _HomePageState extends State<HomePage> {
       return ['', '', 'ERROR: ${response.statusCode}.','','','']; 
     } 
   } 
+    Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 2, 
+      child: Scaffold(
+        backgroundColor: const Color.fromRGBO(198, 218, 231, 100),
+      appBar: AppBar(backgroundColor: const Color.fromRGBO(198, 218, 231, 100),
+        bottom: const TabBar(tabs: [
+          Tab(icon: Icon(Icons.home)),
+          Tab(icon: Icon(Icons.crisis_alert))
+        ]),
+        title:  Row(mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          const Text('Home Page'),
+          Spacer(),
+          Image.asset('images/icon_image.png',
+          fit:BoxFit.contain,
+          height:60),
+        ],
+        
+        )
+        ),
+        body: TabBarView(
+          children: [
+            Center( 
+            child: Row( 
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(color: const Color.fromRGBO(198, 218, 231, 100),
+                ),
+              isLoading
+                ? const CircularProgressIndicator()
+                : Container(color: Colors.white,
+                child: Column(mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  // TODO fix this
+                  const Text('                                                                                                                 '),
+                  Text(event1,
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+                  SizedBox(height: MediaQuery.of(context).size.height *0.15, 
+                  ),
+                  Text(event2,
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+                  SizedBox(height: MediaQuery.of(context).size.height *0.15,
+                  ),
+                  Text(event3,
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+                  SizedBox(height: MediaQuery.of(context).size.height *0.15,
+                  ),
+                ],)
+                )
+              ],
+          
+          )
+          ),
+          
+          const Center(child: Text('Alert and Crime'))
+        ],
+        )
+        )
+        );
+  }
   /*
   @override 
   Widget build(BuildContext context) { 

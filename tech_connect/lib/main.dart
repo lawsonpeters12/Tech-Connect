@@ -8,6 +8,7 @@ import 'package:tech_connect/pages/first_page.dart';
 // for coding and debugging
 import 'pages/home_page.dart';
 import 'pages/user_page.dart';
+import 'pages/edit_user_page.dart';
 
 
 void main() async {
@@ -26,10 +27,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      
+      theme: ThemeData(dividerColor: Colors.black),
       // home: AuthPage(),
-      // home: UserPage(),
-      home: FirstPage(),
+       home: UserPage(),
+       //home: EditUserPage(),
+      //home: FirstPage(),
     );
   }
 }
