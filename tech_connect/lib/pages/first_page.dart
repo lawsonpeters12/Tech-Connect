@@ -17,7 +17,7 @@ class FirstPage extends StatefulWidget{
 class _FirstPageState extends State<FirstPage> {
 
   // this will keep track of the current page to display
-  int _selectedIndex = 0;
+  int _selectedIndex = 2;
 
   // this method updates the new selected index 
   void _navigateBottomBar(int index) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart' as parser;
 import 'package:http/http.dart' as http;
+import 'package:tech_connect/pages/DM_page.dart';
 import 'package:tech_connect/pages/id_page.dart';
 //import 'package:html/dom.dart' as dom;
 
@@ -134,7 +135,7 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: Icon(Icons.send_outlined),
             onPressed: (){
-              Navigator.push(context, MaterialPageRoute(builder: ((context) => IDPage())));
+              Navigator.push(context, MaterialPageRoute(builder: ((context) => DMPage())));
             }
           ),
         SizedBox(width: 20),
