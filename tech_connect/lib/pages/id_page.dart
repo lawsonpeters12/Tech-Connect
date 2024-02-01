@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:camera/camera.dart';
+import 'dart:io';
+import 'dart:async';
 
 class IDPage extends StatefulWidget {
   const IDPage({Key? key}) : super(key: key);
@@ -12,42 +16,171 @@ class IDPage extends StatefulWidget {
 
 class _IDPageState extends State<IDPage> {
   TextEditingController _messageController = TextEditingController();
-  List<Map<String, dynamic>> _messages = [];
+  late CameraController _cameraController;
+  late Future<void> _initializeControllerFuture;
+  String currentChatTopic = "main_chat"; // Initial chat topic
+  StreamController<QuerySnapshot> _messageStreamController =
+      StreamController<QuerySnapshot>();
 
-  void _sendMessage() {
-    String message = _messageController.text;
-    if (message.isNotEmpty) {
+  @override
+  void initState() {
+    super.initState();
+    _initializeCamera();
+    _updateMessageStream(currentChatTopic);
+  }
+
+  Future<void> _initializeCamera() async {
+    final cameras = await availableCameras();
+    final firstCamera = cameras.first;
+
+    _cameraController = CameraController(
+      firstCamera,
+      ResolutionPreset.medium,
+    );
+
+    _initializeControllerFuture = _cameraController.initialize();
+  }
+
+  void dispose() {
+    _cameraController.dispose();
+    _messageStreamController.close();
+    super.dispose();
+  }
+
+void _sendMessage() {
+  String message = _messageController.text;
+  if (message.isNotEmpty) {
+    User? user = FirebaseAuth.instance.currentUser;
+    String userEmail = user?.email ?? 'anonymous';
+
+    CollectionReference messages =
+        FirebaseFirestore.instance.collection('messages');
+    messages.add({
+      'user': userEmail,
+      'message': message,
+      'timestamp': FieldValue.serverTimestamp(),
+      'chat_topic': currentChatTopic, // Add chat topic field
+    }).then((_) {
+      // After the message is added to Firestore, update the stream
+      _updateMessageStream(currentChatTopic);
+      _messageController.clear();
+    });
+  }
+}
+
+ void _showChatTopicsPopup() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Select Chat Topic'),
+          content: Column(
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  _updateChatTopic("main_chat");
+                  Navigator.pop(context);
+                },
+                child: Text('Main Chat'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  _updateChatTopic("lost_item_chat");
+                  Navigator.pop(context);
+                },
+                child: Text('Lost Item Chat'),
+              ),
+              // Add more buttons for other chat topics as needed
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _updateChatTopic(String newChatTopic) {
+    setState(() {
+      currentChatTopic = newChatTopic;
+    });
+    _updateMessageStream(newChatTopic);
+  }
+
+  void _updateMessageStream(String chatTopic) {
+    FirebaseFirestore.instance
+        .collection('messages')
+        .where('chat_topic', isEqualTo: chatTopic)
+        .orderBy('timestamp', descending: true)
+        .snapshots()
+        .listen((data) {
+      _messageStreamController.add(data);
+    });
+  }
+
+
+  Future<void> _openGallery() async {
+  FilePickerResult? result = await FilePicker.platform.pickFiles(
+    type: FileType.image,
+    allowMultiple: false,
+  );
+
+  if (result != null) {
+    PlatformFile file = result.files.first;
+    User? user = FirebaseAuth.instance.currentUser;
+    String userEmail = user?.email ?? 'anonymous';
+
+    Reference storageReference = FirebaseStorage.instance.ref().child('images/${DateTime.now().toUtc().toIso8601String()}');
+    
+    // Check if the file path is not null
+    String filePath = file.path ?? '';
+
+    UploadTask uploadTask = storageReference.putFile(File(filePath));
+
+    await uploadTask.whenComplete(() async {
+      String downloadUrl = await storageReference.getDownloadURL();
+
+      CollectionReference messages =
+          FirebaseFirestore.instance.collection('messages');
+      messages.add({
+        'user': userEmail,
+        'image_url': downloadUrl,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+    });
+  }
+}
+
+  Future<void> _takePicture() async {
+    try {
+      await _initializeControllerFuture;
+      final XFile picture = await _cameraController.takePicture();
+
       // Get the current user
       User? user = FirebaseAuth.instance.currentUser;
 
       // Get the user's email
       String userEmail = user?.email ?? 'anonymous';
 
-      CollectionReference messages = FirebaseFirestore.instance.collection('messages');
+      // Upload the image to Firestore
+      CollectionReference messages =
+          FirebaseFirestore.instance.collection('messages');
       messages.add({
         'user': userEmail,
-        'message': message,
+        'image_url': picture.path, // Assuming you want to store the image URL
         'timestamp': FieldValue.serverTimestamp(),
       });
-      _messageController.clear();
+    } catch (e) {
+      print("Error taking picture: $e");
     }
   }
 
-  Future<void> _openGallery() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-      allowMultiple: false,
-    );
-  }
-
-  void _showCameraOptions() {
+void _showCameraOptions() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Choose an option'),
           content: Container(
-            height: 100, // Adjust the height as needed
+            height: 100,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -56,8 +189,7 @@ class _IDPageState extends State<IDPage> {
                     IconButton(
                       icon: Icon(Icons.camera_alt),
                       onPressed: () {
-                        // Handle camera button press
-                        Navigator.of(context).pop(); // Close the dialog
+                        Navigator.pop(context);
                       },
                     ),
                     Text('Take picture'),
@@ -67,7 +199,10 @@ class _IDPageState extends State<IDPage> {
                   children: [
                     IconButton(
                       icon: Icon(Icons.image),
-                      onPressed: _openGallery, // Open gallery when image icon is pressed
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _openGallery(); // Call your existing method for opening gallery
+                      },
                     ),
                     Text('Choose from gallery'),
                   ],
@@ -79,27 +214,42 @@ class _IDPageState extends State<IDPage> {
       },
     );
   }
+  
 
-  @override
+
+@override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Center(
-          child: Text(
-            'Campus Chat',
-            style: TextStyle(color: Colors.black),
-          ),
+        title: Row(
+          children: [
+            IconButton(
+              icon: Icon(Icons.menu),
+              onPressed: () {
+                _showChatTopicsPopup();
+              },
+            ),
+            SizedBox(width: 16),
+            Center(
+              child: Text(
+                currentChatTopic == "main_chat"
+                    ? 'Main Chat'
+                    : 'Lost Item Chat', // Update title based on current chat topic
+                style: TextStyle(color: Colors.black),
+              ),
+            ),
+          ],
         ),
-        backgroundColor: Color.fromRGBO(75, 97, 126, 1), // Light blue color
+        backgroundColor: Color.fromRGBO(75, 97, 126, 1),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             Expanded(
-              child: StreamBuilder(
-                stream: FirebaseFirestore.instance.collection('messages').orderBy('timestamp', descending: true).snapshots(),
-                builder: (context, snapshot) {
+              child: StreamBuilder<QuerySnapshot>(
+                stream: _messageStreamController.stream,
+                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                   if (!snapshot.hasData) {
                     return CircularProgressIndicator();
                   }
@@ -111,22 +261,21 @@ class _IDPageState extends State<IDPage> {
                     var messageData = message.data() as Map<String, dynamic>;
                     var timestamp = messageData['timestamp'] as Timestamp?;
 
-                    // Displays the time next to the message in HH:MM format
                     var formattedTime = timestamp != null
-                        ? TimeOfDay.fromDateTime(timestamp.toDate()).format(context) : "00:00";
+                        ? TimeOfDay.fromDateTime(timestamp.toDate())
+                            .format(context)
+                        : "00:00";
 
-                    // Creates a box for each message
                     messageWidgets.add(
                       Container(
                         margin: EdgeInsets.symmetric(vertical: 8),
                         padding: EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(12), // Rounded corners for messages
+                          borderRadius: BorderRadius.circular(12),
                         ),
                         child: ListTile(
                           title: Text(
-                            // displays messages from the user in "user email : message" format
                             '${messageData['user']}: ${messageData['message']}',
                             style: TextStyle(
                               color: Colors.black,
@@ -145,7 +294,6 @@ class _IDPageState extends State<IDPage> {
                   }
 
                   return ListView.builder(
-                    // new messages appear at the bottom of the list
                     reverse: true,
                     itemCount: messageWidgets.length,
                     itemBuilder: (context, index) => messageWidgets[index],
@@ -158,7 +306,7 @@ class _IDPageState extends State<IDPage> {
               padding: EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(20), // rounded corners
+                borderRadius: BorderRadius.circular(20),
               ),
               child: Row(
                 children: [
