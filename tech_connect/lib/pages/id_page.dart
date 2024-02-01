@@ -19,14 +19,14 @@ class _IDPageState extends State<IDPage> {
   TextEditingController _messageController = TextEditingController();
   late CameraController _cameraController;
   late Future<void> _initializeControllerFuture;
-  String currentChatTopic = "main_chat"; // Initial chat topic
-  StreamController<QuerySnapshot> _messageStreamController =
-      StreamController<QuerySnapshot>();
+  String currentChatTopic = "main_chat";
+  late StreamController<QuerySnapshot> _messageStreamController;
 
   @override
   void initState() {
     super.initState();
     _initializeCamera();
+    _messageStreamController = StreamController<QuerySnapshot>();
     _updateMessageStream(currentChatTopic);
   }
 
@@ -107,6 +107,8 @@ void _sendMessage() {
   }
 
   void _updateMessageStream(String chatTopic) {
+    _messageStreamController.close(); // Close the existing controller
+    _messageStreamController = StreamController<QuerySnapshot>();
     FirebaseFirestore.instance
         .collection('messages')
         .where('chat_topic', isEqualTo: chatTopic)
@@ -231,7 +233,7 @@ void _showCameraOptions() {
   
 
 
-@override
+ @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -248,8 +250,8 @@ void _showCameraOptions() {
               child: Text(
                 currentChatTopic == "main_chat"
                     ? 'Main Chat'
-                    : 'Lost Item Chat', // Update title based on current chat topic
-                style: TextStyle(color: Colors.black),
+                    : 'Lost and Found',
+                style: TextStyle(color: Colors.white),
               ),
             ),
           ],
