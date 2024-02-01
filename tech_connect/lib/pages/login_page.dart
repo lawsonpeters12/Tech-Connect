@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:tech_connect/components/click_button.dart';
 import 'package:tech_connect/components/text_field.dart';
+import 'package:tech_connect/pages/password_reset_page.dart';
 
 class LoginPage extends StatefulWidget {
   final Function()? onTap;
@@ -23,17 +24,8 @@ class _LoginPageState extends State<LoginPage> {
         (email: emailTextController.text, 
         password: passwordTextController.text);
     } on FirebaseAuthException catch (e) {
-      displayMessage(e.code);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.code)));
     }  
-  }
-
-  void displayMessage(String message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(message),
-      )
-    );
   }
 
   @override
@@ -80,7 +72,7 @@ class _LoginPageState extends State<LoginPage> {
                   text: "Login"
                 ),
 
-                // register page
+                // goto register page
                 const SizedBox(height: 25),
 
                 Row(
@@ -98,6 +90,45 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ],
                 ),
+              // goto forgot password page
+              const SizedBox(height: 15),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => PasswordReset())),
+                    child: const Text(
+                      "Forgot Password?",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 10,),
+              Container(
+                width:300,
+                height:80,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    // decoration: BoxDecoration(color: Colors.blue),
+                    Image.asset(
+                      "images/google_logo.png",
+                      width: 45, height: 45,
+                      fit:BoxFit.cover,
+                    ),     
+                    const SizedBox(width: 5.0,),
+                    const Text('Sign-in with Google') // add gesture detector
+                  ],
+                ),
+            ),
               ],
             ),
           ),
