@@ -6,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:camera/camera.dart';
 import 'dart:io';
 import 'dart:async';
+import 'package:path/path.dart' as Path;
 
 class IDPage extends StatefulWidget {
   const IDPage({Key? key}) : super(key: key);
@@ -171,6 +172,19 @@ void _sendMessage() {
     } catch (e) {
       print("Error taking picture: $e");
     }
+  }
+
+  Future<String> uploadImageToFirebase(File file)async{
+    String fileUrl = '';
+    String fileName = Path.basename(file.path);
+    var reference = FirebaseStorage.instance.ref().child('myfiles/$fileName');
+    UploadTask uploadTask = reference.putFile(file);
+    TaskSnapshot taskSnapshot = await uploadTask.whenComplete(() => null);
+    await taskSnapshot.ref.getDownloadURL().then((value) {
+      fileUrl = value;
+    });
+    print("Url $fileUrl");
+    return fileUrl;
   }
 
 void _showCameraOptions() {
