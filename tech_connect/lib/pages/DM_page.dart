@@ -25,7 +25,7 @@ class DMPage extends StatelessWidget{
             fit:BoxFit.contain,
             height:60
           ),
-          SizedBox(width: 550),
+          Spacer(),
           IconButton(
             icon: Icon(Icons.group_add_rounded),
             onPressed: (){

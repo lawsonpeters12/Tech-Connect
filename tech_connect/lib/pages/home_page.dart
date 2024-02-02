@@ -117,7 +117,7 @@ class _HomePageState extends State<HomePage> {
         leading: Container(),
         actions: [
           Image.asset("images/logo.png", fit: BoxFit.contain, height: 60),
-          SizedBox(width: 550),
+          Spacer(),
           IconButton(
               icon: Icon(Icons.send_outlined),
               onPressed: () {

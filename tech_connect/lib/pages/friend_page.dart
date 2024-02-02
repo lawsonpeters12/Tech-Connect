@@ -26,7 +26,7 @@ class FriendPage extends StatelessWidget {
               fit: BoxFit.contain,
               height: 60,
             ),
-            SizedBox(width: 500),
+            Spacer(),
             IconButton(
               icon: const Icon(Icons.search),
               onPressed: (){
