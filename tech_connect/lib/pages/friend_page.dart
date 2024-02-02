@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FriendPage extends StatelessWidget {
   const FriendPage({super.key});
@@ -88,11 +89,22 @@ class MySearchDelegate extends SearchDelegate {
     );
   }
 
-  List<String> searchResults = [
-    "Apple",
-    "Banana",
-    "Orange",
-  ];
+  List<String> searchResults = [];
+
+  Future<List<String>> getUserEmails() async {
+    List<String> userEmails = [];
+
+    QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await FirebaseFirestore.instance.collection('users').get();
+
+    for (QueryDocumentSnapshot<Map<String, dynamic>> doc in querySnapshot.docs) {
+      Map<String, dynamic> userData = doc.data();
+      String email = userData['email'];
+      userEmails.add(email);
+    }
+
+    return userEmails;
+  }
 
   @override
   Widget? buildLeading(BuildContext context) => IconButton(
@@ -115,35 +127,46 @@ class MySearchDelegate extends SearchDelegate {
       ];
 
   @override
-  Widget buildResults(BuildContext context) => Center(
-        child: Text(
-          query,
-          style: const TextStyle(fontSize: 64, fontWeight: FontWeight.normal),
-        ),
-      );
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    List<String> suggestions = searchResults.where((searchResult) {
-      final result = searchResult.toLowerCase();
-      final input = query.toLowerCase();
-
-      return result.contains(input);
-    }).toList();
-
-    return ListView.builder(
-      itemCount: suggestions.length,
-      itemBuilder: (context, index) {
-        final suggestion = suggestions[index];
-
-        return ListTile(
-            title: Text(suggestion),
-            onTap: () {
-              query = suggestion;
-
-              showResults(context);
-            });
-      },
+  Widget buildResults(BuildContext context) {
+    // TODO: Implement search results using query
+    return Center(
+      child: Text(
+        query,
+        style: const TextStyle(fontSize: 64, fontWeight: FontWeight.normal),
+      ),
     );
   }
+
+@override
+Widget buildSuggestions(BuildContext context) {
+  return FutureBuilder<List<String>>(
+    future: getUserEmails(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return CircularProgressIndicator();
+      } else {
+        searchResults = snapshot.data!;
+        List<String> suggestions = searchResults.where((searchResult) {
+          final result = searchResult.toLowerCase();
+          final input = query.toLowerCase();
+          return result.contains(input);
+        }).toList();
+
+        return ListView.builder(
+          itemCount: suggestions.length,
+          itemBuilder: (context, index) {
+            final suggestion = suggestions[index];
+            return ListTile(
+              title: Text(suggestion),
+              onTap: () {
+                query = suggestion;
+                showResults(context);
+              },
+            );
+          },
+        );
+      }
+    },
+  );
+}
 }
