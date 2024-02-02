@@ -76,6 +76,13 @@ class FriendPage extends StatelessWidget {
 }
 
 class MySearchDelegate extends SearchDelegate {
+  @override
+  ThemeData appBarTheme(BuildContext context){
+    return Theme.of(context).copyWith(
+      scaffoldBackgroundColor: Color.fromRGBO(198, 218, 231, 100),
+    ); 
+  }
+  
   List<String> searchResults = [
       "Apple",
       "Banana",
