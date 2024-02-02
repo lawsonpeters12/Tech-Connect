@@ -66,8 +66,8 @@ class _FirstPageState extends State<FirstPage> {
 
           // Home icon
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+            icon: Icon(Icons.info_outline),
+            label: 'Info',
             backgroundColor: Color.fromRGBO(77, 95, 128, 1),    
             ),
 

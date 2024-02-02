@@ -1,11 +1,11 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+//import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:tech_connect/components/click_button.dart';
+//import 'package:tech_connect/components/click_button.dart';
 import 'package:tech_connect/pages/edit_user_page.dart';
-import 'package:tech_connect/pages/register_page.dart';
+//import 'package:tech_connect/pages/register_page.dart';
 import 'package:tech_connect/user/appbar_widget.dart';
 import 'package:tech_connect/user/user_preferences.dart';
 import 'package:tech_connect/user/profile_widget.dart';

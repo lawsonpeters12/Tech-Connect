@@ -12,7 +12,7 @@ class UserPreferences {
     name: 'Name Lastname',
     email: 'emaill@email.com',
     major: 'Undeclared',
-    about: 'BIO--------------------------------------------------------------------------------BIO'
+    about: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris pidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
 
     // isDarkMode: false
   );

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart' as parser;
 import 'package:http/http.dart' as http;
-import 'package:tech_connect/pages/id_page.dart';
-import 'package:html/dom.dart' as dom;
+//import 'package:tech_connect/pages/id_page.dart';
+//import 'package:html/dom.dart' as dom;
 
 
 class HomePage extends StatefulWidget { 
@@ -50,7 +50,7 @@ class _HomePageState extends State<HomePage> {
       print(data);
 
 
-      var element = document.getElementById('lw_cal');
+     // var element = document.getElementById('lw_cal');
 
     if (response.statusCode == 200) { 
         
@@ -132,7 +132,7 @@ class _HomePageState extends State<HomePage> {
         ]),
         title:  Row(mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          const Text('Home Page'),
+          const Text('Info Page'),
           Spacer(),
           Image.asset('images/icon_image.png',
           fit:BoxFit.contain,
