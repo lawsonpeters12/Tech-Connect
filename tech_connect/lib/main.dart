@@ -31,9 +31,9 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(dividerColor: Colors.black),
       // home: AuthPage(),
-       home: UserPage(),
+       //home: UserPage(),
        //home: EditUserPage(),
-      //home: FirstPage(),
+      home: FirstPage(),
     );
   }
 }

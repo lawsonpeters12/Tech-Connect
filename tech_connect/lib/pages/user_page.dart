@@ -78,11 +78,16 @@ class _UserPageState extends State<UserPage> {
         user.name,
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
       ),
-      const SizedBox(height: 4,),
+      const SizedBox(height: 4),
+      Text(
+        user.major,
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+      ),
+      const SizedBox(height: 4),
       Text( 
         user.email,
         style:TextStyle(color: Colors.grey)
-      )
+      ),
     ],
   );
 

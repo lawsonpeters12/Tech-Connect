@@ -11,6 +11,7 @@ class UserPreferences {
     imagePath: 'images/icon_image.png',
     name: 'Name Lastname',
     email: 'emaill@email.com',
+    major: 'Undeclared',
     about: 'BIO--------------------------------------------------------------------------------BIO'
 
     // isDarkMode: false

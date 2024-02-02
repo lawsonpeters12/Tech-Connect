@@ -33,6 +33,12 @@ class _EditUserPageState extends State<EditUserPage> {
          ),
          const SizedBox(height: 24,),
          TextFieldWidget(
+          label: 'major',
+          text: user.major,
+          onChanged:(major) => user = user.copy(major:major),
+         ),
+         const SizedBox(height: 24,),
+         TextFieldWidget(
           label: 'email',
           text: user.email,
           onChanged:(email) => user = user.copy(email:email),

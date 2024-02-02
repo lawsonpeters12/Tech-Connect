@@ -14,13 +14,25 @@ class HomePage extends StatefulWidget {
   
 class _HomePageState extends State<HomePage> { 
   // Strings to store the extracted Article titles 
-  String event1 = 'event 1'; 
-  String event2 = 'event 2'; 
-  String event3 = 'event 3'; 
+  String event1 = 'Last day to drop courses or resign with “W” grades'; 
+  String event2 = 'Early Web Registration Begins for Spring and Summer Quarter 2024'; 
+  String event3 = 'Early Registration for Veterans and Degree Candidate Seniors ≥ 110 hours'; 
+  String event4 = 'Early Registration for Honors Students, Grad Students, & Eligible Athletes'; 
+  String event5 = 'Early Registration for Seniors ≥ 100 hours'; 
+  String event6 = 'Early Registration for Seniors ≥ 90 hours';
+  String event7 = 'Early Registration for Juniors ≥ 80 hours'; 
+  String event8 = 'Early Registration for Juniors ≥ 71 hours'; 
+  String event9 = 'Early Registration for Juniors ≥ 60 hours';
   
-  String eventInfo1 = 'eventInfo1';
-  String eventInfo2 = 'eventInfo2';
-  String eventInfo3 = 'eventInfo3';
+  String eventInfo1 = 'Friday, February 2';
+  String eventInfo2 = 'Monday, February 5';
+  String eventInfo3 = 'Monday, February 5';
+  String eventInfo4 = 'Monday, February 5';
+  String eventInfo5 = 'Tuesday, February 6';
+  String eventInfo6 = 'Tuesday, February 6';
+  String eventInfo7 = 'Wednesday, February 7';
+  String eventInfo8 = 'Wednesday, February 7';
+  String eventInfo9 = 'Thursday, February 8';
   // boolean to show CircularProgressIndication 
   // while Web Scraping awaits 
   bool isLoading = false; 
@@ -132,153 +144,68 @@ class _HomePageState extends State<HomePage> {
         body: TabBarView(
           children: [
             Center( 
-            child: Row( 
+            child: Scaffold(appBar: AppBar(title: Text('Academic Calendar')),
+            body: Padding(padding: const EdgeInsets.all(16.0),
+            child: Center(child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(color: const Color.fromRGBO(198, 218, 231, 100),
-                ),
-              isLoading
-                ? const CircularProgressIndicator()
-                : Container(color: Colors.white,
-                child: Column(mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  // TODO fix this
-                  const Text('                                                                                                                 '),
-                  Text(event1,
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
-                  SizedBox(height: MediaQuery.of(context).size.height *0.15, 
-                  ),
-                  Text(event2,
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
-                  SizedBox(height: MediaQuery.of(context).size.height *0.15,
-                  ),
-                  Text(event3,
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
-                  SizedBox(height: MediaQuery.of(context).size.height *0.15,
-                  ),
-                ],)
-                )
+                isLoading
+                  ? CircularProgressIndicator()
+                  : Expanded(child: SizedBox(height: 200.0, child:
+                  ListView(
+                    scrollDirection: Axis.vertical,
+                    children: [
+                      Text(event1,
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+                      Text(eventInfo1),
+                      SizedBox(height: MediaQuery.of(context).size.height * 0.05,),
+                      Text(event2,
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+                      Text(eventInfo2),
+                      SizedBox(height: MediaQuery.of(context).size.height * 0.05,),
+                      Text(event3,
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+                      Text(eventInfo3),
+                      SizedBox(height: MediaQuery.of(context).size.height * 0.05,),
+                      Text(event4,
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+                      Text(eventInfo4),
+                      SizedBox(height: MediaQuery.of(context).size.height * 0.05,),
+                      Text(event5,
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+                      Text(eventInfo5),
+                      SizedBox(height: MediaQuery.of(context).size.height * 0.05,),
+                      Text(event6,
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+                      Text(eventInfo6),
+                      SizedBox(height: MediaQuery.of(context).size.height * 0.05,),
+                      Text(event7,
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+                      Text(eventInfo7),
+                      SizedBox(height: MediaQuery.of(context).size.height * 0.05,),
+                      Text(event8,
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+                      Text(eventInfo8),
+                      SizedBox(height: MediaQuery.of(context).size.height * 0.05,),
+                      Text(event9,
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+                      Text(eventInfo9),
+                      SizedBox(height: MediaQuery.of(context).size.height * 0.05,),
+                    ],
+                  )
+                  )
+                  )
               ],
-          
+            )),
+            ),
+            )
+                ),
+              const Center(child: Text('Alert and Crime'))
+              ],
           )
           ),
-          
-          const Center(child: Text('Alert and Crime'))
-        ],
-        )
-        )
+    
         );
   }
-  /*
-  @override 
-  Widget build(BuildContext context) { 
-    return Scaffold( 
-      
-      backgroundColor: Color.fromRGBO(198, 218, 231, 100),
-      appBar: AppBar(backgroundColor: Color.fromRGBO(198, 218, 231, 100),
-        title: Row(mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          const Text('Home Page'),
-          Spacer(),
-          Image.asset('images/icon_image.png',
-          fit:BoxFit.contain,
-          height:60),
-          
-        ],),
-        ),
-        
-       
-      body: Padding( 
-        padding: const EdgeInsets.all(16.0), 
-        
-        child: Center( 
-            child: Column( 
-          mainAxisAlignment: MainAxisAlignment.center, 
-          children: [ 
-            
-              Container(color: Colors.white, child: Row(
-              ),
-              ),
-              
-              Container( color: Color.fromRGBO(198, 218, 231, 100),
-                child: Row(children: [
-                  SizedBox(height: 30),
-                  Text('current quarter')
-                ]),
-              ),
-
-            // if isLoading is true show loader 
-            // else show Column of Texts 
-            isLoading 
-                ? CircularProgressIndicator() 
-                : Container( color: Colors.white,
-                    child: Row( mainAxisAlignment: MainAxisAlignment.start,
-                      children: [ 
-                      Column(
-                        children: [
-                          Text(event1, 
-                          style: TextStyle( 
-                              fontSize: 20, fontWeight: FontWeight.bold)), 
-                          Text(eventInfo1, style: TextStyle(fontSize:12, fontWeight: FontWeight.normal)),
-                      SizedBox( 
-                        height: MediaQuery.of(context).size.height * 0.15, 
-                      ),
-                      Text(event2, 
-                          style: TextStyle( 
-                              fontSize: 20, fontWeight: FontWeight.bold)), 
-                              Text(eventInfo2, style: TextStyle(fontSize:12,
-                               fontWeight: FontWeight.normal)),
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.15, 
-                      ), 
-                      Text(event3, 
-                          style: TextStyle( 
-                              fontSize: 20, fontWeight: FontWeight.bold)), 
-                              Text(eventInfo3, style: TextStyle(fontSize:12,
-                               fontWeight: FontWeight.normal)),
-                        ],
-                      ),
-                       
-                    ], 
-                  ),
-                ), 
-            SizedBox(height: MediaQuery.of(context).size.height * 0.08), 
-            MaterialButton( 
-             onPressed: () async { 
-                 
-              // Setting isLoading true to show the loader 
-                setState(() { 
-                  isLoading = true; 
-                }); 
-                  
-                // Awaiting for web scraping function 
-                // to return list of strings 
-                final response = await extractData(); 
-                  
-                // Setting the received strings to be 
-                // displayed and making isLoading false 
-                // to hide the loader 
-                setState(() { 
-                  event1 = response[0]; 
-                  eventInfo1 = response[1];
-
-                  event2 = response[2];
-                  eventInfo2 = response[3];
-
-                  event3 = response[4];
-                  eventInfo3 = response[5]; 
-                  isLoading = false; 
-                }); 
-              }, 
-              child: Text( 
-                'Get Events', 
-                style: TextStyle(color: Colors.white), 
-              ), 
-              color: Colors.blue, 
-            ) 
-          ], 
-        )), 
-      ),*/ 
-    //); 
   } 
 
