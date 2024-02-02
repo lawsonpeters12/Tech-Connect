@@ -28,7 +28,7 @@
             "type": "dart",
             "flutterMode": "release"
         },
-        {
+        /*{
             "name": "webscraper config",
             "request": "launch",
             "type": "dart",
@@ -37,6 +37,6 @@
                 "--web-browser-flag",
                 "--disable-web-security"
             ]
-        }
+        }*/
     ]
 }
