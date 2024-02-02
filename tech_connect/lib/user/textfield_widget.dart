@@ -46,6 +46,7 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
         controller: controller,
         decoration: InputDecoration(border: OutlineInputBorder()),
         maxLines: widget.maxLines,
+        onChanged: widget.onChanged,
       ),
     ],
   );

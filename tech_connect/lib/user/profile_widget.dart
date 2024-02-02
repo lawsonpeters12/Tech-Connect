@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 
-
 class ProfileWidget extends StatelessWidget {
     final String imagePath;
     final bool isEdit;
@@ -61,6 +60,7 @@ class ProfileWidget extends StatelessWidget {
 
     )
   );
+
   Widget buildCircle({
     required child,
     required double all,

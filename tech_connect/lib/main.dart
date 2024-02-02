@@ -5,14 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:tech_connect/auth/auth.dart';
 import 'package:tech_connect/firebase_options.dart';
 import 'package:tech_connect/pages/first_page.dart';
+import 'package:tech_connect/user/user_preferences.dart';
 // for coding and debugging
 import 'pages/home_page.dart';
 import 'pages/user_page.dart';
 import 'pages/edit_user_page.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await UserPreferences.init();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );

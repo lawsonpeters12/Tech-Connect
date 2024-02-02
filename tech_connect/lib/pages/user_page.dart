@@ -44,7 +44,7 @@ class _UserPageState extends State<UserPage> {
 // add logout button
   @override
   Widget build(BuildContext context){
-    final user = UserPreferences.myUser;
+    final user = UserPreferences.getUser();
     
     return Scaffold(
       appBar: buildAppBar(context),
@@ -55,9 +55,10 @@ class _UserPageState extends State<UserPage> {
           ProfileWidget(
             imagePath: user.imagePath,
             onClicked: () async {
-              Navigator.of(context).push(
+                await Navigator.of(context).push(
                 MaterialPageRoute(builder: (context) => EditUserPage(),)
               );
+              setState(() {});
             },
           ),
           const SizedBox(height: 24),

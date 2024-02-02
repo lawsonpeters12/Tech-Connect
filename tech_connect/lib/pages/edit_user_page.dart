@@ -29,21 +29,31 @@ class _EditUserPageState extends State<EditUserPage> {
          TextFieldWidget(
           label: 'Full Name',
           text: user.name,
-          onChanged:(name) {},
+          onChanged:(name) => user = user.copy(name:name),
          ),
          const SizedBox(height: 24,),
          TextFieldWidget(
           label: 'email',
           text: user.email,
-          onChanged:(email) {},
+          onChanged:(email) => user = user.copy(email:email),
          ),
          const SizedBox(height: 24,),
          TextFieldWidget(
           label: 'Bio',
           text: user.about,
           maxLines:5,
-          onChanged:(about) {},
+          onChanged:(about) => user = user.copy(about:about),
          ),
+         const SizedBox(height: 24,),
+         MaterialButton(onPressed: () {
+          UserPreferences.setUser(user);
+          Navigator.of(context).pop();
+         },
+         color: Colors.blue,
+         shape: const BeveledRectangleBorder(),
+         child: const Text('Save'),
+         
+         )
       ],
     )
   );

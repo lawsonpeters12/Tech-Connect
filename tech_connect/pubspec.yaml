@@ -42,6 +42,15 @@ dependencies:
   cloud_firestore: ^4.14.0
   dom_tools: ^2.2.0
 
+  # persist local data in user profile editting
+  shared_preferences: ^2.0.5
+
+  # pick image for editing the user profile
+  image_picker: ^0.7.4
+
+  # storing image for the user profile
+  path_provider: ^2.0.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
