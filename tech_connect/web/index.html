@@ -33,6 +33,27 @@
   <link rel="manifest" href="manifest.json">
 
   <script>
+    window.addEventListener('load', function (ev) {
+      // var loading = document.querySelector('#loading');
+      // loading.textContent = "Loading entrypoint...";
+      // Download main.dart.js
+      _flutter.loader.loadEntrypoint({
+        serviceWorker: {
+          serviceWorkerVersion: serviceWorkerVersion,
+        },
+        onEntrypointLoaded: async function (engineInitializer) {
+          let appRunner = await engineInitializer.initializeEngine({
+            hostElement: document.querySelector("#flutter_app"),
+            renderer: "html"
+          }).then(function (appRunner) {
+            return appRunner.runApp();
+          });
+        }
+      })
+    });
+  </script>
+
+  <script>
     // The value below is injected by flutter build, do not touch.
     const serviceWorkerVersion = null;
   </script>
