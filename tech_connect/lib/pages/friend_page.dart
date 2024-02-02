@@ -17,24 +17,29 @@ class FriendPage extends StatelessWidget {
             icon: Icon(Icons.arrow_back),
             onPressed: () {
               Navigator.pop(context);
-            }
+            },
           ),
-          title: Text('Friend Page'),
+          title: Row(
+            children: [
+              Text('Friend Page'),
+              Spacer(),
+              Image.asset(
+                "images/logo.png",
+                fit: BoxFit.contain,
+                height: 60,
+              ),
+              SizedBox(width: 8), // Adjust the spacing as needed
+            ],
+          ),
           actions: [
-            Image.asset(
-              "images/logo.png",
-              fit: BoxFit.contain,
-              height: 60,
-            ),
-            Spacer(),
             IconButton(
               icon: const Icon(Icons.search),
-              onPressed: (){
+              onPressed: () {
                 showSearch(
                   context: context,
                   delegate: MySearchDelegate(),
                 );
-              }
+              },
             ),
             SizedBox(width: 20),
           ],
@@ -77,50 +82,49 @@ class FriendPage extends StatelessWidget {
 
 class MySearchDelegate extends SearchDelegate {
   @override
-  ThemeData appBarTheme(BuildContext context){
+  ThemeData appBarTheme(BuildContext context) {
     return Theme.of(context).copyWith(
       scaffoldBackgroundColor: Color.fromRGBO(198, 218, 231, 100),
-    ); 
+    );
   }
-  
-  List<String> searchResults = [
-      "Apple",
-      "Banana",
-      "Orange"
-    ];
-  
-  @override
-  Widget? buildLeading(BuildContext context) => IconButton(
-    icon: const Icon(Icons.arrow_back),
-    onPressed: () => close(context,null),
-  );
 
-  @override
-  List<Widget>? buildActions(BuildContext context) => [
-    IconButton(
-      icon: const Icon(Icons.clear),
-      onPressed: (){
-        if (query.isEmpty){
-          close(context,null);
-        }
-        else{
-        query = '';
-        }
-      },
-    )
+  List<String> searchResults = [
+    "Apple",
+    "Banana",
+    "Orange",
   ];
 
   @override
-  Widget buildResults(BuildContext context) => Center(
-    child: Text(
-      query,
-      style: const TextStyle(fontSize: 64, fontWeight: FontWeight.normal),
-    )
-  );
+  Widget? buildLeading(BuildContext context) => IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () => close(context, null),
+      );
 
-  @override 
-  Widget buildSuggestions(BuildContext context){
-    List<String> suggestions = searchResults.where((searchResult){
+  @override
+  List<Widget>? buildActions(BuildContext context) => [
+        IconButton(
+          icon: const Icon(Icons.clear),
+          onPressed: () {
+            if (query.isEmpty) {
+              close(context, null);
+            } else {
+              query = '';
+            }
+          },
+        )
+      ];
+
+  @override
+  Widget buildResults(BuildContext context) => Center(
+        child: Text(
+          query,
+          style: const TextStyle(fontSize: 64, fontWeight: FontWeight.normal),
+        ),
+      );
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    List<String> suggestions = searchResults.where((searchResult) {
       final result = searchResult.toLowerCase();
       final input = query.toLowerCase();
 
@@ -129,17 +133,16 @@ class MySearchDelegate extends SearchDelegate {
 
     return ListView.builder(
       itemCount: suggestions.length,
-      itemBuilder: (context, index){
+      itemBuilder: (context, index) {
         final suggestion = suggestions[index];
 
         return ListTile(
-          title: Text(suggestion),
-          onTap: (){
-            query = suggestion;
+            title: Text(suggestion),
+            onTap: () {
+              query = suggestion;
 
-            showResults(context);
-          }
-        );
+              showResults(context);
+            });
       },
     );
   }
