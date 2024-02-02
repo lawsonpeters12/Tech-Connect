@@ -20,7 +20,7 @@ class _RegisterPageState extends State<RegisterPage> {
   // sign up button
   void signUp() async {
     if (passwordTextController.text != confirmPasswordTextController.text){
-     displayMessage("Passwords do not match!");
+     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Passwords do not match!")));
     }
     
     try {
@@ -29,18 +29,10 @@ class _RegisterPageState extends State<RegisterPage> {
         password: passwordTextController.text
       );
     } on FirebaseAuthException catch (e) {
-      displayMessage(e.code);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.code)));
     }
   }
 
-    void displayMessage(String message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(message),
-      )
-    );
-  }
 
   @override
   Widget build(BuildContext context){
