@@ -5,7 +5,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'dart:async';
-import 'package:path/path.dart' as Path;
 
 class IDPage extends StatefulWidget {
   const IDPage({Key? key}) : super(key: key);
@@ -64,14 +63,15 @@ void _sendMessage() async {
   }
 }
 
-
-  void _showChatTopicsPopup() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Select Chat Topic'),
-          content: Column(
+void _showChatTopicsPopup() {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Select Chat Topic'),
+        content: Container(
+          child: Column(
+            mainAxisSize: MainAxisSize.min, 
             children: [
               ElevatedButton(
                 onPressed: () {
@@ -87,13 +87,14 @@ void _sendMessage() async {
                 },
                 child: Text('Lost Item Chat'),
               ),
-              // Add more buttons for other chat topics as needed
             ],
           ),
-        );
-      },
-    );
-  }
+        ),
+      );
+    },
+  );
+}
+
 
   void _updateChatTopic(String newChatTopic) {
     setState(() {
