@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:tech_connect/components/click_button.dart';
 import 'package:tech_connect/components/text_field.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 class RegisterPage extends StatefulWidget {
   final Function()? onTap;
@@ -24,10 +26,18 @@ class _RegisterPageState extends State<RegisterPage> {
     }
     
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      UserCredential newUser = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailTextController.text, 
         password: passwordTextController.text
       );
+
+      // Access the user's email
+      String userEmail = newUser.user?.email ?? '';
+
+      // Add user's email to Firestore
+      await FirebaseFirestore.instance.collection('users').add({
+        'email': userEmail
+      });
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.code)));
     }
