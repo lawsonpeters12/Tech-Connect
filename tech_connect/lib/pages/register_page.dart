@@ -35,7 +35,7 @@ class _RegisterPageState extends State<RegisterPage> {
       String userEmail = newUser.user?.email ?? '';
 
       // Add user's email to Firestore
-      await FirebaseFirestore.instance.collection('users').add({
+      await FirebaseFirestore.instance.collection('users').doc(userEmail).set({
         'email': userEmail
       });
     } on FirebaseAuthException catch (e) {

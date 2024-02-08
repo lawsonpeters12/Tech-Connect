@@ -1,110 +1,133 @@
-// ignore_for_file: prefer_const_constructors
-
-import 'package:firebase_auth/firebase_auth.dart';
-//import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-//import 'package:tech_connect/components/click_button.dart';
-import 'package:tech_connect/pages/edit_user_page.dart';
-//import 'package:tech_connect/pages/register_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tech_connect/user/appbar_widget.dart';
 import 'package:tech_connect/user/user_preferences.dart';
 import 'package:tech_connect/user/profile_widget.dart';
 import 'package:tech_connect/user/user.dart';
 import 'package:tech_connect/user/numbers_widget.dart';
-//import 'package:tech_connect/main.dart';
+import 'package:tech_connect/pages/edit_user_page.dart';
 
-/*
-FirebaseAuth _auth = FirebaseAuth.instance;
-final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-*/
-
-class UserPage extends StatefulWidget{
-  const UserPage({super.key});
+class UserPage extends StatefulWidget {
+  const UserPage({Key? key}) : super(key: key);
 
   @override
-  State<UserPage> createState() => _UserPageState();
+  _UserPageState createState() => _UserPageState();
 }
 
 class _UserPageState extends State<UserPage> {
-  // log user out
-  void logOut() async {
-    await FirebaseAuth.instance.signOut();
-  }
-// checks if the user doc exists
-/*
-// TODO: get access to fire store and work on this
-  Future checkUserInFirestore(User user, String username) async {
-    DocumentSnapshot doc = await _firestore.collection('users').doc(user.uid).get();
+  late Future<UserInf> userFuture;
 
-    if(!doc.exists){
-      print('User Does Not Exist');
-    }
-  }
-  */
-// add logout button
   @override
-  Widget build(BuildContext context){
-    final user = UserPreferences.getUser();
-    
+  void initState() {
+    super.initState();
+    userFuture = fetchUserData();
+  }
+
+  Future<UserInf> fetchUserData() async {
+    // Get the current user's email
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    String userEmail = currentUser?.email ?? '';
+
+    // Retrieve the user document from Firestore based on the email
+    DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userEmail)
+        .get();
+
+    // Extract user information from the document
+    Map<String, dynamic> userData = userSnapshot.data() as Map<String, dynamic>;
+    return UserInf(
+      imagePath: 'images/icon_image.png',
+      name: userData['name'] ?? '',
+      major: userData['major'] ?? '',
+      email: userEmail,
+      about: userData['about'] ?? '',
+    );
+  }
+
+  void editUserPage() {
+    // Navigate to the EditUserPage
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) => EditUserPage()));
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBar(context),
       backgroundColor: Color.fromRGBO(198, 218, 231, 100),
-      body: ListView(
-        physics: BouncingScrollPhysics(),
-        children: [
-          ProfileWidget(
-            imagePath: user.imagePath,
-            onClicked: () async {
-                await Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => EditUserPage(),)
-              );
-              setState(() {});
-            },
-          ),
-          const SizedBox(height: 24),
-          buildName(user),
-          NumbersWidget(),
-          const SizedBox(height: 48),
-          buildAbout(user),
-        ],
-      )
-      
+      body: FutureBuilder<UserInf>(
+        future: userFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // Display loading indicator while fetching user data
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (snapshot.hasError) {
+            // Handle error state
+            return Center(
+              child: Text('Error fetching user data'),
+            );
+          } else {
+            // User data loaded successfully, display user information
+            final user = snapshot.data!;
+            return ListView(
+              physics: BouncingScrollPhysics(),
+              children: [
+                ProfileWidget(
+                  imagePath: user.imagePath,
+                  onClicked: () async {
+                    editUserPage();
+                  },
+                ),
+                const SizedBox(height: 24),
+                buildName(user),
+                NumbersWidget(),
+                const SizedBox(height: 48),
+                buildAbout(user),
+              ],
+            );
+          }
+        },
+      ),
     );
   }
 
   Widget buildName(UserInf user) => Column(
-    children: [
-      Text(
-        user.name,
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-      ),
-      const SizedBox(height: 4),
-      Text(
-        user.major,
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-      ),
-      const SizedBox(height: 4),
-      Text( 
-        user.email,
-        style:TextStyle(color: Colors.grey)
-      ),
-    ],
-  );
+        children: [
+          Text(
+            user.name,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            user.major,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            user.email,
+            style: TextStyle(color: Colors.grey),
+          ),
+        ],
+      );
 
   Widget buildAbout(UserInf user) => Container(
-    padding: EdgeInsets.symmetric(horizontal: 48),
-    child: Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        'Bio',
-        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-      ),
-      const SizedBox(height: 16,),
-      Text(user.about,
-      style: TextStyle(fontSize:16, height: 1.4),
-      )
-    ],
-  )
-  );
+        padding: EdgeInsets.symmetric(horizontal: 48),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Bio',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              user.about,
+              style: TextStyle(fontSize: 16, height: 1.4),
+            )
+          ],
+        ),
+      );
 }
