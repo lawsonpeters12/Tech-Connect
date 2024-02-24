@@ -1,7 +1,6 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:tech_connect/pages/other_user_page.dart';
 
 class FriendPage extends StatelessWidget {
   const FriendPage({super.key});
@@ -137,36 +136,42 @@ class MySearchDelegate extends SearchDelegate {
     );
   }
 
-@override
-Widget buildSuggestions(BuildContext context) {
-  return FutureBuilder<List<String>>(
-    future: getUserEmails(),
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return CircularProgressIndicator();
-      } else {
-        searchResults = snapshot.data!;
-        List<String> suggestions = searchResults.where((searchResult) {
-          final result = searchResult.toLowerCase();
-          final input = query.toLowerCase();
-          return result.contains(input);
-        }).toList();
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return FutureBuilder<List<String>>(
+      future: getUserEmails(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        } else {
+          searchResults = snapshot.data!;
+          List<String> suggestions = searchResults.where((searchResult) {
+            final result = searchResult.toLowerCase();
+            final input = query.toLowerCase();
+            return result.contains(input);
+          }).toList();
 
-        return ListView.builder(
-          itemCount: suggestions.length,
-          itemBuilder: (context, index) {
-            final suggestion = suggestions[index];
-            return ListTile(
-              title: Text(suggestion),
-              onTap: () {
-                query = suggestion;
-                showResults(context);
-              },
-            );
-          },
-        );
-      }
-    },
-  );
-}
+          return ListView.builder(
+            itemCount: suggestions.length,
+            itemBuilder: (context, index) {
+              final suggestion = suggestions[index];
+              return ListTile(
+                title: Text(suggestion),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => OtherUserPage(
+                        otherUserEmail: suggestion,
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          );
+        }
+      },
+    );
+  }
 }

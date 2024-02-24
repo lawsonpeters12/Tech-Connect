@@ -38,7 +38,7 @@ class _UserPageState extends State<UserPage> {
     // Extract user information from the document
     Map<String, dynamic> userData = userSnapshot.data() as Map<String, dynamic>;
     return UserInf(
-      imagePath: 'images/icon_image.png',
+      imagePath: userData['profile_picture'] ?? '',
       name: userData['name'] ?? '',
       major: userData['major'] ?? '',
       email: userEmail,
@@ -47,8 +47,15 @@ class _UserPageState extends State<UserPage> {
   }
 
   void editUserPage() {
-    // Navigate to the EditUserPage
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => EditUserPage()));
+    // Navigate to the EditUserPage and pass a function to update user data
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) => EditUserPage(updateUserData: updateUser)));
+  }
+
+  void updateUser(UserInf newUser) {
+    // Update user data and trigger a rebuild
+    setState(() {
+      userFuture = Future.value(newUser);
+    });
   }
 
   @override
