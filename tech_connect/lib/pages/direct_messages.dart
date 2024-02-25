@@ -19,6 +19,7 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
   TextEditingController _messageController = TextEditingController();
   late Future<void> _initializeControllerFuture;
   late StreamController<QuerySnapshot> _messageStreamController;
+  String otherUserName = '';
 
   File? imageFile;
   String? fileName;
@@ -28,6 +29,7 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
     super.initState();
     _messageStreamController = StreamController<QuerySnapshot>();
     _updateMessageStream();
+    _getOtherUserName();
   }
 
   void dispose() {
@@ -41,7 +43,7 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
       User? user = FirebaseAuth.instance.currentUser;
       String userEmail = user?.email ?? 'anonymous';
       List<String> users = [userEmail, widget.otherUserEmail];
-      users.sort(); // Sort the users alphabetically
+      users.sort();
 
       CollectionReference directMessages =
           FirebaseFirestore.instance.collection('directmessages');
@@ -51,7 +53,7 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
 
       try {
         await directMessages.add({
-          'users': '${users[0]}_${users[1]}', // Concatenate emails with underscore
+          'users': '${users[0]}_${users[1]}', // Store the users in a DM conversation as a concatenated string with an underscore to separate them.
           'message': message,
           'sender': userEmail, // Store sender's email
           'timestamp': serverTimestamp,
@@ -60,14 +62,31 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
 
         // Clear the input field
         _messageController.clear();
-        
-        // Update the message stream immediately after sending the message
+
         _updateMessageStream();
       } catch (e) {
         print('Error sending message: $e');
       }
     }
   }
+
+void _getOtherUserName() async {
+  try {
+    DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(widget.otherUserEmail)
+        .get();
+
+    if (documentSnapshot.exists) {
+      Map<String, dynamic> userData = documentSnapshot.data() as Map<String, dynamic>;
+      setState(() {
+        otherUserName = userData['name'] ?? '';
+      });
+    }
+  } catch (e) {
+    print('Error fetching other user name: $e');
+  }
+}
 
   void _showCameraOptions() {
     showDialog(
@@ -115,17 +134,21 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
     FirebaseFirestore.instance
       .collection('directmessages')
       .where('users', isEqualTo: _generateUsersString())
+      .orderBy('timestamp', descending: true)
       .snapshots()
       .listen((data) {
         _messageStreamController.add(data);
       });
   }
 
+
+// The users in a DM conversation are stored as a concatenated string in alphabetical order. 
+// This is the unique identifer for a particular conversation.
   String _generateUsersString() {
     User? user = FirebaseAuth.instance.currentUser;
     String userEmail = user?.email ?? 'anonymous';
     List<String> users = [userEmail, widget.otherUserEmail];
-    users.sort(); // Sort the users alphabetically
+    users.sort(); 
     return '${users[0]}_${users[1]}';
   }
 
@@ -180,7 +203,7 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.otherUserEmail), // Display the name of the user you're messaging
+        title: Text(otherUserName), // Display the name of the user you're messaging
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -206,9 +229,9 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
                             .format(context)
                         : "00:00";
 
-                    var userDisplayName = messageData['users'][0] == FirebaseAuth.instance.currentUser?.email
+                    var userDisplayName = messageData['sender'] == FirebaseAuth.instance.currentUser?.email
                         ? 'You'
-                        : widget.otherUserEmail;
+                        : otherUserName;
 
                     if (messageData['type'] == 'text') {
                       messageWidgets.add(
@@ -228,7 +251,7 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
                               ),
                             ),
                             subtitle: Text(
-                              'Sender: ${messageData['sender']} - $formattedTime', // Display sender's email
+                              formattedTime, // Display sender's email
                               style: TextStyle(
                                 color: Colors.grey,
                               ),
@@ -258,11 +281,11 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
                               ),
                               ListTile(
                                 title: Image.network(
-                                  messageData['message'], // Assuming 'message' contains the image URL
-                                  height: 100, // Adjust the height as needed
+                                  messageData['message'], 
+                                  height: 150, // Adjust the height as needed
                                 ),
                                 subtitle: Text(
-                                  'Sender: ${messageData['sender']} - $formattedTime', // Display sender's email
+                                  formattedTime, 
                                   style: TextStyle(
                                     color: Colors.grey,
                                   ),
