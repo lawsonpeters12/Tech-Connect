@@ -33,7 +33,7 @@ class _OtherUserPageState extends State<OtherUserPage> {
     Map<String, dynamic> otherUserData =
         otherUserSnapshot.data() as Map<String, dynamic>;
     return UserInf(
-      imagePath: otherUserData['profile_picture'] ?? '',
+      imagePath: otherUserData['profile_picture'] ?? 'https://firebasestorage.googleapis.com/v0/b/techconnect-42543.appspot.com/o/images%2Fdefault_user.PNG?alt=media&token=c592af94-a160-43c1-8f2b-29a7123756dd',
       name: otherUserData['name'] ?? '',
       major: otherUserData['major'] ?? '',
       email: otherUserData['email'] ?? '',

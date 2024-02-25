@@ -38,7 +38,7 @@ class _UserPageState extends State<UserPage> {
     // Extract user information from the document
     Map<String, dynamic> userData = userSnapshot.data() as Map<String, dynamic>;
     return UserInf(
-      imagePath: userData['profile_picture'] ?? '',
+      imagePath: userData['profile_picture'] ?? 'https://firebasestorage.googleapis.com/v0/b/techconnect-42543.appspot.com/o/images%2Fdefault_user.PNG?alt=media&token=c592af94-a160-43c1-8f2b-29a7123756dd',
       name: userData['name'] ?? '',
       major: userData['major'] ?? '',
       email: userEmail,
