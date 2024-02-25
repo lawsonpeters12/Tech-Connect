@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tech_connect/user/appbar_widget.dart';
-import 'package:tech_connect/user/user_preferences.dart';
 import 'package:tech_connect/user/profile_widget.dart';
 import 'package:tech_connect/user/user.dart';
 import 'package:tech_connect/user/numbers_widget.dart';

@@ -189,7 +189,7 @@ void _updateMessageStream(String chatTopic) {
                       icon: Icon(Icons.image),
                       onPressed: () {
                         Navigator.pop(context);
-                        _openGallery(); // Call your existing method for opening gallery
+                        _openGallery(); 
                       },
                     ),
                     Text('Choose from gallery'),

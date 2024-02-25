@@ -5,7 +5,10 @@ import 'package:tech_connect/user/appbar_widget.dart';
 import 'package:tech_connect/user/profile_widget.dart';
 import 'package:tech_connect/user/user.dart';
 import 'package:tech_connect/user/textfield_widget.dart';
-import 'package:tech_connect/user/user_preferences.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'dart:async';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class EditUserPage extends StatefulWidget {
   final Function(UserInf) updateUserData;
@@ -19,6 +22,8 @@ class EditUserPage extends StatefulWidget {
 class _EditUserPageState extends State<EditUserPage> {
   late UserInf user;
   bool _isLoading = true;
+  File? imageFile;
+  String? fileName;
 
   @override
   void initState() {
@@ -41,7 +46,7 @@ class _EditUserPageState extends State<EditUserPage> {
     Map<String, dynamic> userData = userSnapshot.data() as Map<String, dynamic>;
     setState(() {
       user = UserInf(
-        imagePath: userData['imagePath'] ?? '',
+        imagePath: userData['profile_picture'] ?? '',
         name: userData['name'] ?? '',
         major: userData['major'] ?? '',
         email: userData['email'] ?? '',
@@ -50,6 +55,52 @@ class _EditUserPageState extends State<EditUserPage> {
       _isLoading = false;
     });
   }
+
+    Future<void> _openGallery() async {
+    ImagePicker _picker = ImagePicker();
+
+    await _picker.pickImage(source: ImageSource.gallery).then((xFile) {
+      if (xFile != null) {
+        imageFile = File(xFile.path);
+      }
+      _uploadProfilePictureToFirebase();
+    });
+  }
+
+  Future<void> _uploadProfilePictureToFirebase() async {
+  User? currentUser = FirebaseAuth.instance.currentUser;
+  String userEmail = currentUser?.email ?? 'anonymous';
+
+  String timestamp = DateTime.now().toUtc().toIso8601String();
+  fileName = '$userEmail-$timestamp.jpg';
+
+  var ref = FirebaseStorage.instance.ref().child('images').child(fileName!);
+
+  var uploadTask = await ref.putFile(imageFile!);
+
+  String imageUrl = await uploadTask.ref.getDownloadURL();
+
+  uploadProfilePictureToFirestore(imageUrl, currentUser!);
+}
+
+void uploadProfilePictureToFirestore(String imageUrl, User currentUser) async {
+  String userEmail = currentUser.email ?? 'anonymous';
+
+  await FirebaseFirestore.instance.collection('users').doc(userEmail).update({
+    'profile_picture': imageUrl,
+  });
+
+  // Create a new UserInf instance with the new profile picture so the picture is immediately shown on user_page when this page is popped
+  UserInf updatedUser = UserInf(
+    imagePath: imageUrl,
+    name: user.name,
+    major: user.major,
+    email: user.email,
+    about: user.about,
+  );
+
+  widget.updateUserData(updatedUser);
+}
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -63,7 +114,9 @@ class _EditUserPageState extends State<EditUserPage> {
                   ProfileWidget(
                     imagePath: user.imagePath,
                     isEdit: true,
-                    onClicked: () async {},
+                    onClicked: () async {
+                      await _openGallery();
+                    },
                   ),
                   const SizedBox(height: 24),
                   TextFieldWidget(
@@ -88,8 +141,7 @@ class _EditUserPageState extends State<EditUserPage> {
                   MaterialButton(
                     onPressed: () async {
                       await _updateUserData();
-                      // Call the update function passed from UserPage
-                      widget.updateUserData(user);
+                      // Close the EditUserPage
                       Navigator.of(context).pop();
                     },
                     color: Colors.blue,
