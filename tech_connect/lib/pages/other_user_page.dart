@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tech_connect/user/appbar_widget.dart';
 import 'package:tech_connect/user/profile_widget.dart';
 import 'package:tech_connect/user/user.dart';
+import 'package:tech_connect/pages/direct_messages.dart'; // Import the DirectMessagePage
+
 
 class OtherUserPage extends StatefulWidget {
   final String otherUserEmail;
@@ -82,6 +84,7 @@ class _OtherUserPageState extends State<OtherUserPage> {
                     ),
                     ElevatedButton(
                       onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => DirectMessagePage(otherUserEmail: otherUser.email)));
                       },
                       child: Text('Message'),
                     ),
