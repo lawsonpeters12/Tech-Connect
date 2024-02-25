@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:tech_connect/components/click_button.dart';
 import 'package:tech_connect/components/text_field.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 class RegisterPage extends StatefulWidget {
   final Function()? onTap;
@@ -20,27 +22,31 @@ class _RegisterPageState extends State<RegisterPage> {
   // sign up button
   void signUp() async {
     if (passwordTextController.text != confirmPasswordTextController.text){
-     displayMessage("Passwords do not match!");
+     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Passwords do not match!")));
     }
     
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      UserCredential newUser = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailTextController.text, 
         password: passwordTextController.text
       );
+
+      // Access the user's email
+      String userEmail = newUser.user?.email ?? '';
+
+      // Add user's email to Firestore
+      await FirebaseFirestore.instance.collection('users').doc(userEmail).set({
+        'email': userEmail,
+        'about': "Nothing is known about this user yet",
+        'major': "Undeclared",
+        'profile_picture': "https://firebasestorage.googleapis.com/v0/b/techconnect-42543.appspot.com/o/images%2Fdefault_user.PNG?alt=media&token=c592af94-a160-43c1-8f2b-29a7123756dd",
+        'name': userEmail
+      });
     } on FirebaseAuthException catch (e) {
-      displayMessage(e.code);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.code)));
     }
   }
 
-    void displayMessage(String message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(message),
-      )
-    );
-  }
 
   @override
   Widget build(BuildContext context){

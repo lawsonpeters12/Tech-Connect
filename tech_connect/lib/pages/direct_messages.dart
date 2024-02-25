@@ -6,17 +6,18 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'dart:async';
 
-class IDPage extends StatefulWidget {
-  const IDPage({Key? key}) : super(key: key);
+class DirectMessagePage extends StatefulWidget {
+  final String otherUserEmail;
+
+  DirectMessagePage({required this.otherUserEmail});
 
   @override
-  _IDPageState createState() => _IDPageState();
+  _DirectMessagePageState createState() => _DirectMessagePageState();
 }
 
-class _IDPageState extends State<IDPage> {
+class _DirectMessagePageState extends State<DirectMessagePage> {
   TextEditingController _messageController = TextEditingController();
   late Future<void> _initializeControllerFuture;
-  String currentChatTopic = "main_chat";
   late StreamController<QuerySnapshot> _messageStreamController;
 
   File? imageFile;
@@ -26,7 +27,7 @@ class _IDPageState extends State<IDPage> {
   void initState() {
     super.initState();
     _messageStreamController = StreamController<QuerySnapshot>();
-    _updateMessageStream(currentChatTopic);
+    _updateMessageStream();
   }
 
   void dispose() {
@@ -34,131 +35,38 @@ class _IDPageState extends State<IDPage> {
     super.dispose();
   }
 
-void _sendMessage() async {
-  String message = _messageController.text;
-  if (message.isNotEmpty) {
-    User? user = FirebaseAuth.instance.currentUser;
-    String userEmail = user?.email ?? 'anonymous';
+  void _sendMessage() async {
+    String message = _messageController.text;
+    if (message.isNotEmpty) {
+      User? user = FirebaseAuth.instance.currentUser;
+      String userEmail = user?.email ?? 'anonymous';
+      List<String> users = [userEmail, widget.otherUserEmail];
+      users.sort(); // Sort the users alphabetically
 
-    CollectionReference messages =
-        FirebaseFirestore.instance.collection('messages');
+      CollectionReference directMessages =
+          FirebaseFirestore.instance.collection('directmessages');
 
-    // Get server timestamp before adding the message
-    Timestamp serverTimestamp = Timestamp.now();
+      // Get server timestamp before adding the message
+      Timestamp serverTimestamp = Timestamp.now();
 
-    try {
-      await messages.add({
-        'user': userEmail,
-        'message': message,
-        'timestamp': serverTimestamp,
-        'chat_topic': currentChatTopic,
-        'type': "text",
-      });
+      try {
+        await directMessages.add({
+          'users': '${users[0]}_${users[1]}', // Concatenate emails with underscore
+          'message': message,
+          'sender': userEmail, // Store sender's email
+          'timestamp': serverTimestamp,
+          'type': "text",
+        });
 
-      // Clear the input field
-      _messageController.clear();
-    } catch (e) {
-      print('Error sending message: $e');
-    }
-  }
-}
-
-void _showChatTopicsPopup() {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Select Chat Topic'),
-        content: Container(
-          child: Column(
-            mainAxisSize: MainAxisSize.min, 
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  _updateChatTopic("main_chat");
-                  Navigator.pop(context);
-                },
-                child: Text('Main Chat'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  _updateChatTopic("lost_item_chat");
-                  Navigator.pop(context);
-                },
-                child: Text('Lost Item Chat'),
-              ),
-            ],
-          ),
-        ),
-      );
-    },
-  );
-}
-
-
-  void _updateChatTopic(String newChatTopic) {
-    setState(() {
-      currentChatTopic = newChatTopic;
-    });
-    _updateMessageStream(newChatTopic);
-  }
-
-void _updateMessageStream(String chatTopic) {
-  FirebaseFirestore.instance
-      .collection('messages')
-      .where('chat_topic', isEqualTo: chatTopic)
-      .orderBy('timestamp', descending: true)
-      .snapshots()
-      .listen((data) {
-    _messageStreamController.add(data);
-  });
-}
-
-  Future<void> _openGallery() async {
-    ImagePicker _picker = ImagePicker();
-
-    await _picker.pickImage(source: ImageSource.gallery).then((xFile) {
-      if (xFile != null) {
-        imageFile = File(xFile.path);
+        // Clear the input field
+        _messageController.clear();
+        
+        // Update the message stream immediately after sending the message
+        _updateMessageStream();
+      } catch (e) {
+        print('Error sending message: $e');
       }
-      _uploadImageToFirebase();
-    });
-  }
-
-  Future<void> _uploadImageToFirebase() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    String userEmail = user?.email ?? 'anonymous';
-
-    String timestamp = DateTime.now().toUtc().toIso8601String();
-    fileName = '$userEmail-$timestamp.jpg';
-
-    var ref = FirebaseStorage.instance.ref().child('images').child(fileName!);
-
-    var uploadTask = await ref.putFile(imageFile!);
-
-    String imageUrl = await uploadTask.ref.getDownloadURL();
-
-    print(imageUrl);
-
-    uploadImageToFirestore(imageUrl);
-  }
-
-  void uploadImageToFirestore(String imageUrl) async {
-    User? user = FirebaseAuth.instance.currentUser;
-    String userEmail = user?.email ?? 'anonymous';
-
-    CollectionReference messages =
-        FirebaseFirestore.instance.collection('messages');
-    messages.add({
-      'user': userEmail,
-      'message': imageUrl,
-      'timestamp': FieldValue.serverTimestamp(),
-      'chat_topic': currentChatTopic, // Add chat topic field
-      'type': "image",
-    }).then((_) {
-      // After the message is added to Firestore, update the stream
-      _updateMessageStream(currentChatTopic);
-    });
+    }
   }
 
   void _showCameraOptions() {
@@ -203,30 +111,76 @@ void _updateMessageStream(String chatTopic) {
     );
   }
 
+  void _updateMessageStream() {
+    FirebaseFirestore.instance
+      .collection('directmessages')
+      .where('users', isEqualTo: _generateUsersString())
+      .snapshots()
+      .listen((data) {
+        _messageStreamController.add(data);
+      });
+  }
+
+  String _generateUsersString() {
+    User? user = FirebaseAuth.instance.currentUser;
+    String userEmail = user?.email ?? 'anonymous';
+    List<String> users = [userEmail, widget.otherUserEmail];
+    users.sort(); // Sort the users alphabetically
+    return '${users[0]}_${users[1]}';
+  }
+
+  Future<void> _openGallery() async {
+    ImagePicker _picker = ImagePicker();
+
+    await _picker.pickImage(source: ImageSource.gallery).then((xFile) {
+      if (xFile != null) {
+        imageFile = File(xFile.path);
+      }
+      _uploadImageToFirebase();
+    });
+  }
+
+  Future<void> _uploadImageToFirebase() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    String userEmail = user?.email ?? 'anonymous';
+
+    String timestamp = DateTime.now().toUtc().toIso8601String();
+    fileName = '$userEmail-$timestamp.jpg';
+
+    var ref = FirebaseStorage.instance.ref().child('images').child(fileName!);
+
+    var uploadTask = await ref.putFile(imageFile!);
+
+    String imageUrl = await uploadTask.ref.getDownloadURL();
+
+    print(imageUrl);
+
+    uploadImageToFirestore(imageUrl);
+  }
+
+  void uploadImageToFirestore(String imageUrl) async {
+    User? user = FirebaseAuth.instance.currentUser;
+    String userEmail = user?.email ?? 'anonymous';
+
+    CollectionReference directMessages =
+        FirebaseFirestore.instance.collection('directmessages');
+    directMessages.add({
+      'users': _generateUsersString(),
+      'message': imageUrl,
+      'sender': userEmail,
+      'timestamp': FieldValue.serverTimestamp(),
+      'type': "image",
+    }).then((_) {
+      // After the message is added to Firestore, update the stream
+      _updateMessageStream();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          children: [
-            IconButton(
-              icon: Icon(Icons.menu),
-              onPressed: () {
-                _showChatTopicsPopup();
-              },
-            ),
-            SizedBox(width: 16),
-            Center(
-              child: Text(
-                currentChatTopic == "main_chat"
-                    ? 'Main Chat'
-                    : 'Lost and Found',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: Color.fromRGBO(75, 97, 126, 1),
+        title: Text(widget.otherUserEmail), // Display the name of the user you're messaging
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -252,7 +206,9 @@ void _updateMessageStream(String chatTopic) {
                             .format(context)
                         : "00:00";
 
-                    var userDisplayName = messageData['user'];
+                    var userDisplayName = messageData['users'][0] == FirebaseAuth.instance.currentUser?.email
+                        ? 'You'
+                        : widget.otherUserEmail;
 
                     if (messageData['type'] == 'text') {
                       messageWidgets.add(
@@ -272,7 +228,7 @@ void _updateMessageStream(String chatTopic) {
                               ),
                             ),
                             subtitle: Text(
-                              formattedTime,
+                              'Sender: ${messageData['sender']} - $formattedTime', // Display sender's email
                               style: TextStyle(
                                 color: Colors.grey,
                               ),
@@ -306,7 +262,7 @@ void _updateMessageStream(String chatTopic) {
                                   height: 100, // Adjust the height as needed
                                 ),
                                 subtitle: Text(
-                                  formattedTime,
+                                  'Sender: ${messageData['sender']} - $formattedTime', // Display sender's email
                                   style: TextStyle(
                                     color: Colors.grey,
                                   ),
