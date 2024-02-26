@@ -55,7 +55,7 @@ class _IDPageState extends State<IDPage> {
           'timestamp': serverTimestamp,
           'chat_topic': currentChatTopic,
           'type': "text",
-          'senderDisplayName': displayName
+          'sender_display_name': displayName
         });
 
         _messageController.clear();
@@ -173,7 +173,7 @@ class _IDPageState extends State<IDPage> {
       'timestamp': FieldValue.serverTimestamp(),
       'chat_topic': currentChatTopic,
       'type': "image",
-      'senderDisplayName': displayName
+      'sender_display_name': displayName
     }).then((_) {
       _updateMessageStream(currentChatTopic);
     });
@@ -312,7 +312,7 @@ class _IDPageState extends State<IDPage> {
                             .format(context)
                         : "00:00";
 
-                    String senderName = messageData['senderDisplayName'] ?? messageData['user'];
+                    String senderName = messageData['sender_display_name'] ?? messageData['user'];
 
                     if (messageData['message'].contains(searchString)) {
                       if (messageData['type'] == 'text') {

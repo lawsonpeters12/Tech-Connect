@@ -107,21 +107,9 @@ class _UserPageState extends State<UserPage> {
       title: Text('User Profile'),
       actions: [
         IconButton(
-          icon: isDarkMode ? Icon(Icons.toggle_on) : Icon(Icons.toggle_off),
-          onPressed: () {
-            // Toggle dark mode
-            setState(() {
-              isDarkMode = !isDarkMode;
-              // Change background color
-              backgroundColor = isDarkMode ? Colors.red : Color.fromRGBO(198, 218, 231, 1);
-            });
-          },
-        ),
-        IconButton(
           icon: Icon(Icons.logout),
           onPressed: () {
             FirebaseAuth.instance.signOut();
-            // Navigate to sign-in page or any other page after sign-out
           },
         ),
       ],

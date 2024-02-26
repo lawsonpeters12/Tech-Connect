@@ -284,6 +284,8 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
                     var messageData = message.data() as Map<String, dynamic>;
                     var timestamp = messageData['timestamp'] as Timestamp?;
 
+                    String senderName = messageData['sender'] ?? 'unknown';
+
                     var formattedTime = timestamp != null
                         ? TimeOfDay.fromDateTime(timestamp.toDate())
                             .format(context)
@@ -302,7 +304,7 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
                             title: Row(
                               children: [
                                 Text(
-                                  '${messageData['sender']}: ',
+                                  '$senderName: ',
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontWeight: FontWeight.bold,
@@ -340,7 +342,7 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                messageData['sender'],
+                                senderName,
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontWeight: FontWeight.bold,
