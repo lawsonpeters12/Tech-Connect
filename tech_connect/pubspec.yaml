@@ -49,6 +49,7 @@ dependencies:
 
   # storing image for the user profile
   path_provider: ^2.0.1
+  flutter_nfc_kit: ^3.4.2
 
 dev_dependencies:
   flutter_test:
@@ -80,6 +81,8 @@ flutter:
     - images/logo.png
     - images/icon_image.png
     - images/google_icon.png
+    - images/card.png
+    - images/wireless.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 
