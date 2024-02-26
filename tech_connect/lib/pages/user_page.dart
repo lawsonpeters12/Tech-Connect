@@ -51,7 +51,7 @@ class _UserPageState extends State<UserPage> {
       backgroundColor: Color.fromRGBO(198, 218, 231, 100),
       body: ListView(
         physics: BouncingScrollPhysics(),
-        children: [
+        children: [ 
           ProfileWidget(
             imagePath: user.imagePath,
             onClicked: () async {

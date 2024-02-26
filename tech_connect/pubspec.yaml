@@ -33,6 +33,13 @@ dependencies:
   http: ^1.1.2
   html: ^0.15.4
 
+  geolocator: ^9.0.2
+
+  location:
+    git:
+      url: https://github.com/781flyingdutchman/flutterlocation.git
+      ref: V4
+      path: packages/location
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -49,6 +56,8 @@ dependencies:
 
   # storing image for the user profile
   path_provider: ^2.0.1
+  google_maps_flutter: ^2.5.3
+  permission_handler: ^11.3.0
 
 dev_dependencies:
   flutter_test:

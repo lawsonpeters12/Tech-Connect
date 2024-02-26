@@ -3,7 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>	
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Reason why we need accesss to your location</string>
 	<key>CFBundleDisplayName</key>
 	<string>Tech Connect</string>
 	<key>CFBundleExecutable</key>
