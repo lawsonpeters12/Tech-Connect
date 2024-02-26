@@ -2,6 +2,7 @@
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:tech_connect/auth/auth.dart';
 import 'package:tech_connect/firebase_options.dart';
 import 'package:tech_connect/pages/first_page.dart';
@@ -23,6 +24,29 @@ void main() async {
   runApp(const MyApp());
 }
 
+class ThemeProvider extends ChangeNotifier{
+  ThemeMode themeMode = ThemeMode.dark;
+
+  bool get DarkMode => themeMode == ThemeMode.dark;
+
+  void toggleTheme(bool isOn) {
+    themeMode = isOn ? ThemeMode.dark : ThemeMode.light;  
+    notifyListeners();
+  }
+}
+
+class myThemes {
+  static final darkTheme = ThemeData(
+    scaffoldBackgroundColor: Color.fromRGBO(203, 51, 59, 100),
+    colorScheme: ColorScheme.dark(),
+  );
+
+  static final lightTheme = ThemeData(
+      scaffoldBackgroundColor: Color.fromRGBO(198, 218, 231, 100),
+      colorScheme: ColorScheme.light(),
+  );
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -32,12 +56,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(dividerColor: Colors.black),
-      // home: AuthPage(),
-       //home: UserPage(),
-       //home: EditUserPage(),
-      //home: AuthPage(),
-      //home: MapPage(),
-      home: FirstPage()
+      home: AuthPage(),
     );
   }
 }

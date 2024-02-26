@@ -6,18 +6,20 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'dart:async';
 
-class IDPage extends StatefulWidget {
-  const IDPage({Key? key}) : super(key: key);
+class DirectMessagePage extends StatefulWidget {
+  final String otherUserEmail;
+
+  DirectMessagePage({required this.otherUserEmail});
 
   @override
-  _IDPageState createState() => _IDPageState();
+  _DirectMessagePageState createState() => _DirectMessagePageState();
 }
 
-class _IDPageState extends State<IDPage> {
+class _DirectMessagePageState extends State<DirectMessagePage> {
   TextEditingController _messageController = TextEditingController();
   late Future<void> _initializeControllerFuture;
-  String currentChatTopic = "main_chat";
   late StreamController<QuerySnapshot> _messageStreamController;
+  String otherUserName = '';
   String searchString = '';
 
   File? imageFile;
@@ -27,7 +29,8 @@ class _IDPageState extends State<IDPage> {
   void initState() {
     super.initState();
     _messageStreamController = StreamController<QuerySnapshot>();
-    _updateMessageStream(currentChatTopic);
+    _updateMessageStream();
+    _getOtherUserName();
   }
 
   void dispose() {
@@ -42,30 +45,33 @@ class _IDPageState extends State<IDPage> {
       String userEmail = user?.email ?? 'anonymous';
       String displayName = await _getUserDisplayName(userEmail);
 
-      CollectionReference messages =
-          FirebaseFirestore.instance.collection('messages');
+      List<String> users = [userEmail, widget.otherUserEmail];
+      users.sort();
+
+      CollectionReference directMessages =
+          FirebaseFirestore.instance.collection('directmessages');
 
       // Get server timestamp before adding the message
       Timestamp serverTimestamp = Timestamp.now();
 
       try {
-        await messages.add({
-          'user': userEmail,
+        await directMessages.add({
+          'users': '${users[0]}_${users[1]}',
           'message': message,
+          'sender': displayName,
           'timestamp': serverTimestamp,
-          'chat_topic': currentChatTopic,
           'type': "text",
-          'sender_display_name': displayName
         });
 
         _messageController.clear();
+        _updateMessageStream();
       } catch (e) {
         print('Error sending message: $e');
       }
     }
   }
 
-    Future<String> _getUserDisplayName(String userEmail) async {
+  Future<String> _getUserDisplayName(String userEmail) async {
     try {
       DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
           .collection('users')
@@ -78,105 +84,28 @@ class _IDPageState extends State<IDPage> {
         return userData['name'] ?? '';
       }
     } catch (e) {
-      print('Could not find user : $e');
+      print('Error fetching user display name: $e');
     }
     return 'anonymous';
   }
 
-  void _showChatTopicsPopup() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Select Chat Topic'),
-          content: Container(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    _updateChatTopic("main_chat");
-                    Navigator.pop(context);
-                  },
-                  child: Text('Main Chat'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    _updateChatTopic("lost_item_chat");
-                    Navigator.pop(context);
-                  },
-                  child: Text('Lost Item Chat'),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+  void _getOtherUserName() async {
+    try {
+      DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.otherUserEmail)
+          .get();
 
-  void _updateChatTopic(String newChatTopic) {
-    setState(() {
-      currentChatTopic = newChatTopic;
-    });
-    _updateMessageStream(newChatTopic);
-  }
-
-  void _updateMessageStream(String chatTopic) {
-    FirebaseFirestore.instance
-        .collection('messages')
-        .where('chat_topic', isEqualTo: chatTopic)
-        .orderBy('timestamp', descending: true)
-        .snapshots()
-        .listen((data) {
-      _messageStreamController.add(data);
-    });
-  }
-
-  Future<void> _openGallery() async {
-    ImagePicker _picker = ImagePicker();
-
-    await _picker.pickImage(source: ImageSource.gallery).then((xFile) {
-      if (xFile != null) {
-        imageFile = File(xFile.path);
+      if (documentSnapshot.exists) {
+        Map<String, dynamic> userData =
+            documentSnapshot.data() as Map<String, dynamic>;
+        setState(() {
+          otherUserName = userData['name'] ?? '';
+        });
       }
-      _uploadImageToFirebase();
-    });
-  }
-
-  Future<void> _uploadImageToFirebase() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    String userEmail = user?.email ?? 'anonymous';
-
-    String timestamp = DateTime.now().toUtc().toIso8601String();
-    fileName = '$userEmail-$timestamp.jpg';
-
-    var ref = FirebaseStorage.instance.ref().child('images').child(fileName!);
-
-    var uploadTask = await ref.putFile(imageFile!);
-
-    String imageUrl = await uploadTask.ref.getDownloadURL();
-
-    uploadImageToFirestore(imageUrl);
-  }
-
-  void uploadImageToFirestore(String imageUrl) async {
-    User? user = FirebaseAuth.instance.currentUser;
-    String userEmail = user?.email ?? 'anonymous';
-    String displayName = await _getUserDisplayName(userEmail);
-
-    CollectionReference messages =
-        FirebaseFirestore.instance.collection('messages');
-    messages.add({
-      'user': userEmail,
-      'message': imageUrl,
-      'timestamp': FieldValue.serverTimestamp(),
-      'chat_topic': currentChatTopic,
-      'type': "image",
-      'sender_display_name': displayName
-    }).then((_) {
-      _updateMessageStream(currentChatTopic);
-    });
+    } catch (e) {
+      print('Error fetching other user name: $e');
+    }
   }
 
   void _showCameraOptions() {
@@ -221,30 +150,75 @@ class _IDPageState extends State<IDPage> {
     );
   }
 
+  void _updateMessageStream() {
+    FirebaseFirestore.instance
+        .collection('directmessages')
+        .where('users', isEqualTo: _generateUsersString())
+        .orderBy('timestamp', descending: true)
+        .snapshots()
+        .listen((data) {
+      _messageStreamController.add(data);
+    });
+  }
+
+  String _generateUsersString() {
+    User? user = FirebaseAuth.instance.currentUser;
+    String userEmail = user?.email ?? 'anonymous';
+    List<String> users = [userEmail, widget.otherUserEmail];
+    users.sort();
+    return '${users[0]}_${users[1]}';
+  }
+
+  Future<void> _openGallery() async {
+    ImagePicker _picker = ImagePicker();
+
+    await _picker.pickImage(source: ImageSource.gallery).then((xFile) {
+      if (xFile != null) {
+        imageFile = File(xFile.path);
+      }
+      _uploadImageToFirebase();
+    });
+  }
+
+  Future<void> _uploadImageToFirebase() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    String userEmail = user?.email ?? 'anonymous';
+
+    String timestamp = DateTime.now().toUtc().toIso8601String();
+    fileName = '$userEmail-$timestamp.jpg';
+
+    var ref = FirebaseStorage.instance.ref().child('images').child(fileName!);
+
+    var uploadTask = await ref.putFile(imageFile!);
+
+    String imageUrl = await uploadTask.ref.getDownloadURL();
+
+    uploadImageToFirestore(imageUrl);
+  }
+
+  void uploadImageToFirestore(String imageUrl) async {
+    User? user = FirebaseAuth.instance.currentUser;
+    String userEmail = user?.email ?? 'anonymous';
+    String displayName = await _getUserDisplayName(userEmail);
+
+    CollectionReference directMessages =
+        FirebaseFirestore.instance.collection('directmessages');
+    directMessages.add({
+      'users': _generateUsersString(),
+      'message': imageUrl,
+      'sender': displayName,
+      'timestamp': FieldValue.serverTimestamp(),
+      'type': "image",
+    }).then((_) {
+      _updateMessageStream();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          children: [
-            IconButton(
-              icon: Icon(Icons.menu),
-              onPressed: () {
-                _showChatTopicsPopup();
-              },
-            ),
-            SizedBox(width: 16),
-            Center(
-              child: Text(
-                currentChatTopic == "main_chat"
-                    ? 'Main Chat'
-                    : 'Lost and Found',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: Color.fromRGBO(75, 97, 126, 1),
+        title: Text(otherUserName),
         actions: [
           IconButton(
             icon: Icon(Icons.search),
@@ -267,10 +241,9 @@ class _IDPageState extends State<IDPage> {
                     actions: <Widget>[
                       TextButton(
                         onPressed: () {
-                          setState(() {
-                            searchString = '';
-                          });
+                          searchString = "";
                           Navigator.of(context).pop();
+                          _updateMessageStream();
                         },
                         child: Text('Clear Search'),
                       ),
@@ -300,83 +273,97 @@ class _IDPageState extends State<IDPage> {
                     return CircularProgressIndicator();
                   }
 
-                  var messages = snapshot.data?.docs ?? [];
+                  var messages = snapshot.data!.docs.where((message) {
+                    var messageData = message.data() as Map<String, dynamic>;
+                    return messageData['message'].contains(searchString);
+                  }).toList();
+
                   List<Widget> messageWidgets = [];
 
                   for (var message in messages) {
                     var messageData = message.data() as Map<String, dynamic>;
                     var timestamp = messageData['timestamp'] as Timestamp?;
 
+                    String senderName = messageData['sender'] ?? 'unknown';
+
                     var formattedTime = timestamp != null
                         ? TimeOfDay.fromDateTime(timestamp.toDate())
                             .format(context)
                         : "00:00";
 
-                    String senderName = messageData['sender_display_name'] ?? messageData['user'];
-
-                    if (messageData['message'].contains(searchString)) {
-                      if (messageData['type'] == 'text') {
-                        messageWidgets.add(
-                          Container(
-                            margin: EdgeInsets.symmetric(vertical: 8),
-                            padding: EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: ListTile(
-                              title: Text(
-                                '$senderName: ${messageData['message']}',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              subtitle: Text(
-                                formattedTime,
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ),
+                    if (messageData['type'] == 'text') {
+                      messageWidgets.add(
+                        Container(
+                          margin: EdgeInsets.symmetric(vertical: 8),
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                        );
-                      } else if (messageData['type'] == 'image') {
-                        messageWidgets.add(
-                          Container(
-                            margin: EdgeInsets.symmetric(vertical: 8),
-                            padding: EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                          child: ListTile(
+                            title: Row(
                               children: [
                                 Text(
-                                  '$senderName:',
+                                  '$senderName: ',
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                ListTile(
-                                  title: Image.network(
+                                Expanded(
+                                  child: Text(
                                     messageData['message'],
-                                    height: 100,
-                                  ),
-                                  subtitle: Text(
-                                    formattedTime,
                                     style: TextStyle(
-                                      color: Colors.grey,
+                                      color: Colors.black,
                                     ),
                                   ),
                                 ),
                               ],
                             ),
+                            subtitle: Text(
+                              formattedTime,
+                              style: TextStyle(
+                                color: Colors.grey,
+                              ),
+                            ),
                           ),
-                        );
-                      }
+                        ),
+                      );
+                    } else if (messageData['type'] == 'image') {
+                      messageWidgets.add(
+                        Container(
+                          margin: EdgeInsets.symmetric(vertical: 8),
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                senderName,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              ListTile(
+                                title: Image.network(
+                                  messageData['message'],
+                                  height: 150,
+                                ),
+                                subtitle: Text(
+                                  formattedTime,
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
                     }
                   }
 

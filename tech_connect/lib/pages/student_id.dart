@@ -19,10 +19,13 @@ class _StudentIDState extends State<StudentID> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(height: 100),
                 Container (
-                  width: 100,
-                  child: Image.asset("images/logo.png"),),
+                  width: 300,
+                  child: Image.asset("images/card.png"),),
+                Container (
+                  width: 50,
+                  child: Image.asset("images/wireless.png"),
+                )
               ],
               ),
             ),

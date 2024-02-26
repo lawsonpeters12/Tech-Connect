@@ -35,8 +35,12 @@ class _RegisterPageState extends State<RegisterPage> {
       String userEmail = newUser.user?.email ?? '';
 
       // Add user's email to Firestore
-      await FirebaseFirestore.instance.collection('users').add({
-        'email': userEmail
+      await FirebaseFirestore.instance.collection('users').doc(userEmail).set({
+        'email': userEmail,
+        'about': "Nothing is known about this user yet",
+        'major': "Undeclared",
+        'profile_picture': "https://firebasestorage.googleapis.com/v0/b/techconnect-42543.appspot.com/o/images%2Fdefault_user.PNG?alt=media&token=c592af94-a160-43c1-8f2b-29a7123756dd",
+        'name': userEmail
       });
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.code)));
