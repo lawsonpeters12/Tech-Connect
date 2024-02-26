@@ -30,7 +30,7 @@ class organizationPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('Organizations'),
         centerTitle: true,
-        backgroundColor: Color.fromRGBO(203, 51, 59, 100),
+        backgroundColor: Color.fromRGBO(75, 97, 126, 1),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -102,7 +102,7 @@ class allOrgs extends StatelessWidget {
     return Scaffold(
       backgroundColor: Color.fromRGBO(198, 218, 231, 100),
       appBar: AppBar(
-        backgroundColor: Color.fromRGBO(203, 51, 59, 100),
+        backgroundColor: Color.fromRGBO(75, 97, 126, 1),
         title: Text("All Organizations"),
         centerTitle: true,
       ),
@@ -174,7 +174,7 @@ class myOrgs extends StatelessWidget {
     return Scaffold(
       backgroundColor: Color.fromRGBO(198, 218, 231, 100),
       appBar: AppBar(
-        backgroundColor: Color.fromRGBO(203, 51, 59, 100),
+        backgroundColor: Color.fromRGBO(75, 97, 126, 1),
         title: Text("My Organizations"),
         centerTitle: true,
       ),
