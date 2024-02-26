@@ -104,13 +104,14 @@ void uploadProfilePictureToFirestore(String imageUrl, User currentUser) async {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: buildAppBar(context),
+        //appBar: buildAppBar(context),
         body: _isLoading
             ? Center(child: CircularProgressIndicator())
             : ListView(
                 padding: EdgeInsets.symmetric(horizontal: 32),
                 physics: BouncingScrollPhysics(),
                 children: [
+                  const SizedBox(height:75), 
                   ProfileWidget(
                     imagePath: user.imagePath,
                     isEdit: true,
