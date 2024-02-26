@@ -20,7 +20,10 @@ class OrgsPage extends StatefulWidget {
 class _OrgsPageState extends State<OrgsPage> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: organizationPage());
+    return MaterialApp(
+      home: organizationPage(),
+      debugShowCheckedModeBanner: false,
+    );
   }
 }
 
@@ -32,7 +35,7 @@ class organizationPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('Organizations'),
         centerTitle: true,
-        backgroundColor: Color.fromRGBO(203, 51, 59, 100),
+        backgroundColor: Color.fromRGBO(77, 95, 128, 100),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -104,7 +107,7 @@ class allOrgs extends StatelessWidget {
     return Scaffold(
       backgroundColor: Color.fromRGBO(198, 218, 231, 100),
       appBar: AppBar(
-        backgroundColor: Color.fromRGBO(203, 51, 59, 100),
+        backgroundColor: Color.fromRGBO(77, 95, 128, 100),
         title: Text("All Organizations"),
         centerTitle: true,
       ),
@@ -211,7 +214,7 @@ class _MyOrgsState extends State<MyOrgs> {
     return Scaffold(
       backgroundColor: Color.fromRGBO(198, 218, 231, 100),
       appBar: AppBar(
-        backgroundColor: Color.fromRGBO(203, 51, 59, 100),
+        backgroundColor: Color.fromRGBO(77, 95, 128, 100),
         title: Text("My Organizations"),
         centerTitle: true,
       ),
@@ -257,7 +260,7 @@ class ACM extends StatelessWidget {
     return Scaffold(
       backgroundColor: Color.fromRGBO(198, 218, 231, 100),
       appBar: AppBar(
-        backgroundColor: Color.fromRGBO(203, 51, 59, 100),
+        backgroundColor: Color.fromRGBO(77, 95, 128, 100),
         title: Text("Association for Computing Machinery - ACM"),
         centerTitle: true,
         actions: [
