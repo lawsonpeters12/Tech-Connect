@@ -40,6 +40,7 @@ class _IDPageState extends State<IDPage> {
     if (message.isNotEmpty) {
       User? user = FirebaseAuth.instance.currentUser;
       String userEmail = user?.email ?? 'anonymous';
+      String displayName = await _getUserDisplayName(userEmail);
 
       CollectionReference messages =
           FirebaseFirestore.instance.collection('messages');
@@ -54,6 +55,7 @@ class _IDPageState extends State<IDPage> {
           'timestamp': serverTimestamp,
           'chat_topic': currentChatTopic,
           'type': "text",
+          'senderDisplayName': displayName
         });
 
         _messageController.clear();
@@ -61,6 +63,24 @@ class _IDPageState extends State<IDPage> {
         print('Error sending message: $e');
       }
     }
+  }
+
+    Future<String> _getUserDisplayName(String userEmail) async {
+    try {
+      DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userEmail)
+          .get();
+
+      if (documentSnapshot.exists) {
+        Map<String, dynamic> userData =
+            documentSnapshot.data() as Map<String, dynamic>;
+        return userData['name'] ?? '';
+      }
+    } catch (e) {
+      print('Could not find user : $e');
+    }
+    return 'anonymous';
   }
 
   void _showChatTopicsPopup() {
@@ -143,6 +163,7 @@ class _IDPageState extends State<IDPage> {
   void uploadImageToFirestore(String imageUrl) async {
     User? user = FirebaseAuth.instance.currentUser;
     String userEmail = user?.email ?? 'anonymous';
+    String displayName = await _getUserDisplayName(userEmail);
 
     CollectionReference messages =
         FirebaseFirestore.instance.collection('messages');
@@ -152,6 +173,7 @@ class _IDPageState extends State<IDPage> {
       'timestamp': FieldValue.serverTimestamp(),
       'chat_topic': currentChatTopic,
       'type': "image",
+      'senderDisplayName': displayName
     }).then((_) {
       _updateMessageStream(currentChatTopic);
     });
@@ -290,7 +312,7 @@ class _IDPageState extends State<IDPage> {
                             .format(context)
                         : "00:00";
 
-                    var userDisplayName = messageData['user'];
+                    String senderName = messageData['senderDisplayName'] ?? messageData['user'];
 
                     if (messageData['message'].contains(searchString)) {
                       if (messageData['type'] == 'text') {
@@ -304,7 +326,7 @@ class _IDPageState extends State<IDPage> {
                             ),
                             child: ListTile(
                               title: Text(
-                                '$userDisplayName: ${messageData['message']}',
+                                '$senderName: ${messageData['message']}',
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontWeight: FontWeight.bold,
@@ -332,7 +354,7 @@ class _IDPageState extends State<IDPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  '$userDisplayName:',
+                                  '$senderName:',
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontWeight: FontWeight.bold,
