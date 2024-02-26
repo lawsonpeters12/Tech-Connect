@@ -1,6 +1,8 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class OrgsPage extends StatefulWidget {
   const OrgsPage({super.key});
@@ -55,7 +57,7 @@ class organizationPage extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => myOrgs()),
+                MaterialPageRoute(builder: (context) => MyOrgs()),
               );
             },
           ),
@@ -119,7 +121,7 @@ class allOrgs extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => acm()),
+                  MaterialPageRoute(builder: (context) => ACM()),
                 );
               },
             ),
@@ -171,7 +173,42 @@ class allOrgs extends StatelessWidget {
   }
 }
 
-class myOrgs extends StatelessWidget {
+class MyOrgs extends StatefulWidget {
+  @override
+  _MyOrgsState createState() => _MyOrgsState();
+}
+
+class _MyOrgsState extends State<MyOrgs> {
+  bool isACMMember = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkACMMembership();
+  }
+
+  Future<void> _checkACMMembership() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    String userEmail = user?.email ?? 'anonymous';
+
+    CollectionReference organizations =
+        FirebaseFirestore.instance.collection('Organizations');
+
+    try {
+      QuerySnapshot membershipSnapshot = await organizations
+          .doc('ACM')
+          .collection('members')
+          .where('user', isEqualTo: userEmail)
+          .get();
+
+      setState(() {
+        isACMMember = membershipSnapshot.docs.isNotEmpty;
+      });
+    } catch (e) {
+      print('Error checking ACM membership: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -192,12 +229,24 @@ class myOrgs extends StatelessWidget {
             ),
             margin: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
             padding: EdgeInsets.all(25.0),
-            child: Center(
-              child: Text(
-                "You have not joined any organizations",
-                textAlign: TextAlign.center,
-              ),
-            ),
+            child: isACMMember
+                ? Center(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => ACM()),
+                        );
+                      },
+                      child: Text('ACM'),
+                    ),
+                  )
+                : Center(
+                    child: Text(
+                      "You have not joined any organizations",
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
           ),
         ],
       ),
@@ -205,7 +254,7 @@ class myOrgs extends StatelessWidget {
   }
 }
 
-class acm extends StatelessWidget {
+class ACM extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -216,8 +265,13 @@ class acm extends StatelessWidget {
         centerTitle: true,
         actions: [
           TextButton(
-            onPressed: () {},
-            child: Text("Request Join", selectionColor: Color.fromARGB(1, 1, 1, 1)),
+            onPressed: () {
+              _requestJoin();
+            },
+            child: Text(
+              "Request Join",
+              style: TextStyle(color: Colors.white),
+            ),
           )
         ],
       ),
@@ -233,9 +287,39 @@ class acm extends StatelessWidget {
             margin: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
             padding: EdgeInsets.all(25.0),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Club Members", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                Text("There are no members in this organization yet"),
+                Text(
+                  "Club Members",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 10),
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('Organizations')
+                      .doc('ACM')
+                      .collection('members')
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      final members = snapshot.data!.docs;
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: members.map((member) {
+                          final memberData =
+                              member.data() as Map<String, dynamic>;
+                          final memberName = memberData['user'] ??
+                              'Unknown'; // Assuming 'name' is a field for each member
+                          return Text(memberName);
+                        }).toList(),
+                      );
+                    }
+                  },
+                ),
               ],
             ),
           ),
@@ -248,13 +332,40 @@ class acm extends StatelessWidget {
             padding: EdgeInsets.all(25.0),
             child: Column(
               children: [
-                Text("ACM Connect", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                Text("You must be a member of this organization to view and send messages."),
+                Text(
+                  "ACM Connect",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  "You must be a member of this organization to view and send messages.",
+                ),
               ],
             ),
           ),
         ],
       ),
     );
+  }
+
+  void _requestJoin() async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      String userEmail = user?.email ?? 'anonymous';
+
+      CollectionReference orgMembersRef = FirebaseFirestore.instance
+          .collection('Organizations')
+          .doc('ACM')
+          .collection('members');
+
+      await orgMembersRef.add({
+        'user': userEmail,
+        // Add additional user info if needed
+      });
+
+      // Show a snackbar or a message to indicate successful join
+    } catch (e) {
+      print('Error requesting join: $e');
+      // Handle error appropriately
+    }
   }
 }
