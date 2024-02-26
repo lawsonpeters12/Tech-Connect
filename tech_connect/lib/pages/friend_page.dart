@@ -299,6 +299,7 @@ class MySearchDelegate extends SearchDelegate {
                     MaterialPageRoute(
                       builder: (context) => OtherUserPage(
                         otherUserEmail: suggestion,
+                        darkMode: true,
                       ),
                     ),
                   );

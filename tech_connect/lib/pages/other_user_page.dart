@@ -9,8 +9,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class OtherUserPage extends StatefulWidget {
   final String otherUserEmail;
+  final bool darkMode;
 
-  OtherUserPage({required this.otherUserEmail});
+  OtherUserPage({required this.otherUserEmail, this.darkMode = false});
 
   @override
   _OtherUserPageState createState() => _OtherUserPageState();
@@ -48,7 +49,7 @@ class _OtherUserPageState extends State<OtherUserPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBar(context),
-      backgroundColor: Colors.white,
+      backgroundColor: widget.darkMode ? Colors.black : Colors.white,
       body: FutureBuilder<UserInf>(
         future: otherUserFuture,
         builder: (context, snapshot) {
