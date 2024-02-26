@@ -109,7 +109,7 @@ late GoogleMapController mapController;
       // Change this to be a camera box that you cant leave
       //minMaxZoomPreference: MinMaxZoomPreference(100, 999),
       //liteModeEnabled: true,
-      //mapType: MapType.satellite,
+      mapType: MapType.satellite,
       myLocationEnabled: true,
       myLocationButtonEnabled: true,
       compassEnabled: true,
