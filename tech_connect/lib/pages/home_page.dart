@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:html/parser.dart' as parser;
 import 'package:http/http.dart' as http;
 import 'package:tech_connect/pages/DM_page.dart';
+import 'package:tech_connect/pages/friend_page.dart';
 import 'package:tech_connect/pages/id_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -121,7 +122,7 @@ class _HomePageState extends State<HomePage> {
           IconButton(
               icon: Icon(Icons.send_outlined),
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: ((context) => DMPage())));
+                Navigator.push(context, MaterialPageRoute(builder: ((context) => FriendPage())));
               }),
           SizedBox(width: 20),
         ],

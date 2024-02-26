@@ -18,6 +18,7 @@ class _IDPageState extends State<IDPage> {
   late Future<void> _initializeControllerFuture;
   String currentChatTopic = "main_chat";
   late StreamController<QuerySnapshot> _messageStreamController;
+  String searchString = '';
 
   File? imageFile;
   String? fileName;
@@ -34,67 +35,85 @@ class _IDPageState extends State<IDPage> {
     super.dispose();
   }
 
-void _sendMessage() async {
-  String message = _messageController.text;
-  if (message.isNotEmpty) {
-    User? user = FirebaseAuth.instance.currentUser;
-    String userEmail = user?.email ?? 'anonymous';
+  void _sendMessage() async {
+    String message = _messageController.text;
+    if (message.isNotEmpty) {
+      User? user = FirebaseAuth.instance.currentUser;
+      String userEmail = user?.email ?? 'anonymous';
+      String displayName = await _getUserDisplayName(userEmail);
 
-    CollectionReference messages =
-        FirebaseFirestore.instance.collection('messages');
+      CollectionReference messages =
+          FirebaseFirestore.instance.collection('messages');
 
-    // Get server timestamp before adding the message
-    Timestamp serverTimestamp = Timestamp.now();
+      // Get server timestamp before adding the message
+      Timestamp serverTimestamp = Timestamp.now();
 
-    try {
-      await messages.add({
-        'user': userEmail,
-        'message': message,
-        'timestamp': serverTimestamp,
-        'chat_topic': currentChatTopic,
-        'type': "text",
-      });
+      try {
+        await messages.add({
+          'user': userEmail,
+          'message': message,
+          'timestamp': serverTimestamp,
+          'chat_topic': currentChatTopic,
+          'type': "text",
+          'sender_display_name': displayName
+        });
 
-      // Clear the input field
-      _messageController.clear();
-    } catch (e) {
-      print('Error sending message: $e');
+        _messageController.clear();
+      } catch (e) {
+        print('Error sending message: $e');
+      }
     }
   }
-}
 
-void _showChatTopicsPopup() {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Select Chat Topic'),
-        content: Container(
-          child: Column(
-            mainAxisSize: MainAxisSize.min, 
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  _updateChatTopic("main_chat");
-                  Navigator.pop(context);
-                },
-                child: Text('Main Chat'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  _updateChatTopic("lost_item_chat");
-                  Navigator.pop(context);
-                },
-                child: Text('Lost Item Chat'),
-              ),
-            ],
+    Future<String> _getUserDisplayName(String userEmail) async {
+    try {
+      DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userEmail)
+          .get();
+
+      if (documentSnapshot.exists) {
+        Map<String, dynamic> userData =
+            documentSnapshot.data() as Map<String, dynamic>;
+        return userData['name'] ?? '';
+      }
+    } catch (e) {
+      print('Could not find user : $e');
+    }
+    return 'anonymous';
+  }
+
+  void _showChatTopicsPopup() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Select Chat Topic'),
+          content: Container(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    _updateChatTopic("main_chat");
+                    Navigator.pop(context);
+                  },
+                  child: Text('Main Chat'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    _updateChatTopic("lost_item_chat");
+                    Navigator.pop(context);
+                  },
+                  child: Text('Lost Item Chat'),
+                ),
+              ],
+            ),
           ),
-        ),
-      );
-    },
-  );
-}
-
+        );
+      },
+    );
+  }
 
   void _updateChatTopic(String newChatTopic) {
     setState(() {
@@ -103,16 +122,16 @@ void _showChatTopicsPopup() {
     _updateMessageStream(newChatTopic);
   }
 
-void _updateMessageStream(String chatTopic) {
-  FirebaseFirestore.instance
-      .collection('messages')
-      .where('chat_topic', isEqualTo: chatTopic)
-      .orderBy('timestamp', descending: true)
-      .snapshots()
-      .listen((data) {
-    _messageStreamController.add(data);
-  });
-}
+  void _updateMessageStream(String chatTopic) {
+    FirebaseFirestore.instance
+        .collection('messages')
+        .where('chat_topic', isEqualTo: chatTopic)
+        .orderBy('timestamp', descending: true)
+        .snapshots()
+        .listen((data) {
+      _messageStreamController.add(data);
+    });
+  }
 
   Future<void> _openGallery() async {
     ImagePicker _picker = ImagePicker();
@@ -138,14 +157,13 @@ void _updateMessageStream(String chatTopic) {
 
     String imageUrl = await uploadTask.ref.getDownloadURL();
 
-    print(imageUrl);
-
     uploadImageToFirestore(imageUrl);
   }
 
   void uploadImageToFirestore(String imageUrl) async {
     User? user = FirebaseAuth.instance.currentUser;
     String userEmail = user?.email ?? 'anonymous';
+    String displayName = await _getUserDisplayName(userEmail);
 
     CollectionReference messages =
         FirebaseFirestore.instance.collection('messages');
@@ -153,10 +171,10 @@ void _updateMessageStream(String chatTopic) {
       'user': userEmail,
       'message': imageUrl,
       'timestamp': FieldValue.serverTimestamp(),
-      'chat_topic': currentChatTopic, // Add chat topic field
+      'chat_topic': currentChatTopic,
       'type': "image",
+      'sender_display_name': displayName
     }).then((_) {
-      // After the message is added to Firestore, update the stream
       _updateMessageStream(currentChatTopic);
     });
   }
@@ -189,7 +207,7 @@ void _updateMessageStream(String chatTopic) {
                       icon: Icon(Icons.image),
                       onPressed: () {
                         Navigator.pop(context);
-                        _openGallery(); 
+                        _openGallery();
                       },
                     ),
                     Text('Choose from gallery'),
@@ -227,6 +245,48 @@ void _updateMessageStream(String chatTopic) {
           ],
         ),
         backgroundColor: Color.fromRGBO(75, 97, 126, 1),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Search Messages'),
+                    content: TextField(
+                      onChanged: (value) {
+                        setState(() {
+                          searchString = value;
+                        });
+                      },
+                      decoration: InputDecoration(
+                        hintText: 'Search',
+                      ),
+                    ),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            searchString = '';
+                          });
+                          Navigator.of(context).pop();
+                        },
+                        child: Text('Clear Search'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text('Search'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -252,70 +312,71 @@ void _updateMessageStream(String chatTopic) {
                             .format(context)
                         : "00:00";
 
-                    var userDisplayName = messageData['user'];
+                    String senderName = messageData['sender_display_name'] ?? messageData['user'];
 
-                    if (messageData['type'] == 'text') {
-                      messageWidgets.add(
-                        Container(
-                          margin: EdgeInsets.symmetric(vertical: 8),
-                          padding: EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: ListTile(
-                            title: Text(
-                              '$userDisplayName: ${messageData['message']}',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
+                    if (messageData['message'].contains(searchString)) {
+                      if (messageData['type'] == 'text') {
+                        messageWidgets.add(
+                          Container(
+                            margin: EdgeInsets.symmetric(vertical: 8),
+                            padding: EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                            subtitle: Text(
-                              formattedTime,
-                              style: TextStyle(
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    } else if (messageData['type'] == 'image') {
-                      messageWidgets.add(
-                        Container(
-                          margin: EdgeInsets.symmetric(vertical: 8),
-                          padding: EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,  // Align to the left
-                            children: [
-                              // Display the sender's name above the image
-                              Text(
-                                '$userDisplayName:',
+                            child: ListTile(
+                              title: Text(
+                                '$senderName: ${messageData['message']}',
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              ListTile(
-                                title: Image.network(
-                                  messageData['message'], // Assuming 'message' contains the image URL
-                                  height: 100, // Adjust the height as needed
-                                ),
-                                subtitle: Text(
-                                  formattedTime,
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                  ),
+                              subtitle: Text(
+                                formattedTime,
+                                style: TextStyle(
+                                  color: Colors.grey,
                                 ),
                               ),
-                            ],
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      } else if (messageData['type'] == 'image') {
+                        messageWidgets.add(
+                          Container(
+                            margin: EdgeInsets.symmetric(vertical: 8),
+                            padding: EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '$senderName:',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                ListTile(
+                                  title: Image.network(
+                                    messageData['message'],
+                                    height: 100,
+                                  ),
+                                  subtitle: Text(
+                                    formattedTime,
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }
                     }
                   }
 

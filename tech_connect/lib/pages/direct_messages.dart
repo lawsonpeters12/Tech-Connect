@@ -20,6 +20,7 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
   late Future<void> _initializeControllerFuture;
   late StreamController<QuerySnapshot> _messageStreamController;
   String otherUserName = '';
+  String searchString = '';
 
   File? imageFile;
   String? fileName;
@@ -42,6 +43,8 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
     if (message.isNotEmpty) {
       User? user = FirebaseAuth.instance.currentUser;
       String userEmail = user?.email ?? 'anonymous';
+      String displayName = await _getUserDisplayName(userEmail);
+
       List<String> users = [userEmail, widget.otherUserEmail];
       users.sort();
 
@@ -53,16 +56,14 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
 
       try {
         await directMessages.add({
-          'users': '${users[0]}_${users[1]}', // Store the users in a DM conversation as a concatenated string with an underscore to separate them.
+          'users': '${users[0]}_${users[1]}',
           'message': message,
-          'sender': userEmail, // Store sender's email
+          'sender': displayName,
           'timestamp': serverTimestamp,
           'type': "text",
         });
 
-        // Clear the input field
         _messageController.clear();
-
         _updateMessageStream();
       } catch (e) {
         print('Error sending message: $e');
@@ -70,23 +71,42 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
     }
   }
 
-void _getOtherUserName() async {
-  try {
-    DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(widget.otherUserEmail)
-        .get();
+  Future<String> _getUserDisplayName(String userEmail) async {
+    try {
+      DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userEmail)
+          .get();
 
-    if (documentSnapshot.exists) {
-      Map<String, dynamic> userData = documentSnapshot.data() as Map<String, dynamic>;
-      setState(() {
-        otherUserName = userData['name'] ?? '';
-      });
+      if (documentSnapshot.exists) {
+        Map<String, dynamic> userData =
+            documentSnapshot.data() as Map<String, dynamic>;
+        return userData['name'] ?? '';
+      }
+    } catch (e) {
+      print('Error fetching user display name: $e');
     }
-  } catch (e) {
-    print('Error fetching other user name: $e');
+    return 'anonymous';
   }
-}
+
+  void _getOtherUserName() async {
+    try {
+      DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.otherUserEmail)
+          .get();
+
+      if (documentSnapshot.exists) {
+        Map<String, dynamic> userData =
+            documentSnapshot.data() as Map<String, dynamic>;
+        setState(() {
+          otherUserName = userData['name'] ?? '';
+        });
+      }
+    } catch (e) {
+      print('Error fetching other user name: $e');
+    }
+  }
 
   void _showCameraOptions() {
     showDialog(
@@ -116,7 +136,7 @@ void _getOtherUserName() async {
                       icon: Icon(Icons.image),
                       onPressed: () {
                         Navigator.pop(context);
-                        _openGallery(); 
+                        _openGallery();
                       },
                     ),
                     Text('Choose from gallery'),
@@ -132,23 +152,20 @@ void _getOtherUserName() async {
 
   void _updateMessageStream() {
     FirebaseFirestore.instance
-      .collection('directmessages')
-      .where('users', isEqualTo: _generateUsersString())
-      .orderBy('timestamp', descending: true)
-      .snapshots()
-      .listen((data) {
-        _messageStreamController.add(data);
-      });
+        .collection('directmessages')
+        .where('users', isEqualTo: _generateUsersString())
+        .orderBy('timestamp', descending: true)
+        .snapshots()
+        .listen((data) {
+      _messageStreamController.add(data);
+    });
   }
 
-
-// The users in a DM conversation are stored as a concatenated string in alphabetical order. 
-// This is the unique identifer for a particular conversation.
   String _generateUsersString() {
     User? user = FirebaseAuth.instance.currentUser;
     String userEmail = user?.email ?? 'anonymous';
     List<String> users = [userEmail, widget.otherUserEmail];
-    users.sort(); 
+    users.sort();
     return '${users[0]}_${users[1]}';
   }
 
@@ -176,25 +193,23 @@ void _getOtherUserName() async {
 
     String imageUrl = await uploadTask.ref.getDownloadURL();
 
-    print(imageUrl);
-
     uploadImageToFirestore(imageUrl);
   }
 
   void uploadImageToFirestore(String imageUrl) async {
     User? user = FirebaseAuth.instance.currentUser;
     String userEmail = user?.email ?? 'anonymous';
+    String displayName = await _getUserDisplayName(userEmail);
 
     CollectionReference directMessages =
         FirebaseFirestore.instance.collection('directmessages');
     directMessages.add({
       'users': _generateUsersString(),
       'message': imageUrl,
-      'sender': userEmail,
+      'sender': displayName,
       'timestamp': FieldValue.serverTimestamp(),
       'type': "image",
     }).then((_) {
-      // After the message is added to Firestore, update the stream
       _updateMessageStream();
     });
   }
@@ -203,7 +218,48 @@ void _getOtherUserName() async {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(otherUserName), // Display the name of the user you're messaging
+        title: Text(otherUserName),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Search Messages'),
+                    content: TextField(
+                      onChanged: (value) {
+                        setState(() {
+                          searchString = value;
+                        });
+                      },
+                      decoration: InputDecoration(
+                        hintText: 'Search',
+                      ),
+                    ),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () {
+                          searchString = "";
+                          Navigator.of(context).pop();
+                          _updateMessageStream();
+                        },
+                        child: Text('Clear Search'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text('Search'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -217,21 +273,23 @@ void _getOtherUserName() async {
                     return CircularProgressIndicator();
                   }
 
-                  var messages = snapshot.data?.docs ?? [];
+                  var messages = snapshot.data!.docs.where((message) {
+                    var messageData = message.data() as Map<String, dynamic>;
+                    return messageData['message'].contains(searchString);
+                  }).toList();
+
                   List<Widget> messageWidgets = [];
 
                   for (var message in messages) {
                     var messageData = message.data() as Map<String, dynamic>;
                     var timestamp = messageData['timestamp'] as Timestamp?;
 
+                    String senderName = messageData['sender'] ?? 'unknown';
+
                     var formattedTime = timestamp != null
                         ? TimeOfDay.fromDateTime(timestamp.toDate())
                             .format(context)
                         : "00:00";
-
-                    var userDisplayName = messageData['sender'] == FirebaseAuth.instance.currentUser?.email
-                        ? 'You'
-                        : otherUserName;
 
                     if (messageData['type'] == 'text') {
                       messageWidgets.add(
@@ -243,15 +301,27 @@ void _getOtherUserName() async {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: ListTile(
-                            title: Text(
-                              '$userDisplayName: ${messageData['message']}',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            title: Row(
+                              children: [
+                                Text(
+                                  '$senderName: ',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    messageData['message'],
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                             subtitle: Text(
-                              formattedTime, // Display sender's email
+                              formattedTime,
                               style: TextStyle(
                                 color: Colors.grey,
                               ),
@@ -269,11 +339,10 @@ void _getOtherUserName() async {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,  // Align to the left
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Display the sender's name above the image
                               Text(
-                                '$userDisplayName:',
+                                senderName,
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontWeight: FontWeight.bold,
@@ -281,11 +350,11 @@ void _getOtherUserName() async {
                               ),
                               ListTile(
                                 title: Image.network(
-                                  messageData['message'], 
-                                  height: 150, // Adjust the height as needed
+                                  messageData['message'],
+                                  height: 150,
                                 ),
                                 subtitle: Text(
-                                  formattedTime, 
+                                  formattedTime,
                                   style: TextStyle(
                                     color: Colors.grey,
                                   ),

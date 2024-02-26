@@ -3,13 +3,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tech_connect/user/appbar_widget.dart';
 import 'package:tech_connect/user/profile_widget.dart';
 import 'package:tech_connect/user/user.dart';
-import 'package:tech_connect/pages/direct_messages.dart'; // Import the DirectMessagePage
+import 'package:tech_connect/pages/direct_messages.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 
 class OtherUserPage extends StatefulWidget {
   final String otherUserEmail;
+  final bool darkMode;
 
-  OtherUserPage({required this.otherUserEmail});
+  OtherUserPage({required this.otherUserEmail, this.darkMode = false});
 
   @override
   _OtherUserPageState createState() => _OtherUserPageState();
@@ -47,7 +49,7 @@ class _OtherUserPageState extends State<OtherUserPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBar(context),
-      backgroundColor: Colors.white, 
+      backgroundColor: widget.darkMode ? Colors.black : Colors.white,
       body: FutureBuilder<UserInf>(
         future: otherUserFuture,
         builder: (context, snapshot) {
@@ -67,7 +69,7 @@ class _OtherUserPageState extends State<OtherUserPage> {
               children: [
                 ProfileWidget(
                   imagePath: otherUser.imagePath,
-                  onClicked: () {}, 
+                  onClicked: () {},
                 ),
                 const SizedBox(height: 24),
                 buildName(otherUser),
@@ -79,15 +81,46 @@ class _OtherUserPageState extends State<OtherUserPage> {
                   children: [
                     ElevatedButton(
                       onPressed: () {
-                      },
-                      child: Text('Add Friend'),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
                         Navigator.of(context).push(MaterialPageRoute(builder: (context) => DirectMessagePage(otherUserEmail: otherUser.email)));
                       },
                       child: Text('Message'),
                     ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      // Update the current user's document in Firestore
+                      User? currentUser = FirebaseAuth.instance.currentUser;
+                      String userEmail = currentUser?.email ?? '';
+                      DocumentSnapshot currentUserDoc = await FirebaseFirestore.instance.collection('friend_requests')
+                          .doc(userEmail)
+                          .get();
+
+                      Map<String, dynamic>? currentUserData = currentUserDoc.data() as Map<String, dynamic>?;
+
+                      List<dynamic> currentUserOutgoingRequests = currentUserData?['outgoing_friend_requests'] ?? [];
+                      if (!currentUserOutgoingRequests.contains(otherUser.email)) {
+                        currentUserOutgoingRequests.add(otherUser.email);
+                        await FirebaseFirestore.instance.collection('friend_requests')
+                            .doc(userEmail)
+                            .set({'outgoing_friend_requests': currentUserOutgoingRequests}, SetOptions(merge: true)); // SetOptions(merge: true) will only edit 1 field of the document. Without it, the other fields get erased.
+                      }
+
+                      // Update the other user's document in Firestore
+                      DocumentSnapshot otherUserDoc = await FirebaseFirestore.instance.collection('friend_requests')
+                          .doc(otherUser.email)
+                          .get();
+
+                      Map<String, dynamic>? otherUserData = otherUserDoc.data() as Map<String, dynamic>?;
+
+                      List<dynamic> otherUserIncomingRequests = otherUserData?['incoming_friend_requests'] ?? [];
+                      if (!otherUserIncomingRequests.contains(userEmail)) {
+                        otherUserIncomingRequests.add(userEmail);
+                        await FirebaseFirestore.instance.collection('friend_requests')
+                            .doc(otherUser.email)
+                            .set({'incoming_friend_requests': otherUserIncomingRequests}, SetOptions(merge: true)); // SetOptions(merge: true) will only edit 1 field of the document. Without it, the other fields get erased.
+                      }
+                    },
+                    child: Text('Add Friend'),
+                  ),
                   ],
                 ),
               ],
@@ -99,51 +132,51 @@ class _OtherUserPageState extends State<OtherUserPage> {
   }
 
   Widget buildName(UserInf otherUser) => Column(
-        children: [
-          Text(
-            otherUser.name,
-            style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 24,
-                color: Colors.black), 
-          ),
-          const SizedBox(height: 4),
-          Text(
-            otherUser.major,
-            style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 15,
-                color: Colors.grey), 
-          ),
-          const SizedBox(height: 4),
-          Text(
-            otherUser.email,
-            style: TextStyle(color: Colors.grey), 
-          ),
-        ],
-      );
+    children: [
+      Text(
+        otherUser.name,
+        style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+            color: Colors.black),
+      ),
+      const SizedBox(height: 4),
+      Text(
+        otherUser.major,
+        style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
+            color: Colors.grey),
+      ),
+      const SizedBox(height: 4),
+      Text(
+        otherUser.email,
+        style: TextStyle(color: Colors.grey),
+      ),
+    ],
+  );
 
   Widget buildAbout(UserInf otherUser) => Container(
-        padding: EdgeInsets.symmetric(horizontal: 48),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Bio',
-              style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black), 
-            ),
-            const SizedBox(height: 16),
-            Text(
-              otherUser.about,
-              style: TextStyle(
-                  fontSize: 16,
-                  height: 1.4,
-                  color: Colors.grey), 
-            )
-          ],
+    padding: EdgeInsets.symmetric(horizontal: 48),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Bio',
+          style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.black),
         ),
-      );
+        const SizedBox(height: 16),
+        Text(
+          otherUser.about,
+          style: TextStyle(
+              fontSize: 16,
+              height: 1.4,
+              color: Colors.grey),
+        )
+      ],
+    ),
+  );
 }

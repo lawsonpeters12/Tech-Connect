@@ -16,6 +16,8 @@ class UserPage extends StatefulWidget {
 
 class _UserPageState extends State<UserPage> {
   late Future<UserInf> userFuture;
+  bool isDarkMode = false;
+  Color backgroundColor = Color.fromRGBO(198, 218, 231, 1);
 
   @override
   void initState() {
@@ -61,7 +63,7 @@ class _UserPageState extends State<UserPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBar(context),
-      backgroundColor: Color.fromRGBO(198, 218, 231, 100),
+      backgroundColor: backgroundColor, // Use dynamic background color
       body: FutureBuilder<UserInf>(
         future: userFuture,
         builder: (context, snapshot) {
@@ -97,6 +99,20 @@ class _UserPageState extends State<UserPage> {
           }
         },
       ),
+    );
+  }
+
+  AppBar buildAppBar(BuildContext context) {
+    return AppBar(
+      title: Text('User Profile'),
+      actions: [
+        IconButton(
+          icon: Icon(Icons.logout),
+          onPressed: () {
+            FirebaseAuth.instance.signOut();
+          },
+        ),
+      ],
     );
   }
 
