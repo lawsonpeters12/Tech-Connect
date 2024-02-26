@@ -12,6 +12,7 @@ import 'package:tech_connect/user/user_preferences.dart';
 //import 'pages/user_page.dart';
 //import 'pages/edit_user_page.dart';
 //import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tech_connect/pages/map_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,7 +35,9 @@ class MyApp extends StatelessWidget {
       // home: AuthPage(),
        //home: UserPage(),
        //home: EditUserPage(),
-      home: AuthPage(),
+      //home: AuthPage(),
+      home: MapPage(),
+      //home: FirstPage()
     );
   }
 }
