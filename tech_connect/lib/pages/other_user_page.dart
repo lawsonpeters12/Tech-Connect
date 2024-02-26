@@ -49,7 +49,7 @@ class _OtherUserPageState extends State<OtherUserPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBar(context),
-      backgroundColor: widget.darkMode ? Colors.black : Colors.white,
+      backgroundColor: widget.darkMode ? Color.fromRGBO(203, 51, 59, 100) : Color.fromRGBO(198, 218, 231, 100),
       body: FutureBuilder<UserInf>(
         future: otherUserFuture,
         builder: (context, snapshot) {

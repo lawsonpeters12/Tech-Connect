@@ -6,19 +6,22 @@ class OrgsPage extends StatefulWidget {
   const OrgsPage({super.key});
 
   @override
-  State<OrgsPage> createState() => _OrgsPageState();
-
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(centerTitle: true, title: Text('Organizations')),
-    );
-  }
+  State<OrgsPage> createState() => _OrgsPageState();  
 }
 
-class _OrgsPageState extends State<OrgsPage> {
+  Widget build(BuildContext context){
+    return Scaffold(
+      appBar: AppBar(centerTitle: true, title: Text('Organizations')),
+      );
+  }
+
+class _OrgsPageState extends State<OrgsPage>{
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(home: organizationPage());
+  Widget build(BuildContext context){
+    return MaterialApp(
+      home: organizationPage(),
+      debugShowCheckedModeBanner: false,
+    );
   }
 }
 
@@ -30,7 +33,7 @@ class organizationPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('Organizations'),
         centerTitle: true,
-        backgroundColor: Color.fromRGBO(203, 51, 59, 100),
+        backgroundColor: Color.fromRGBO(77, 95, 128, 100),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,

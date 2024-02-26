@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 AppBar buildAppBar(BuildContext context){
   return AppBar(
     
-    backgroundColor: Colors.transparent,
+    backgroundColor:Color.fromRGBO(77, 95, 128, 100),
     elevation: 0,
     /*
     actions: [

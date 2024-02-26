@@ -31,9 +31,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(dividerColor: Colors.black),
-      // home: AuthPage(),
-       //home: UserPage(),
-       //home: EditUserPage(),
       home: AuthPage(),
     );
   }

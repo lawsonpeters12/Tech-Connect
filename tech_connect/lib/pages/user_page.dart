@@ -83,6 +83,7 @@ class _UserPageState extends State<UserPage> {
             return ListView(
               physics: BouncingScrollPhysics(),
               children: [
+                const SizedBox(height: 24),
                 ProfileWidget(
                   imagePath: user.imagePath,
                   onClicked: () async {
@@ -104,6 +105,7 @@ class _UserPageState extends State<UserPage> {
 
   AppBar buildAppBar(BuildContext context) {
     return AppBar(
+      backgroundColor:  Color.fromRGBO(77, 95, 128, 100),
       title: Text('User Profile'),
       actions: [
         IconButton(
