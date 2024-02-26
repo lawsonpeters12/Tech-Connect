@@ -105,9 +105,20 @@ class _UserPageState extends State<UserPage> {
 
   AppBar buildAppBar(BuildContext context) {
     return AppBar(
-      backgroundColor:  Color.fromRGBO(77, 95, 128, 100),
+      backgroundColor: isDarkMode ? Color.fromRGBO(167, 43, 42, 1) : Color.fromRGBO(77, 95, 128, 100),
       title: Text('User Profile'),
       actions: [
+        IconButton(
+          icon: isDarkMode ? Icon(Icons.toggle_on) : Icon(Icons.toggle_off),
+          onPressed: () {
+            // Toggle dark mode
+            setState(() {
+              isDarkMode = !isDarkMode;
+              // Change background color
+              backgroundColor = isDarkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1);
+            });
+          },
+        ),
         IconButton(
           icon: Icon(Icons.logout),
           onPressed: () {
@@ -117,6 +128,7 @@ class _UserPageState extends State<UserPage> {
       ],
     );
   }
+
 
   Widget buildName(UserInf user) => Column(
         children: [
