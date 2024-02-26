@@ -113,7 +113,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Color.fromRGBO(198, 218, 231, 100),
       appBar: AppBar(
-        backgroundColor: Color.fromRGBO(198, 218, 231, 100),
+        backgroundColor:  Color.fromRGBO(77, 95, 128, 100),
         title: Text('Home Page'),
         leading: Container(),
         actions: [

@@ -55,16 +55,10 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    //create: (context) => ThemeProvider(),
-    //builder: (context, _) {
-      //final themeProvider = Provider.of<ThemeProvider>(context);
-
-      return MaterialApp(
-        themeMode: ThemeMode.system,
-        //theme: myThemes.lightTheme,
-        //darkTheme: myThemes.darkTheme,
-        debugShowCheckedModeBanner: false,
-        home: FirstPage(),
-      );
-    }
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(dividerColor: Colors.black),
+      home: FirstPage(),
+    );
+  }
 }
