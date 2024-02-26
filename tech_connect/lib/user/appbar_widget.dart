@@ -1,17 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tech_connect/pages/student_id.dart';
+
+void logOut() async {
+  await FirebaseAuth.instance.signOut();
+}
+
 
 AppBar buildAppBar(BuildContext context){
   return AppBar(
-    
-    backgroundColor: Colors.transparent,
+    backgroundColor: Color.fromRGBO(75, 97, 126, 1),
     elevation: 0,
-    /*
-    actions: [
+    leading:
       IconButton(
-      onPressed: () {},
-      icon: const Icon(Icons.comment)
+        onPressed:() => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => StudentID())),
+        icon: Icon(Icons.credit_card),
+      ),
+    actions: const [
+      IconButton(
+        onPressed: logOut,
+        icon: Icon(Icons.logout)
       ),
     ]
-    */
   );
 }
