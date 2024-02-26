@@ -63,56 +63,28 @@ class _UserPageState extends State<UserPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBar(context),
-      backgroundColor: backgroundColor, // Use dynamic background color
-      body: FutureBuilder<UserInf>(
-        future: userFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            // Display loading indicator while fetching user data
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (snapshot.hasError) {
-            // Handle error state
-            return Center(
-              child: Text('Error fetching user data'),
-            );
-          } else {
-            // User data loaded successfully, display user information
-            final user = snapshot.data!;
-            return ListView(
-              physics: BouncingScrollPhysics(),
-              children: [
-                ProfileWidget(
-                  imagePath: user.imagePath,
-                  onClicked: () async {
-                    editUserPage();
-                  },
-                ),
-                const SizedBox(height: 24),
-                buildName(user),
-                NumbersWidget(),
-                const SizedBox(height: 48),
-                buildAbout(user),
-              ],
-            );
-          }
-        },
-      ),
-    );
-  }
-
-  AppBar buildAppBar(BuildContext context) {
-    return AppBar(
-      title: Text('User Profile'),
-      actions: [
-        IconButton(
-          icon: Icon(Icons.logout),
-          onPressed: () {
-            FirebaseAuth.instance.signOut();
-          },
-        ),
-      ],
+      backgroundColor: Color.fromRGBO(198, 218, 231, 100),
+      body: ListView(
+        physics: BouncingScrollPhysics(),
+        children: [
+          const SizedBox(height: 24),
+          ProfileWidget(
+            imagePath: user.imagePath,
+            onClicked: () async {
+                await Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => EditUserPage(),)
+              );
+              setState(() {});
+            },
+          ),
+          const SizedBox(height: 24),
+          buildName(user),
+          NumbersWidget(),
+          const SizedBox(height: 48),
+          buildAbout(user),
+        ],
+      )
+      
     );
   }
 

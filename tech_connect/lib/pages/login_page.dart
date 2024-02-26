@@ -120,7 +120,7 @@ class _LoginPageState extends State<LoginPage> {
                   children: <Widget>[
                     // decoration: BoxDecoration(color: Colors.blue),
                     Image.asset(
-                      "images/google_logo.png",
+                      "images/google_icon.png",
                       width: 45, height: 45,
                       fit:BoxFit.cover,
                     ),     

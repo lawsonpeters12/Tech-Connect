@@ -9,6 +9,16 @@ class UserPreferences {
 
   static const _keyUser = 'user';
 
+  static const myUser = UserInf(
+    imagePath: 'images/icon_image.png',
+    name: 'Name Lastname',
+    email: 'email@email.com',
+    major: 'Undeclared',
+    about: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris pidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
+
+    // isDarkMode: false
+  );
+
   static Future init() async =>
       _preferences = await SharedPreferences.getInstance();
 
