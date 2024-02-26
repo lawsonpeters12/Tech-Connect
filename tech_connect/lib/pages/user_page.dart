@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tech_connect/user/appbar_widget.dart';
 import 'package:tech_connect/user/profile_widget.dart';
+import 'package:tech_connect/pages/student_id.dart';
 import 'package:tech_connect/user/user.dart';
 import 'package:tech_connect/user/numbers_widget.dart';
 import 'package:tech_connect/pages/edit_user_page.dart';
@@ -50,6 +51,10 @@ class _UserPageState extends State<UserPage> {
   void editUserPage() {
     // Navigate to the EditUserPage and pass a function to update user data
     Navigator.of(context).push(MaterialPageRoute(builder: (context) => EditUserPage(updateUserData: updateUser)));
+  }
+
+  void logOut() async {
+    await FirebaseAuth.instance.signOut();
   }
 
   void updateUser(UserInf newUser) {
@@ -107,6 +112,11 @@ class _UserPageState extends State<UserPage> {
     return AppBar(
       backgroundColor: isDarkMode ? Color.fromRGBO(167, 43, 42, 1) : Color.fromRGBO(77, 95, 128, 100),
       title: Text('User Profile'),
+      leading: IconButton(
+        icon: Icon(Icons.credit_card),
+        onPressed:() => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => StudentID())),
+      ),
       actions: [
         IconButton(
           icon: isDarkMode ? Icon(Icons.toggle_on) : Icon(Icons.toggle_off),
@@ -122,12 +132,13 @@ class _UserPageState extends State<UserPage> {
         IconButton(
           icon: Icon(Icons.logout),
           onPressed: () {
-            FirebaseAuth.instance.signOut();
+            logOut();
           },
         ),
       ],
     );
   }
+
 
 
   Widget buildName(UserInf user) => Column(
