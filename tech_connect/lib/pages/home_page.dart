@@ -12,25 +12,25 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String event1 = 'Last day to drop courses or resign with “W” grades';
-  String event2 = 'Early Web Registration Begins for Spring and Summer Quarter 2024';
-  String event3 = 'Early Registration for Veterans and Degree Candidate Seniors ≥ 110 hours';
-  String event4 = 'Early Registration for Honors Students, Grad Students, & Eligible Athletes';
-  String event5 = 'Early Registration for Seniors ≥ 100 hours';
-  String event6 = 'Early Registration for Seniors ≥ 90 hours';
-  String event7 = 'Early Registration for Juniors ≥ 80 hours';
-  String event8 = 'Early Registration for Juniors ≥ 71 hours';
-  String event9 = 'Early Registration for Juniors ≥ 60 hours';
+  String event1 = 'Last Day of Classes';
+  String event2 = 'Early Web Registration Ends for Spring Quarter 2024';
+  String event3 = '1st Scheduled Purge';
+  String event4 = 'WINTER 2023-2024 QUARTER ENDS';
+  String event5 = 'Winter Commencement Exercises';
+  String event6 = 'All Other Grades Due';
+  String event7 = 'Grades “live” on Student BOSS';
+  String event8 = 'SPRING QUARTER 2024 BEGINS';
+  String event9 = 'Placement Exams';
 
-  String eventInfo1 = 'Friday, February 2';
-  String eventInfo2 = 'Monday, February 5';
-  String eventInfo3 = 'Monday, February 5';
-  String eventInfo4 = 'Monday, February 5';
-  String eventInfo5 = 'Tuesday, February 6';
-  String eventInfo6 = 'Tuesday, February 6';
-  String eventInfo7 = 'Wednesday, February 7';
-  String eventInfo8 = 'Wednesday, February 7';
-  String eventInfo9 = 'Thursday, February 8';
+  String eventInfo1 = 'Tuesday, February 27';
+  String eventInfo2 = 'Wednesday, February 28';
+  String eventInfo3 = 'Wednesday, February 28';
+  String eventInfo4 = 'Saturday, March 2';
+  String eventInfo5 = 'Saturday, March 2';
+  String eventInfo6 = 'Monday, March 4';
+  String eventInfo7 = 'Tuesday, March 5';
+  String eventInfo8 = 'Tuesday, March 12';
+  String eventInfo9 = 'Tuesday, March 12';
 
   bool isLoading = false;
 
@@ -110,7 +110,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(198, 218, 231, 100),
+      backgroundColor: Color.fromRGBO(77, 95, 128, 100),
       appBar: AppBar(
         backgroundColor: Color.fromRGBO(198, 218, 231, 100),
         title: Text('Home Page'),
