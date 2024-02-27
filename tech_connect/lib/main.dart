@@ -35,9 +35,9 @@ class MyApp extends StatelessWidget {
       // home: AuthPage(),
        //home: UserPage(),
        //home: EditUserPage(),
-      //home: AuthPage(),
+      home: AuthPage(),
       //home: MapPage(),
-      home: FirstPage()
+      //home: FirstPage()
     );
   }
 }
