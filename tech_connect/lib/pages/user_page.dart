@@ -1,25 +1,48 @@
-import 'package:flutter/material.dart';
+// ignore_for_file: prefer_const_constructors
+
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+//import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+//import 'package:tech_connect/components/click_button.dart';
+import 'package:tech_connect/pages/edit_user_page.dart';
+//import 'package:tech_connect/pages/register_page.dart';
 import 'package:tech_connect/user/appbar_widget.dart';
+import 'package:tech_connect/user/user_preferences.dart';
 import 'package:tech_connect/user/profile_widget.dart';
 import 'package:tech_connect/pages/student_id.dart';
 import 'package:tech_connect/user/user.dart';
 import 'package:tech_connect/user/numbers_widget.dart';
-import 'package:tech_connect/pages/edit_user_page.dart';
+//import 'package:tech_connect/main.dart';
 
-class UserPage extends StatefulWidget {
-  const UserPage({Key? key}) : super(key: key);
+/*
+FirebaseAuth _auth = FirebaseAuth.instance;
+final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+*/
+
+class UserPage extends StatefulWidget{
+  const UserPage({super.key});
 
   @override
-  _UserPageState createState() => _UserPageState();
+  State<UserPage> createState() => _UserPageState();
 }
 
 class _UserPageState extends State<UserPage> {
-  late Future<UserInf> userFuture;
-  bool isDarkMode = false;
-  Color backgroundColor = Color.fromRGBO(198, 218, 231, 1);
+  // log user out
+  void logOut() async {
+    await FirebaseAuth.instance.signOut();
+  }
+// checks if the user doc exists
+/*
+// TODO: get access to fire store and work on this
+  Future checkUserInFirestore(User user, String username) async {
+    DocumentSnapshot doc = await _firestore.collection('users').doc(user.uid).get();
 
+    if(!doc.exists){
+      print('User Does Not Exist');
+    }
+  }
+  */
+// add logout button
   @override
   void initState() {
     super.initState();
@@ -142,39 +165,38 @@ class _UserPageState extends State<UserPage> {
 
 
   Widget buildName(UserInf user) => Column(
-        children: [
-          Text(
-            user.name,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            user.major,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            user.email,
-            style: TextStyle(color: Colors.grey),
-          ),
-        ],
-      );
+    children: [
+      Text(
+        user.name,
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+      ),
+      const SizedBox(height: 4),
+      Text(
+        user.major,
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+      ),
+      const SizedBox(height: 4),
+      Text( 
+        user.email,
+        style:TextStyle(color: Colors.grey)
+      ),
+    ],
+  );
 
   Widget buildAbout(UserInf user) => Container(
-        padding: EdgeInsets.symmetric(horizontal: 48),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Bio',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              user.about,
-              style: TextStyle(fontSize: 16, height: 1.4),
-            )
-          ],
-        ),
-      );
+    padding: EdgeInsets.symmetric(horizontal: 48),
+    child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        'Bio',
+        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+      ),
+      const SizedBox(height: 16,),
+      Text(user.about,
+      style: TextStyle(fontSize:16, height: 1.4),
+      )
+    ],
+  )
+  );
 }

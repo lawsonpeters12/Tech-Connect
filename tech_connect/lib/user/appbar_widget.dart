@@ -5,24 +5,8 @@ import 'package:tech_connect/pages/student_id.dart';
 import 'package:provider/provider.dart';
 import 'package:tech_connect/main.dart';
 
-
 void logOut() async {
   await FirebaseAuth.instance.signOut();
-}
-
-class ChangeThemeButtonWidget extends StatelessWidget{
-  @override
-  Widget build(BuildContext context){
-    final themeProvider = Provider.of<ThemeProvider>(context);
-
-    return Switch.adaptive(
-      value: themeProvider.DarkMode, 
-      onChanged: (value) {
-        final provider = Provider.of<ThemeProvider>(context, listen: false);
-        provider.toggleTheme(value);
-      },
-    );
-  }
 }
 
 AppBar buildAppBar(BuildContext context){
@@ -35,9 +19,7 @@ AppBar buildAppBar(BuildContext context){
                       builder: (context) => StudentID())),
         icon: Icon(Icons.credit_card),
       ),
-    actions: [
-      ChangeThemeButtonWidget(),
-    
+    actions: [    
       IconButton(
         onPressed: logOut,
         icon: Icon(Icons.logout),

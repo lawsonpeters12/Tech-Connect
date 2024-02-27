@@ -13,6 +13,7 @@ import 'package:tech_connect/user/user_preferences.dart';
 //import 'pages/user_page.dart';
 //import 'pages/edit_user_page.dart';
 //import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tech_connect/pages/map_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,6 +24,7 @@ void main() async {
   runApp(const MyApp());
 }
 
+/*
 class ThemeProvider extends ChangeNotifier{
   ThemeMode themeMode = ThemeMode.dark;
 
@@ -45,6 +47,7 @@ class myThemes {
       colorScheme: ColorScheme.light(),
   );
 }
+*/
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -55,7 +58,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(dividerColor: Colors.black),
+      // home: AuthPage(),
+       //home: UserPage(),
+       //home: EditUserPage(),
       home: AuthPage(),
+      //home: MapPage(),
+      //home: FirstPage()
     );
   }
 }
