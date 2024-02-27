@@ -19,6 +19,7 @@ late GoogleMapController mapController;
   final Set<Marker> _markers = {};
   late LatLng _current;
 
+  // TODO: try and get this to go off of runtime
   Future<Position> getUserCurrentLocation() async {
     await Geolocator.requestPermission().then((value){
     }).onError((error, stackTrace) async {
@@ -94,6 +95,8 @@ late GoogleMapController mapController;
       appBar: AppBar( title: Text('Campus Map'),
       toolbarHeight: 80,
       ),
+
+      // redundant container for formatting later
       body: Container( 
       //padding: EdgeInsets.all(20.0),
 
@@ -106,7 +109,7 @@ late GoogleMapController mapController;
         target: _center,
         zoom: 16.0,
       ),
-      // Change this to be a camera box that you cant leave
+      // TODO: Change this to be a camera box that you cant leave
       //minMaxZoomPreference: MinMaxZoomPreference(100, 999),
       //liteModeEnabled: true,
       mapType: MapType.satellite,
@@ -120,6 +123,7 @@ late GoogleMapController mapController;
       markers: _markers,
     )
     ),
+    // TODO: kill this button to make it bgrab location on runtime
     floatingActionButton: FloatingActionButton(
         onPressed: () async{
           getUserCurrentLocation().then((value) async {
@@ -136,6 +140,7 @@ late GoogleMapController mapController;
                 )
             );
  
+        
             // specified current users location
             CameraPosition cameraPosition = new CameraPosition(
               target: LatLng(value.latitude, value.longitude),
