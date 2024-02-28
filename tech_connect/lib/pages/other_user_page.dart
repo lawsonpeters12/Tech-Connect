@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:tech_connect/user/appbar_widget.dart';
 import 'package:tech_connect/user/profile_widget.dart';
 import 'package:tech_connect/user/user.dart';
 import 'package:tech_connect/pages/direct_messages.dart';
@@ -48,13 +47,26 @@ class _OtherUserPageState extends State<OtherUserPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: buildAppBar(context),
-      backgroundColor: widget.darkMode ? Colors.black : Colors.white,
+      appBar: AppBar(
+        title: FutureBuilder<UserInf>(
+          future: otherUserFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Text('Loading...');
+            } 
+            else {
+              final otherUser = snapshot.data!;
+              return Text(otherUser.name);
+            }
+          },
+        ),
+        backgroundColor: widget.darkMode ? Color.fromRGBO(167, 43, 42, 1) : Color.fromRGBO(77, 95, 128, 100),
+      ),
+      backgroundColor: widget.darkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1),
       body: FutureBuilder<UserInf>(
         future: otherUserFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            // Display loading indicator while fetching other user data
             return Center(
               child: CircularProgressIndicator(),
             );
@@ -67,9 +79,12 @@ class _OtherUserPageState extends State<OtherUserPage> {
             return ListView(
               physics: BouncingScrollPhysics(),
               children: [
-                ProfileWidget(
-                  imagePath: otherUser.imagePath,
-                  onClicked: () {},
+                Padding(
+                  padding: const EdgeInsets.only(top: 16.0), 
+                  child: ProfileWidget(
+                    imagePath: otherUser.imagePath,
+                    onClicked: () {},
+                  ),
                 ),
                 const SizedBox(height: 24),
                 buildName(otherUser),
@@ -85,42 +100,42 @@ class _OtherUserPageState extends State<OtherUserPage> {
                       },
                       child: Text('Message'),
                     ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      // Update the current user's document in Firestore
-                      User? currentUser = FirebaseAuth.instance.currentUser;
-                      String userEmail = currentUser?.email ?? '';
-                      DocumentSnapshot currentUserDoc = await FirebaseFirestore.instance.collection('friend_requests')
-                          .doc(userEmail)
-                          .get();
-
-                      Map<String, dynamic>? currentUserData = currentUserDoc.data() as Map<String, dynamic>?;
-
-                      List<dynamic> currentUserOutgoingRequests = currentUserData?['outgoing_friend_requests'] ?? [];
-                      if (!currentUserOutgoingRequests.contains(otherUser.email)) {
-                        currentUserOutgoingRequests.add(otherUser.email);
-                        await FirebaseFirestore.instance.collection('friend_requests')
+                    ElevatedButton(
+                      onPressed: () async {
+                        // Update the current user's document in Firestore
+                        User? currentUser = FirebaseAuth.instance.currentUser;
+                        String userEmail = currentUser?.email ?? '';
+                        DocumentSnapshot currentUserDoc = await FirebaseFirestore.instance.collection('friend_requests')
                             .doc(userEmail)
-                            .set({'outgoing_friend_requests': currentUserOutgoingRequests}, SetOptions(merge: true)); // SetOptions(merge: true) will only edit 1 field of the document. Without it, the other fields get erased.
-                      }
+                            .get();
 
-                      // Update the other user's document in Firestore
-                      DocumentSnapshot otherUserDoc = await FirebaseFirestore.instance.collection('friend_requests')
-                          .doc(otherUser.email)
-                          .get();
+                        Map<String, dynamic>? currentUserData = currentUserDoc.data() as Map<String, dynamic>?;
 
-                      Map<String, dynamic>? otherUserData = otherUserDoc.data() as Map<String, dynamic>?;
+                        List<dynamic> outgoingFriendRequests = currentUserData?['outgoing_friend_requests'] ?? [];
+                        if (!outgoingFriendRequests.contains(otherUser.email)) {
+                          outgoingFriendRequests.add(otherUser.email);
+                          await FirebaseFirestore.instance.collection('friend_requests')
+                              .doc(userEmail)
+                              .set({'outgoing_friend_requests': outgoingFriendRequests}, SetOptions(merge: true)); // SetOptions(merge: true) will only edit 1 field of the document. Without it, the other fields get erased.
+                        }
 
-                      List<dynamic> otherUserIncomingRequests = otherUserData?['incoming_friend_requests'] ?? [];
-                      if (!otherUserIncomingRequests.contains(userEmail)) {
-                        otherUserIncomingRequests.add(userEmail);
-                        await FirebaseFirestore.instance.collection('friend_requests')
+                        // Update the other user's document in Firestore
+                        DocumentSnapshot otherUserDoc = await FirebaseFirestore.instance.collection('friend_requests')
                             .doc(otherUser.email)
-                            .set({'incoming_friend_requests': otherUserIncomingRequests}, SetOptions(merge: true)); // SetOptions(merge: true) will only edit 1 field of the document. Without it, the other fields get erased.
-                      }
-                    },
-                    child: Text('Add Friend'),
-                  ),
+                            .get();
+
+                        Map<String, dynamic>? otherUserData = otherUserDoc.data() as Map<String, dynamic>?;
+
+                        List<dynamic> incomingFriendRequests = otherUserData?['incoming_friend_requests'] ?? [];
+                        if (!incomingFriendRequests.contains(userEmail)) {
+                          incomingFriendRequests.add(userEmail);
+                          await FirebaseFirestore.instance.collection('friend_requests')
+                              .doc(otherUser.email)
+                              .set({'incoming_friend_requests': incomingFriendRequests}, SetOptions(merge: true)); // SetOptions(merge: true) will only edit 1 field of the document. Without it, the other fields get erased.
+                        }
+                      },
+                      child: Text('Add Friend'),
+                    ),
                   ],
                 ),
               ],

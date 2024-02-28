@@ -23,6 +23,7 @@ void main() async {
   runApp(const MyApp());
 }
 
+/*
 class ThemeProvider extends ChangeNotifier{
   ThemeMode themeMode = ThemeMode.dark;
 
@@ -45,6 +46,7 @@ class myThemes {
       colorScheme: ColorScheme.light(),
   );
 }
+*/
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -55,6 +57,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(dividerColor: Colors.black),
+      // home: AuthPage(),
+       //home: UserPage(),
+       //home: EditUserPage(),
       home: AuthPage(),
     );
   }
