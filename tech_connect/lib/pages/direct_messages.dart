@@ -21,6 +21,7 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
   late StreamController<QuerySnapshot> _messageStreamController;
   String otherUserName = '';
   String searchString = '';
+  List<String> conversationID = [];
 
   File? imageFile;
   String? fileName;
@@ -29,8 +30,10 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
   void initState() {
     super.initState();
     _messageStreamController = StreamController<QuerySnapshot>();
+    _getOtherUserDisplayName();
+    _getConversationID();
     _updateMessageStream();
-    _getOtherUserName();
+
   }
 
   void dispose() {
@@ -45,18 +48,14 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
       String userEmail = user?.email ?? 'anonymous';
       String displayName = await _getUserDisplayName(userEmail);
 
-      List<String> users = [userEmail, widget.otherUserEmail];
-      users.sort();
-
       CollectionReference directMessages =
           FirebaseFirestore.instance.collection('directmessages');
 
-      // Get server timestamp before adding the message
       Timestamp serverTimestamp = Timestamp.now();
 
       try {
         await directMessages.add({
-          'users': '${users[0]}_${users[1]}',
+          'users': conversationID, 
           'message': message,
           'sender': displayName,
           'timestamp': serverTimestamp,
@@ -89,7 +88,7 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
     return 'anonymous';
   }
 
-  void _getOtherUserName() async {
+  void _getOtherUserDisplayName() async {
     try {
       DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
           .collection('users')
@@ -150,24 +149,23 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
     );
   }
 
-  void _updateMessageStream() {
-    FirebaseFirestore.instance
-        .collection('directmessages')
-        .where('users', isEqualTo: _generateUsersString())
-        .orderBy('timestamp', descending: true)
-        .snapshots()
-        .listen((data) {
-      _messageStreamController.add(data);
-    });
-  }
+void _updateMessageStream() {
+  FirebaseFirestore.instance
+      .collection('directmessages')
+      .where('users', isEqualTo: conversationID) // 'users' field is the sorted array between the 2 unique emails
+      .orderBy('timestamp', descending: true)
+      .snapshots()
+      .listen((data) {
+    _messageStreamController.add(data);
+  });
+}
 
-  String _generateUsersString() {
-    User? user = FirebaseAuth.instance.currentUser;
-    String userEmail = user?.email ?? 'anonymous';
-    List<String> users = [userEmail, widget.otherUserEmail];
-    users.sort();
-    return '${users[0]}_${users[1]}';
-  }
+
+void _getConversationID() {
+  User? user = FirebaseAuth.instance.currentUser;
+  String userEmail = user?.email ?? 'anonymous';
+  conversationID = [userEmail, widget.otherUserEmail]..sort();
+}
 
   Future<void> _openGallery() async {
     ImagePicker _picker = ImagePicker();
@@ -204,7 +202,7 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
     CollectionReference directMessages =
         FirebaseFirestore.instance.collection('directmessages');
     directMessages.add({
-      'users': _generateUsersString(),
+      'users': conversationID,
       'message': imageUrl,
       'sender': displayName,
       'timestamp': FieldValue.serverTimestamp(),
