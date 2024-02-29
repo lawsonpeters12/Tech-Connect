@@ -161,13 +161,22 @@ class _FriendPageState extends State<FriendPage> {
                       itemCount: incomingRequests.length,
                       itemBuilder: (context, index) {
                         String requestEmail = incomingRequests[index];
-                        return ListTile(
-                          title: Text(requestEmail),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: Icon(Icons.check),
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => OtherUserPage(otherUserEmail: requestEmail),
+                              ),
+                            );
+                          },
+                          child: ListTile(
+                            title: Text(requestEmail),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: Icon(Icons.check),
                                 onPressed: () async {
                                   User? currentUser = FirebaseAuth.instance.currentUser;
                                   String userEmail = currentUser?.email ?? '';
@@ -216,9 +225,10 @@ class _FriendPageState extends State<FriendPage> {
                                       'outgoing_friend_requests': FieldValue.arrayRemove([userEmail])
                                   });
                                   refreshRequests(); 
-                                },
-                              ),
-                            ],
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
                         );
                       },
@@ -228,7 +238,7 @@ class _FriendPageState extends State<FriendPage> {
               ),
             ],
           ),
-        ),
+        ),  
       ),
     );
   }
