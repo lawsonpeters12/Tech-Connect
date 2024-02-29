@@ -312,6 +312,10 @@ class _IDPageState extends State<IDPage> {
                             .format(context)
                         : "00:00";
 
+                    var formattedDate = timestamp != null
+                        ? "${timestamp.toDate().month}/${timestamp.toDate().day}"
+                        : "";
+
                     String senderName = messageData['sender_display_name'] ?? messageData['user'];
 
                     if (messageData['message'].contains(searchString)) {
@@ -325,15 +329,27 @@ class _IDPageState extends State<IDPage> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: ListTile(
-                              title: Text(
-                                '$senderName: ${messageData['message']}',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
+                              title: RichText(
+                                text: TextSpan(
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                  ),
+                                  children: [
+                                    TextSpan(
+                                      text: '$senderName: ',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: '${messageData['message']}',
+                                    ),
+                                  ],
                                 ),
                               ),
                               subtitle: Text(
-                                formattedTime,
+                                '$formattedDate\t\t\t$formattedTime',
                                 style: TextStyle(
                                   color: Colors.grey,
                                 ),
@@ -341,6 +357,7 @@ class _IDPageState extends State<IDPage> {
                             ),
                           ),
                         );
+
                       } else if (messageData['type'] == 'image') {
                         messageWidgets.add(
                           Container(
@@ -366,7 +383,7 @@ class _IDPageState extends State<IDPage> {
                                     height: 100,
                                   ),
                                   subtitle: Text(
-                                    formattedTime,
+                                    '$formattedDate\t\t\t$formattedTime',
                                     style: TextStyle(
                                       color: Colors.grey,
                                     ),
