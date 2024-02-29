@@ -288,6 +288,10 @@ void _getConversationID() {
                         ? TimeOfDay.fromDateTime(timestamp.toDate())
                             .format(context)
                         : "00:00";
+                    
+                    var formattedDate = timestamp != null
+                        ? "${timestamp.toDate().month}/${timestamp.toDate().day}"
+                        : "";
 
                     if (messageData['type'] == 'text') {
                       messageWidgets.add(
@@ -299,34 +303,35 @@ void _getConversationID() {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: ListTile(
-                            title: Row(
-                              children: [
-                                Text(
-                                  '$senderName: ',
+                              title: RichText(
+                                text: TextSpan(
                                   style: TextStyle(
                                     color: Colors.black,
-                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
                                   ),
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    messageData['message'],
-                                    style: TextStyle(
-                                      color: Colors.black,
+                                  children: [
+                                    TextSpan(
+                                      text: '$senderName: ',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
+                                    TextSpan(
+                                      text: '${messageData['message']}',
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                            subtitle: Text(
-                              formattedTime,
-                              style: TextStyle(
-                                color: Colors.grey,
+                              ),
+                              subtitle: Text(
+                                '$formattedDate\t\t\t$formattedTime',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      );
+                        );
+                      
                     } else if (messageData['type'] == 'image') {
                       messageWidgets.add(
                         Container(
@@ -352,7 +357,7 @@ void _getConversationID() {
                                   height: 150,
                                 ),
                                 subtitle: Text(
-                                  formattedTime,
+                                  '$formattedDate\t\t\t$formattedTime',
                                   style: TextStyle(
                                     color: Colors.grey,
                                   ),
