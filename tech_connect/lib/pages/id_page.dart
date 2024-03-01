@@ -303,6 +303,10 @@ class _IDPageState extends State<IDPage> {
                   var messages = snapshot.data?.docs ?? [];
                   List<Widget> messageWidgets = [];
 
+                  
+                  User? user = FirebaseAuth.instance.currentUser;
+                  String userEmail = user?.email ?? 'anonymous';
+
                   for (var message in messages) {
                     var messageData = message.data() as Map<String, dynamic>;
                     var timestamp = messageData['timestamp'] as Timestamp?;
@@ -320,12 +324,14 @@ class _IDPageState extends State<IDPage> {
 
                     if (messageData['message'].contains(searchString)) {
                       if (messageData['type'] == 'text') {
+                      bool isCurrentUser = messageData['user'] == userEmail;
+                      Color color = isCurrentUser ? Color.fromRGBO(145, 174, 241, 1) : Color.fromRGBO(184, 178, 178, 1);
                         messageWidgets.add(
                           Container(
                             margin: EdgeInsets.symmetric(vertical: 8),
                             padding: EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: color,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: ListTile(
@@ -351,7 +357,7 @@ class _IDPageState extends State<IDPage> {
                               subtitle: Text(
                                 '$formattedDate\t\t\t$formattedTime',
                                 style: TextStyle(
-                                  color: Colors.grey,
+                                  color: Color.fromARGB(255, 101, 101, 101),
                                 ),
                               ),
                             ),
@@ -385,7 +391,7 @@ class _IDPageState extends State<IDPage> {
                                   subtitle: Text(
                                     '$formattedDate\t\t\t$formattedTime',
                                     style: TextStyle(
-                                      color: Colors.grey,
+                                      color: Color.fromARGB(255, 101, 101, 101),
                                     ),
                                   ),
                                 ),

@@ -57,7 +57,8 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
         await directMessages.add({
           'users': conversationID, 
           'message': message,
-          'sender': displayName,
+          'sender': userEmail,
+          'sender_display_name': displayName,
           'timestamp': serverTimestamp,
           'type': "text",
         });
@@ -204,7 +205,8 @@ void _getConversationID() {
     directMessages.add({
       'users': conversationID,
       'message': imageUrl,
-      'sender': displayName,
+      'sender': userEmail,
+      'sender_display_name': displayName,
       'timestamp': FieldValue.serverTimestamp(),
       'type': "image",
     }).then((_) {
@@ -278,11 +280,14 @@ void _getConversationID() {
 
                   List<Widget> messageWidgets = [];
 
+                  User? user = FirebaseAuth.instance.currentUser;
+                  String userEmail = user?.email ?? 'anonymous';
+
                   for (var message in messages) {
                     var messageData = message.data() as Map<String, dynamic>;
                     var timestamp = messageData['timestamp'] as Timestamp?;
 
-                    String senderName = messageData['sender'] ?? 'unknown';
+                    String senderName = messageData['sender_display_name'] ?? 'unknown';
 
                     var formattedTime = timestamp != null
                         ? TimeOfDay.fromDateTime(timestamp.toDate())
@@ -293,13 +298,16 @@ void _getConversationID() {
                         ? "${timestamp.toDate().month}/${timestamp.toDate().day}"
                         : "";
 
+
                     if (messageData['type'] == 'text') {
+                      bool isCurrentUser = messageData['sender'] == userEmail;
+                      Color color = isCurrentUser ? Color.fromRGBO(145, 174, 241, 1) : Color.fromRGBO(184, 178, 178, 1);
                       messageWidgets.add(
                         Container(
                           margin: EdgeInsets.symmetric(vertical: 8),
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: color,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: ListTile(
@@ -325,7 +333,7 @@ void _getConversationID() {
                               subtitle: Text(
                                 '$formattedDate\t\t\t$formattedTime',
                                 style: TextStyle(
-                                  color: Colors.grey,
+                                  color: Color.fromARGB(255, 101, 101, 101),
                                 ),
                               ),
                             ),
@@ -359,7 +367,7 @@ void _getConversationID() {
                                 subtitle: Text(
                                   '$formattedDate\t\t\t$formattedTime',
                                   style: TextStyle(
-                                    color: Colors.grey,
+                                    color: Color.fromARGB(255, 101, 101, 101),
                                   ),
                                 ),
                               ),
