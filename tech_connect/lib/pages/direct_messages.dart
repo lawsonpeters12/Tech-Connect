@@ -298,10 +298,10 @@ void _getConversationID() {
                         ? "${timestamp.toDate().month}/${timestamp.toDate().day}"
                         : "";
 
+                    bool isCurrentUser = messageData['sender'] == userEmail;
+                    Color color = isCurrentUser ? Color.fromRGBO(145, 174, 241, 1) : Color.fromRGBO(184, 178, 178, 1);
 
                     if (messageData['type'] == 'text') {
-                      bool isCurrentUser = messageData['sender'] == userEmail;
-                      Color color = isCurrentUser ? Color.fromRGBO(145, 174, 241, 1) : Color.fromRGBO(184, 178, 178, 1);
                       messageWidgets.add(
                         Container(
                           margin: EdgeInsets.symmetric(vertical: 8),
@@ -346,7 +346,7 @@ void _getConversationID() {
                           margin: EdgeInsets.symmetric(vertical: 8),
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: color,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Column(

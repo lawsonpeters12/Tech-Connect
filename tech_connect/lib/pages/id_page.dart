@@ -322,10 +322,12 @@ class _IDPageState extends State<IDPage> {
 
                     String senderName = messageData['sender_display_name'] ?? messageData['user'];
 
+                    bool isCurrentUser = messageData['user'] == userEmail;
+                    Color color = isCurrentUser ? Color.fromRGBO(145, 174, 241, 1) : Color.fromRGBO(184, 178, 178, 1);
+
                     if (messageData['message'].contains(searchString)) {
                       if (messageData['type'] == 'text') {
-                      bool isCurrentUser = messageData['user'] == userEmail;
-                      Color color = isCurrentUser ? Color.fromRGBO(145, 174, 241, 1) : Color.fromRGBO(184, 178, 178, 1);
+
                         messageWidgets.add(
                           Container(
                             margin: EdgeInsets.symmetric(vertical: 8),
@@ -370,7 +372,7 @@ class _IDPageState extends State<IDPage> {
                             margin: EdgeInsets.symmetric(vertical: 8),
                             padding: EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: color,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Column(
