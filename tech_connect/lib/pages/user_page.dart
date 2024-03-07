@@ -114,7 +114,7 @@ class _UserPageState extends State<UserPage> {
                 ),
                 const SizedBox(height: 24),
                 buildName(user),
-                NumbersWidget(),
+                NumbersWidget(userEmail: user.email,),
                 const SizedBox(height: 48),
                 buildAbout(user),
               ],

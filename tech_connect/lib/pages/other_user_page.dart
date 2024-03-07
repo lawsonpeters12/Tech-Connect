@@ -4,6 +4,8 @@ import 'package:tech_connect/user/profile_widget.dart';
 import 'package:tech_connect/user/user.dart';
 import 'package:tech_connect/pages/direct_messages.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tech_connect/user/numbers_widget.dart';
+
 
 
 class OtherUserPage extends StatefulWidget {
@@ -104,6 +106,7 @@ class _OtherUserPageState extends State<OtherUserPage> {
                 ),
                 const SizedBox(height: 24),
                 buildName(otherUser),
+                NumbersWidget(userEmail: otherUser.email),
                 const SizedBox(height: 24),
                 buildAbout(otherUser),
                 const SizedBox(height: 24),
@@ -178,7 +181,7 @@ class _OtherUserPageState extends State<OtherUserPage> {
         style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 15,
-            color: Colors.grey),
+            color: Colors.black),
       ),
       const SizedBox(height: 4),
       Text(
