@@ -5,6 +5,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class IDPage extends StatefulWidget {
   const IDPage({Key? key}) : super(key: key);
@@ -22,17 +24,27 @@ class _IDPageState extends State<IDPage> {
 
   File? imageFile;
   String? fileName;
+  bool isDarkMode = false;
+
 
   @override
   void initState() {
     super.initState();
     _messageStreamController = StreamController<QuerySnapshot>();
     _updateMessageStream(currentChatTopic);
+    getDarkModeValue();
   }
 
   void dispose() {
     _messageStreamController.close();
     super.dispose();
+  }
+
+    Future<void> getDarkModeValue() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isDarkMode = prefs.getBool('isDarkMode') ?? false;
+    });
   }
 
   void _sendMessage() async {
@@ -244,7 +256,7 @@ class _IDPageState extends State<IDPage> {
             ),
           ],
         ),
-        backgroundColor: Color.fromRGBO(75, 97, 126, 1),
+        backgroundColor: isDarkMode ? Color.fromRGBO(167, 43, 42, 1) : Color.fromRGBO(77, 95, 128, 100),
         actions: [
           IconButton(
             icon: Icon(Icons.search),
@@ -288,6 +300,7 @@ class _IDPageState extends State<IDPage> {
           ),
         ],
       ),
+      backgroundColor: isDarkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
