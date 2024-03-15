@@ -8,14 +8,14 @@ import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
-class IDPage extends StatefulWidget {
-  const IDPage({Key? key}) : super(key: key);
+class CampusChatPage extends StatefulWidget {
+  const CampusChatPage({Key? key}) : super(key: key);
 
   @override
-  _IDPageState createState() => _IDPageState();
+  _CampusChatPageState createState() => _CampusChatPageState();
 }
 
-class _IDPageState extends State<IDPage> {
+class _CampusChatPageState extends State<CampusChatPage> {
   TextEditingController _messageController = TextEditingController();
   late Future<void> _initializeControllerFuture;
   String currentChatTopic = "main_chat";

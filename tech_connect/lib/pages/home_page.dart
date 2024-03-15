@@ -3,7 +3,7 @@ import 'package:html/parser.dart' as parser;
 import 'package:http/http.dart' as http;
 import 'package:tech_connect/pages/DM_page.dart';
 import 'package:tech_connect/pages/friend_page.dart';
-import 'package:tech_connect/pages/id_page.dart';
+import 'package:tech_connect/pages/campus_chat_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
