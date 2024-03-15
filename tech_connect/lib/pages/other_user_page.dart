@@ -4,6 +4,8 @@ import 'package:tech_connect/user/profile_widget.dart';
 import 'package:tech_connect/user/user.dart';
 import 'package:tech_connect/pages/direct_messages.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tech_connect/user/numbers_widget.dart';
+
 
 
 class OtherUserPage extends StatefulWidget {
@@ -18,11 +20,13 @@ class OtherUserPage extends StatefulWidget {
 
 class _OtherUserPageState extends State<OtherUserPage> {
   late Future<UserInf> otherUserFuture;
+  late bool isFriend;
 
   @override
   void initState() {
     super.initState();
     otherUserFuture = fetchOtherUserData();
+    checkIfFriend();
   }
 
   Future<UserInf> fetchOtherUserData() async {
@@ -42,6 +46,20 @@ class _OtherUserPageState extends State<OtherUserPage> {
       email: otherUserData['email'] ?? '',
       about: otherUserData['about'] ?? '',
     );
+  }
+
+  Future<void> checkIfFriend() async {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    String userEmail = currentUser?.email ?? '';
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userEmail)
+        .get();
+
+    List<dynamic> friendsList = userDoc.get('friends_list') ?? [];
+    setState(() {
+      isFriend = friendsList.contains(widget.otherUserEmail);
+    });
   }
 
   @override
@@ -88,6 +106,7 @@ class _OtherUserPageState extends State<OtherUserPage> {
                 ),
                 const SizedBox(height: 24),
                 buildName(otherUser),
+                NumbersWidget(userEmail: otherUser.email),
                 const SizedBox(height: 24),
                 buildAbout(otherUser),
                 const SizedBox(height: 24),
@@ -100,8 +119,9 @@ class _OtherUserPageState extends State<OtherUserPage> {
                       },
                       child: Text('Message'),
                     ),
-                    ElevatedButton(
-                      onPressed: () async {
+                    if (!isFriend) // Don't display "add friend" button if user is already your friend
+                      ElevatedButton(
+                        onPressed: () async {
                         // Update the current user's document in Firestore
                         User? currentUser = FirebaseAuth.instance.currentUser;
                         String userEmail = currentUser?.email ?? '';
@@ -161,7 +181,7 @@ class _OtherUserPageState extends State<OtherUserPage> {
         style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 15,
-            color: Colors.grey),
+            color: Colors.black),
       ),
       const SizedBox(height: 4),
       Text(

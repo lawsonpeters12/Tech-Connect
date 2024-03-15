@@ -57,7 +57,8 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
         await directMessages.add({
           'users': conversationID, 
           'message': message,
-          'sender': displayName,
+          'sender': userEmail,
+          'sender_display_name': displayName,
           'timestamp': serverTimestamp,
           'type': "text",
         });
@@ -204,7 +205,8 @@ void _getConversationID() {
     directMessages.add({
       'users': conversationID,
       'message': imageUrl,
-      'sender': displayName,
+      'sender': userEmail,
+      'sender_display_name': displayName,
       'timestamp': FieldValue.serverTimestamp(),
       'type': "image",
     }).then((_) {
@@ -278,16 +280,26 @@ void _getConversationID() {
 
                   List<Widget> messageWidgets = [];
 
+                  User? user = FirebaseAuth.instance.currentUser;
+                  String userEmail = user?.email ?? 'anonymous';
+
                   for (var message in messages) {
                     var messageData = message.data() as Map<String, dynamic>;
                     var timestamp = messageData['timestamp'] as Timestamp?;
 
-                    String senderName = messageData['sender'] ?? 'unknown';
+                    String senderName = messageData['sender_display_name'] ?? 'unknown';
 
                     var formattedTime = timestamp != null
                         ? TimeOfDay.fromDateTime(timestamp.toDate())
                             .format(context)
                         : "00:00";
+                    
+                    var formattedDate = timestamp != null
+                        ? "${timestamp.toDate().month}/${timestamp.toDate().day}"
+                        : "";
+
+                    bool isCurrentUser = messageData['sender'] == userEmail;
+                    Color color = isCurrentUser ? Color.fromRGBO(145, 174, 241, 1) : Color.fromRGBO(184, 178, 178, 1);
 
                     if (messageData['type'] == 'text') {
                       messageWidgets.add(
@@ -295,45 +307,46 @@ void _getConversationID() {
                           margin: EdgeInsets.symmetric(vertical: 8),
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: color,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: ListTile(
-                            title: Row(
-                              children: [
-                                Text(
-                                  '$senderName: ',
+                              title: RichText(
+                                text: TextSpan(
                                   style: TextStyle(
                                     color: Colors.black,
-                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
                                   ),
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    messageData['message'],
-                                    style: TextStyle(
-                                      color: Colors.black,
+                                  children: [
+                                    TextSpan(
+                                      text: '$senderName: ',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
+                                    TextSpan(
+                                      text: '${messageData['message']}',
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                            subtitle: Text(
-                              formattedTime,
-                              style: TextStyle(
-                                color: Colors.grey,
+                              ),
+                              subtitle: Text(
+                                '$formattedDate\t\t\t$formattedTime',
+                                style: TextStyle(
+                                  color: Color.fromARGB(255, 101, 101, 101),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      );
+                        );
+                      
                     } else if (messageData['type'] == 'image') {
                       messageWidgets.add(
                         Container(
                           margin: EdgeInsets.symmetric(vertical: 8),
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: color,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Column(
@@ -352,9 +365,9 @@ void _getConversationID() {
                                   height: 150,
                                 ),
                                 subtitle: Text(
-                                  formattedTime,
+                                  '$formattedDate\t\t\t$formattedTime',
                                   style: TextStyle(
-                                    color: Colors.grey,
+                                    color: Color.fromARGB(255, 101, 101, 101),
                                   ),
                                 ),
                               ),

@@ -3,7 +3,8 @@ import 'package:html/parser.dart' as parser;
 import 'package:http/http.dart' as http;
 import 'package:tech_connect/pages/DM_page.dart';
 import 'package:tech_connect/pages/friend_page.dart';
-import 'package:tech_connect/pages/id_page.dart';
+import 'package:tech_connect/pages/campus_chat_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -34,6 +35,20 @@ class _HomePageState extends State<HomePage> {
   String eventInfo9 = 'Tuesday, March 12';
 
   bool isLoading = false;
+  bool isDarkMode = false;
+
+  Future<void> getDarkModeValue() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isDarkMode = prefs.getBool('isDarkMode') ?? false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getDarkModeValue();
+  }
 
   Future<List<String>> extractData() async {
     final url = Uri.parse('https://events.latech.edu/academic-calendar/all');
@@ -111,9 +126,8 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(77, 95, 128, 100),
       appBar: AppBar(
-        backgroundColor:  Color.fromRGBO(77, 95, 128, 100),
+      backgroundColor: isDarkMode ? Color.fromRGBO(167, 43, 42, 1) : Color.fromRGBO(77, 95, 128, 100),
         title: Text('Home Page'),
         leading: Container(),
         actions: [
@@ -127,13 +141,18 @@ class _HomePageState extends State<HomePage> {
           SizedBox(width: 20),
         ],
       ),
+      backgroundColor: isDarkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1),
       body: DefaultTabController(
         length: 2,
         child: TabBarView(
           children: [
             Center(
               child: Scaffold(
-                appBar: AppBar(title: Text('Academic Calendar')),
+                appBar: AppBar(
+                  title: Text('Academic Calendar'),
+                  backgroundColor: isDarkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1),
+                ),
+                backgroundColor: isDarkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1),
                 body: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Center(

@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:tech_connect/pages/home_page.dart';
-import 'package:tech_connect/pages/id_page.dart';
+import 'package:tech_connect/pages/campus_chat_page.dart';
 import 'package:tech_connect/pages/map_page.dart';
 import 'package:tech_connect/pages/orgs_page.dart';
 import 'package:tech_connect/pages/user_page.dart';
@@ -31,7 +31,7 @@ class _FirstPageState extends State<FirstPage> {
     OrgsPage(),
 
     //ID
-    IDPage(),
+    CampusChatPage(),
 
     //Home
     HomePage(),
