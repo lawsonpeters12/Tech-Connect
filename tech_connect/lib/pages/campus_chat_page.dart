@@ -127,6 +127,35 @@ class _CampusChatPageState extends State<CampusChatPage> {
     );
   }
 
+void showDeleteButton() {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text("Message Options"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text("Edit Message"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text("Delete Message"),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+
   void _updateChatTopic(String newChatTopic) {
     setState(() {
       currentChatTopic = newChatTopic;
@@ -340,9 +369,7 @@ class _CampusChatPageState extends State<CampusChatPage> {
 
                     if (messageData['message'].contains(searchString)) {
                       if (messageData['type'] == 'text') {
-
-                        messageWidgets.add(
-                          Container(
+                        Widget messageWidget = Container(
                             margin: EdgeInsets.symmetric(vertical: 8),
                             padding: EdgeInsets.all(8),
                             decoration: BoxDecoration(
@@ -373,15 +400,23 @@ class _CampusChatPageState extends State<CampusChatPage> {
                                 '$formattedDate\t\t\t$formattedTime',
                                 style: TextStyle(
                                   color: Color.fromARGB(255, 101, 101, 101),
-                                ),
                               ),
                             ),
                           ),
                         );
 
+                        if (isCurrentUser) {
+                          messageWidget = GestureDetector(
+                            onTap: () {
+                              showDeleteButton();
+                            },
+                            child: messageWidget,
+                          );
+                        }
+
+                        messageWidgets.add(messageWidget);
                       } else if (messageData['type'] == 'image') {
-                        messageWidgets.add(
-                          Container(
+                        Widget messageWidget = Container(
                             margin: EdgeInsets.symmetric(vertical: 8),
                             padding: EdgeInsets.all(8),
                             decoration: BoxDecoration(
@@ -396,8 +431,9 @@ class _CampusChatPageState extends State<CampusChatPage> {
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontWeight: FontWeight.bold,
-                                  ),
+
                                 ),
+                              ),
                                 ListTile(
                                   title: Image.network(
                                     messageData['message'],
@@ -407,13 +443,23 @@ class _CampusChatPageState extends State<CampusChatPage> {
                                     '$formattedDate\t\t\t$formattedTime',
                                     style: TextStyle(
                                       color: Color.fromARGB(255, 101, 101, 101),
-                                    ),
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         );
+
+                        if (isCurrentUser) {
+                          messageWidget = GestureDetector(
+                            onTap: () {
+                              showDeleteButton();
+                            },
+                            child: messageWidget,
+                          );
+                        }
+
+                        messageWidgets.add(messageWidget);
                       }
                     }
                   }
