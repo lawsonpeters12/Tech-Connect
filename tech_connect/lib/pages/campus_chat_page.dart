@@ -127,6 +127,76 @@ class _CampusChatPageState extends State<CampusChatPage> {
     );
   }
 
+// Function creates a dialog with a textbox containing the message the user wants to edit. If the message is saved, the change is saved to the Firestore using the message's id from Firestore.
+void showEditMessagePopup(String messageId, String currentMessage) {
+ TextEditingController editMessageController = TextEditingController(text: currentMessage);
+ showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text("Edit Message"),
+        content: TextField(
+          controller: editMessageController,
+          decoration: InputDecoration(hintText: "Edit message"),
+        ),
+        actions: [
+          ElevatedButton(
+            child: Text("Cancel"),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          ElevatedButton(
+            child: Text("Save"),
+            onPressed: () async { 
+              String editedMessage = editMessageController.text;
+              if (editedMessage != "") {
+                await FirebaseFirestore.instance.collection('messages').doc(messageId).update(
+                 {
+                    'message': editedMessage,
+                });
+                Navigator.pop(context); 
+              }
+            },
+          ),
+        ],
+      );
+    },
+ );
+}
+
+void showMessageOptionsPopup(String messageId, String currentMessage, isImage) {
+ showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text("Message Options"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if(!isImage) // Can't edit image messages, only text messages
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                showEditMessagePopup(messageId, currentMessage);
+              },
+              child: Text("Edit Message"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                FirebaseFirestore.instance.collection('messages').doc(messageId).delete();
+                Navigator.pop(context);
+              },
+              child: Text("Delete Message"),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+
   void _updateChatTopic(String newChatTopic) {
     setState(() {
       currentChatTopic = newChatTopic;
@@ -340,9 +410,7 @@ class _CampusChatPageState extends State<CampusChatPage> {
 
                     if (messageData['message'].contains(searchString)) {
                       if (messageData['type'] == 'text') {
-
-                        messageWidgets.add(
-                          Container(
+                        Widget messageWidget = Container(
                             margin: EdgeInsets.symmetric(vertical: 8),
                             padding: EdgeInsets.all(8),
                             decoration: BoxDecoration(
@@ -373,15 +441,23 @@ class _CampusChatPageState extends State<CampusChatPage> {
                                 '$formattedDate\t\t\t$formattedTime',
                                 style: TextStyle(
                                   color: Color.fromARGB(255, 101, 101, 101),
-                                ),
                               ),
                             ),
                           ),
                         );
 
+                        if (isCurrentUser) {
+                          messageWidget = GestureDetector(
+                            onLongPress: () {
+                              showMessageOptionsPopup(message.id, messageData['message'], false);
+                            },
+                            child: messageWidget,
+                          );
+                        }
+
+                        messageWidgets.add(messageWidget);
                       } else if (messageData['type'] == 'image') {
-                        messageWidgets.add(
-                          Container(
+                        Widget messageWidget = Container(
                             margin: EdgeInsets.symmetric(vertical: 8),
                             padding: EdgeInsets.all(8),
                             decoration: BoxDecoration(
@@ -396,8 +472,9 @@ class _CampusChatPageState extends State<CampusChatPage> {
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontWeight: FontWeight.bold,
-                                  ),
+
                                 ),
+                              ),
                                 ListTile(
                                   title: Image.network(
                                     messageData['message'],
@@ -407,13 +484,23 @@ class _CampusChatPageState extends State<CampusChatPage> {
                                     '$formattedDate\t\t\t$formattedTime',
                                     style: TextStyle(
                                       color: Color.fromARGB(255, 101, 101, 101),
-                                    ),
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         );
+
+                        if (isCurrentUser) {
+                          messageWidget = GestureDetector(
+                            onLongPress: () {
+                              showMessageOptionsPopup(message.id, messageData['message'], true);
+                            },
+                            child: messageWidget,
+                          );
+                        }
+
+                        messageWidgets.add(messageWidget);
                       }
                     }
                   }
