@@ -127,8 +127,46 @@ class _CampusChatPageState extends State<CampusChatPage> {
     );
   }
 
-void showDeleteButton() {
-  showDialog(
+// Function creates a dialog with a textbox containing the message the user wants to edit. If the message is saved, the change is saved to the Firestore using the message's id from Firestore.
+void showEditMessagePopup(String messageId, String currentMessage) {
+ TextEditingController editMessageController = TextEditingController(text: currentMessage);
+ showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text("Edit Message"),
+        content: TextField(
+          controller: editMessageController,
+          decoration: InputDecoration(hintText: "Edit message"),
+        ),
+        actions: [
+          ElevatedButton(
+            child: Text("Cancel"),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          ElevatedButton(
+            child: Text("Save"),
+            onPressed: () async { 
+              String editedMessage = editMessageController.text;
+              if (editedMessage != "") {
+                await FirebaseFirestore.instance.collection('messages').doc(messageId).update(
+                 {
+                    'message': editedMessage,
+                });
+                Navigator.pop(context); 
+              }
+            },
+          ),
+        ],
+      );
+    },
+ );
+}
+
+void showMessageOptionsPopup(String messageId, String currentMessage, isImage) {
+ showDialog(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
@@ -136,14 +174,17 @@ void showDeleteButton() {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            if(!isImage) // Can't edit image messages, only text messages
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
+                showEditMessagePopup(messageId, currentMessage);
               },
               child: Text("Edit Message"),
             ),
             ElevatedButton(
               onPressed: () {
+                FirebaseFirestore.instance.collection('messages').doc(messageId).delete();
                 Navigator.pop(context);
               },
               child: Text("Delete Message"),
@@ -407,8 +448,8 @@ void showDeleteButton() {
 
                         if (isCurrentUser) {
                           messageWidget = GestureDetector(
-                            onTap: () {
-                              showDeleteButton();
+                            onLongPress: () {
+                              showMessageOptionsPopup(message.id, messageData['message'], false);
                             },
                             child: messageWidget,
                           );
@@ -452,8 +493,8 @@ void showDeleteButton() {
 
                         if (isCurrentUser) {
                           messageWidget = GestureDetector(
-                            onTap: () {
-                              showDeleteButton();
+                            onLongPress: () {
+                              showMessageOptionsPopup(message.id, messageData['message'], true);
                             },
                             child: messageWidget,
                           );
