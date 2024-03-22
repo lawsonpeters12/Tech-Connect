@@ -150,6 +150,75 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
     );
   }
 
+  // Function creates a dialog with a textbox containing the message the user wants to edit. If the message is saved, the change is saved to the Firestore using the message's id from Firestore.
+void showEditMessagePopup(String messageId, String currentMessage) {
+ TextEditingController editMessageController = TextEditingController(text: currentMessage);
+ showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text("Edit Message"),
+        content: TextField(
+          controller: editMessageController,
+          decoration: InputDecoration(hintText: "Edit message"),
+        ),
+        actions: [
+          ElevatedButton(
+            child: Text("Cancel"),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+          ElevatedButton(
+            child: Text("Save"),
+            onPressed: () async { 
+              String editedMessage = editMessageController.text;
+              if (editedMessage != "") {
+                await FirebaseFirestore.instance.collection('directmessages').doc(messageId).update(
+                 {
+                    'message': editedMessage,
+                });
+                Navigator.pop(context); 
+              }
+            },
+          ),
+        ],
+      );
+    },
+ );
+}
+
+void showMessageOptionsPopup(String messageId, String currentMessage, isImage) {
+ showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text("Message Options"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if(!isImage) // Can't edit image messages, only text messages
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                showEditMessagePopup(messageId, currentMessage);
+              },
+              child: Text("Edit Message"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                FirebaseFirestore.instance.collection('directmessages').doc(messageId).delete();
+                Navigator.pop(context);
+              },
+              child: Text("Delete Message"),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
 void _updateMessageStream() {
   FirebaseFirestore.instance
       .collection('directmessages')
@@ -242,14 +311,14 @@ void _getConversationID() {
                       TextButton(
                         onPressed: () {
                           searchString = "";
-                          Navigator.of(context).pop();
+                          Navigator.pop(context);
                           _updateMessageStream();
                         },
                         child: Text('Clear Search'),
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).pop();
+                          Navigator.pop(context);
                         },
                         child: Text('Search'),
                       ),
@@ -302,8 +371,7 @@ void _getConversationID() {
                     Color color = isCurrentUser ? Color.fromRGBO(145, 174, 241, 1) : Color.fromRGBO(184, 178, 178, 1);
 
                     if (messageData['type'] == 'text') {
-                      messageWidgets.add(
-                        Container(
+                        Widget messageWidget = Container(
                           margin: EdgeInsets.symmetric(vertical: 8),
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
@@ -337,12 +405,21 @@ void _getConversationID() {
                                 ),
                               ),
                             ),
-                          ),
                         );
+                        
+                        if (isCurrentUser) {
+                          messageWidget = GestureDetector(
+                            onLongPress: () {
+                              showMessageOptionsPopup(message.id, messageData['message'], false);
+                            },
+                            child: messageWidget,
+                          );
+                        }
+
+                        messageWidgets.add(messageWidget);
                       
                     } else if (messageData['type'] == 'image') {
-                      messageWidgets.add(
-                        Container(
+                        Widget messageWidget = Container(
                           margin: EdgeInsets.symmetric(vertical: 8),
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
@@ -372,9 +449,18 @@ void _getConversationID() {
                                 ),
                               ),
                             ],
-                          ),
                         ),
                       );
+                      if (isCurrentUser) {
+                        messageWidget = GestureDetector(
+                          onLongPress: () {
+                            showMessageOptionsPopup(message.id, messageData['message'], true);
+                          },
+                          child: messageWidget,
+                          );
+                        }
+
+                        messageWidgets.add(messageWidget);
                     }
                   }
 

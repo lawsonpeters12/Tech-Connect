@@ -143,7 +143,7 @@ void showEditMessagePopup(String messageId, String currentMessage) {
           ElevatedButton(
             child: Text("Cancel"),
             onPressed: () {
-              Navigator.of(context).pop();
+              Navigator.pop(context);
             },
           ),
           ElevatedButton(
@@ -352,13 +352,13 @@ void showMessageOptionsPopup(String messageId, String currentMessage, isImage) {
                           setState(() {
                             searchString = '';
                           });
-                          Navigator.of(context).pop();
+                          Navigator.pop(context);
                         },
                         child: Text('Clear Search'),
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).pop();
+                          Navigator.pop(context);
                         },
                         child: Text('Search'),
                       ),
