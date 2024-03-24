@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tech_connect/user/appbar_widget.dart';
 import 'package:tech_connect/user/profile_widget.dart';
 import 'package:tech_connect/user/user.dart';
@@ -29,7 +30,21 @@ class _EditUserPageState extends State<EditUserPage> {
   void initState() {
     super.initState();
     _loadUserData();
+    getDarkModeValue();
   }
+  bool isDarkMode = false;
+  Color pageBackgroundColor = Color.fromRGBO(198, 218, 231, 1);
+
+  Future<void> getDarkModeValue() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isDarkMode = prefs.getBool('isDarkMode') ?? false;
+      pageBackgroundColor = isDarkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1);
+    });
+  }
+
+
+
 
   Future<void> _loadUserData() async {
     // Get the current user's email
@@ -105,6 +120,7 @@ void uploadProfilePictureToFirestore(String imageUrl, User currentUser) async {
   @override
   Widget build(BuildContext context) => Scaffold(
         //appBar: buildAppBar(context),
+        backgroundColor: pageBackgroundColor,
         body: _isLoading
             ? Center(child: CircularProgressIndicator())
             : ListView(

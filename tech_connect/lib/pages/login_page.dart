@@ -25,20 +25,30 @@ class _LoginPageState extends State<LoginPage> {
         password: passwordTextController.text);
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.code)));
-    }  
+    }
   }
 
   @override
+  void initState() {
+    super.initState();
+  }
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(198, 218, 231, 100),
-      body: SafeArea ( 
+      resizeToAvoidBottomInset: false,
+      backgroundColor: Color.fromRGBO(198, 218, 231, 1),
+      body: 
+      SingleChildScrollView( 
+      physics: const NeverScrollableScrollPhysics(),
+      child: 
+      SafeArea ( 
         child: Center(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 25.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                const SizedBox(height: 100),
                 // logo
                 Container(
                   width: 100, 
@@ -134,6 +144,6 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
       ),
-    );
+    ));
   }
 }

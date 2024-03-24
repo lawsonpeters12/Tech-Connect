@@ -26,7 +26,16 @@ class _PasswordResetState extends State<PasswordReset> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(198, 218, 231, 100),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {Navigator.pop(context);
+          }
+          ),
+          title: Text('Reset Password'),
+          backgroundColor: Color.fromRGBO(77, 95, 128, 100),
+      ),
+      backgroundColor: Color.fromRGBO(198, 218, 231, 1),
       body: SafeArea(
         child: Center(
           child: Padding(
