@@ -28,6 +28,14 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  void logInWithGoogle() async {
+    try {
+      await FirebaseAuth.instance.signInWithProvider(GoogleAuthProvider());
+    } on FirebaseAuthException catch (e){
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.code)));
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -129,13 +137,21 @@ class _LoginPageState extends State<LoginPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     // decoration: BoxDecoration(color: Colors.blue),
+                    GestureDetector(
+                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => PasswordReset())),
+                      child: 
                     Image.asset(
                       "images/google_icon.png",
                       width: 45, height: 45,
                       fit:BoxFit.cover,
-                    ),     
+                    ),
+                  ),
                     const SizedBox(width: 5.0,),
-                    const Text('Sign-in with Google') // add gesture detector
+                  GestureDetector(
+                    onTap: () => logInWithGoogle(),
+                    child: Text('Sign-in with Google'),
+                  ),
                   ],
                 ),
             ),
