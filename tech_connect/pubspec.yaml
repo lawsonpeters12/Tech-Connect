@@ -57,8 +57,13 @@ dependencies:
 
   # storing image for the user profile
   path_provider: ^2.0.1
+
+  # google maps api dependencies
   google_maps_flutter: ^2.5.3
   permission_handler: ^11.3.0
+  webview_flutter: ^3.0.3
+  maps_toolkit: ^3.0.0
+  geofence_service: ^5.0.0
 
 dev_dependencies:
   flutter_test:

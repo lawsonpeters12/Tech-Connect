@@ -9,10 +9,7 @@
             "cwd": "tech_connect",
             "request": "launch",
             "type": "dart",
-            "args": [
-                "-d",
-                "chrome"
-              ]
+           
         },
         {
             "name": "tech_connect (profile mode)",

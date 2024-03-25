@@ -1,9 +1,8 @@
 // ignore_for_file: prefer_const_constructors
 
-
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-//import 'package:permission_handler/permission_handler.dart';
 import 'package:geolocator/geolocator.dart';
 
 class MapPage extends StatefulWidget{
@@ -14,70 +13,42 @@ class MapPage extends StatefulWidget{
 }
 
 class _MapPageState extends State<MapPage> {
-late GoogleMapController mapController;
-  LatLng _center = LatLng(32.52741208116641, -92.64696455825013);
-  final Set<Marker> _markers = {};
-  late LatLng _current;
+  
+  final LatLng northEastBound = LatLng(32.534665145170706, -92.63876772509097);
+  final LatLng southWestBound = LatLng(32.523864894532736, -92.6582692918401);
+  //final LatLngBounds cameraBounds = LatLngBounds(southwest: southWestBound, northeast: northEastBound);
 
-  // TODO: try and get this to go off of runtime
+  late GoogleMapController mapController;
+  //final LatLngBounds cameraLimit = (32.52, -92.);
+  final LatLng _center = LatLng(32.52741208116641, -92.64696455825013);
+  final Set<Polygon> _geofences = {};
+  
   Future<Position> getUserCurrentLocation() async {
     await Geolocator.requestPermission().then((value){
     }).onError((error, stackTrace) async {
       await Geolocator.requestPermission();
-      print("ERROR"+error.toString());
+      //print("ERROR"+error.toString());
     });
     return await Geolocator.getCurrentPosition();
   }
-  
+
   Future<void> _getKeyLocations() async {
     //final position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     setState(() {
+      log('ryan');
         //_current = LatLng(position.latitude, position.longitude);
-        _markers.add(Marker(
-        markerId: MarkerId('Wyly Tower'),
-        position: LatLng(32.528210757177895, -92.64712045575439),
-        infoWindow: InfoWindow(
-          title: 'Wyly Tower'
-        )
-      )
-      );
+        _geofences.add(Polygon(polygonId: PolygonId('IESB'),
+        points: const [
+          LatLng(32.52686957807876, -92.64404631669886), 
+          LatLng(32.525993264184095, -92.64414494032368),
+          LatLng(32.52589731688815, -92.64160348537621),
+          LatLng(32.52677363171867, -92.6415655532128),
+        ],
+        strokeColor: Color.fromARGB(0, 0, 0, 0),
+        fillColor: Color.fromARGB(0, 0, 0, 0)));
 
-      _markers.add(Marker(
-        markerId: MarkerId('IESB'),
-        position: LatLng(32.52633128747083, -92.6435751327031),
-        infoWindow: InfoWindow(
-          title: 'IESB'
-        )
-      )
-      );
-
-      _markers.add(Marker(
-        markerId: MarkerId('Woodard Hall'),
-        position: LatLng(32.52714109333242, -92.65028315561175),
-        infoWindow: InfoWindow(
-          title: 'Woodard Hall'
-        )
-      )
-      );
-
-      _markers.add(Marker(
-        markerId: MarkerId('Love Park'),
-        position: LatLng(32.52982745931875, -92.65115222527899),
-        infoWindow: InfoWindow(
-          title: 'Love Park'
-        )
-      )
-      );
-
-      _markers.add(Marker(
-        markerId: MarkerId('Lambright Sports Center'),
-        position: LatLng(32.53324377130569, -92.65079593688885),
-        infoWindow: InfoWindow(
-          title: 'Lambright Sports Center'
-        )
-      )
-      );
-    });
+      
+  });
   }
 
   // get rid of this if possible to simplify code.
@@ -85,6 +56,17 @@ late GoogleMapController mapController;
   void initState() {
     super.initState();
     _getKeyLocations();
+    getUserCurrentLocation().then((value) async {
+    // specified current users location
+    CameraPosition cameraPosition = CameraPosition(
+      target: LatLng(value.latitude, value.longitude),
+      zoom: 16,);
+
+    final GoogleMapController controller = mapController;
+      controller.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+      setState(() {
+      });
+    });
   }
 
   @override
@@ -109,52 +91,16 @@ late GoogleMapController mapController;
         target: _center,
         zoom: 16.0,
       ),
-      // TODO: Change this to be a camera box that you cant leave
-      //minMaxZoomPreference: MinMaxZoomPreference(100, 999),
-      //liteModeEnabled: true,
       mapType: MapType.satellite,
       myLocationEnabled: true,
       myLocationButtonEnabled: true,
       compassEnabled: true,
       rotateGesturesEnabled: true,
       tiltGesturesEnabled: true,
-      //buildingsEnabled: true,
-      //mapToolbarEnabled: true,
-      markers: _markers,
+      cameraTargetBounds: CameraTargetBounds(LatLngBounds(northeast: northEastBound, southwest: southWestBound)),
+      polygons: _geofences,
     )
     ),
-    // TODO: kill this button to make it bgrab location on runtime
-    floatingActionButton: FloatingActionButton(
-        onPressed: () async{
-          getUserCurrentLocation().then((value) async {
-            print(value.latitude.toString() +" "+value.longitude.toString());
- 
-            // marker added for current users location
-            _markers.add(
-                Marker(
-                  markerId: MarkerId("2"),
-                  position: LatLng(value.latitude, value.longitude),
-                  infoWindow: InfoWindow(
-                    title: 'My Current Location',
-                  ),
-                )
-            );
- 
-        
-            // specified current users location
-            CameraPosition cameraPosition = new CameraPosition(
-              target: LatLng(value.latitude, value.longitude),
-              zoom: 14,
-            );
- 
-            final GoogleMapController controller = await mapController;
-            controller.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
-            setState(() {
-            });
-          });
-        },
-        child: Icon(Icons.local_activity),
-      ),
     );
 
   }
