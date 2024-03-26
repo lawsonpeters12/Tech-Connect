@@ -5,14 +5,11 @@ import 'package:tech_connect/user/user.dart';
 import 'package:tech_connect/pages/direct_messages.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tech_connect/user/numbers_widget.dart';
-
-
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OtherUserPage extends StatefulWidget {
   final String otherUserEmail;
-  final bool darkMode;
-
-  OtherUserPage({required this.otherUserEmail, this.darkMode = false});
+  OtherUserPage({required this.otherUserEmail});
 
   @override
   _OtherUserPageState createState() => _OtherUserPageState();
@@ -21,12 +18,21 @@ class OtherUserPage extends StatefulWidget {
 class _OtherUserPageState extends State<OtherUserPage> {
   late Future<UserInf> otherUserFuture;
   late bool isFriend;
+  bool isDarkMode = false;
+
+  Future<void> getDarkModeValue() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isDarkMode = prefs.getBool('isDarkMode') ?? false;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
     otherUserFuture = fetchOtherUserData();
     checkIfFriend();
+    getDarkModeValue();
   }
 
   Future<UserInf> fetchOtherUserData() async {
@@ -78,9 +84,9 @@ class _OtherUserPageState extends State<OtherUserPage> {
             }
           },
         ),
-        backgroundColor: widget.darkMode ? Color.fromRGBO(167, 43, 42, 1) : Color.fromRGBO(77, 95, 128, 100),
+        backgroundColor: isDarkMode ? Color.fromRGBO(167, 43, 42, 1) : Color.fromRGBO(77, 95, 128, 100),
       ),
-      backgroundColor: widget.darkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1),
+      backgroundColor: isDarkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1),
       body: FutureBuilder<UserInf>(
         future: otherUserFuture,
         builder: (context, snapshot) {
