@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:tech_connect/pages/org_chat.dart';
 
 class OrgsPage extends StatefulWidget {
   @override
@@ -84,19 +85,36 @@ class OrganizationButton extends StatelessWidget {
 }
 
 class OrgDetails extends StatelessWidget {
-  final String orgName;
+ final String orgName;
 
-  const OrgDetails({required this.orgName});
+ const OrgDetails({required this.orgName});
 
-  @override
-  Widget build(BuildContext context) {
+ @override
+ Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(centerTitle: true, title: Text(orgName)),
       body: Center(
-        child: Text('Details for $orgName'),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('Details for $orgName'),
+            SizedBox(height: 16), // Adjust spacing between elements if needed
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                 context,
+                 MaterialPageRoute(
+                    builder: (context) => OrganizationChatPage(orgName: orgName),
+                 ),
+                );
+              },
+              child: Text('Org Chat'),
+            ),
+          ],
+        ),
       ),
     );
-  }
+ }
 }
 
 class AllOrgsPage extends StatelessWidget {
