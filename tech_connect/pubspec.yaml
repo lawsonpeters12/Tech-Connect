@@ -32,11 +32,6 @@ dependencies:
     sdk: flutter
   http: ^1.1.2
   html: ^0.15.4
-<<<<<<< Updated upstream
-=======
-  provider: ^6.0.5
-  profanity_filter: ^2.0.0
->>>>>>> Stashed changes
 
 
   # The following adds the Cupertino Icons font to your application.

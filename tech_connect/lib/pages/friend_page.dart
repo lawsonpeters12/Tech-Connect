@@ -124,7 +124,6 @@ class MySearchDelegate extends SearchDelegate {
       final result = searchResult.toLowerCase();
       final input = query.toLowerCase();
 
-<<<<<<< Updated upstream
       return result.contains(input);
     }).toList();
 
@@ -141,28 +140,6 @@ class MySearchDelegate extends SearchDelegate {
             showResults(context);
           }
         );
-=======
-          return ListView.builder(
-            itemCount: suggestions.length,
-            itemBuilder: (context, index) {
-              final suggestion = suggestions[index];
-              return ListTile(
-                title: Text(suggestion),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => OtherUserPage(
-                        otherUserEmail: suggestion,
-                      ),
-                    ),
-                  );
-                },
-              );
-            },
-          );
-        }
->>>>>>> Stashed changes
       },
     );
   }
