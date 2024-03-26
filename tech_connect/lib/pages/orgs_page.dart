@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tech_connect/pages/org_chat.dart';
+import 'package:tech_connect/pages/org_profile.dart';
 
 class OrgsPage extends StatefulWidget {
   @override
@@ -32,24 +33,12 @@ class _OrgsPageState extends State<OrgsPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextButton(
-              onPressed: () {
-                // Action for the first button
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => AllOrgsPage()),
-                );
-              },
+              onPressed: _routeToAllOrgsPage,
               child: Text('All Organizations'),
             ),
-            SizedBox(height: 16), // Adjust spacing between buttons if needed
+            SizedBox(height: 16),
             TextButton(
-              onPressed: () {
-                // Action for the second button
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => MyOrgsPage()),
-                );
-              },
+              onPressed: _routeToMyOrgsPage,
               child: Text('My Organizations'),
             ),
           ],
@@ -84,38 +73,6 @@ class OrganizationButton extends StatelessWidget {
   }
 }
 
-class OrgDetails extends StatelessWidget {
- final String orgName;
-
- const OrgDetails({required this.orgName});
-
- @override
- Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(centerTitle: true, title: Text(orgName)),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Details for $orgName'),
-            SizedBox(height: 16), // Adjust spacing between elements if needed
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                 context,
-                 MaterialPageRoute(
-                    builder: (context) => OrganizationChatPage(orgName: orgName),
-                 ),
-                );
-              },
-              child: Text('Org Chat'),
-            ),
-          ],
-        ),
-      ),
-    );
- }
-}
 
 class AllOrgsPage extends StatelessWidget {
   @override
@@ -123,12 +80,12 @@ class AllOrgsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(centerTitle: true, title: Text('All Organizations')),
       body: Center(
-        child: _buildOrgsList(),
+        child: _buildOrgsList(context),
       ),
     );
   }
 
-  Widget _buildOrgsList() {
+  Widget _buildOrgsList(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
       stream:
           FirebaseFirestore.instance.collection('Organizations').snapshots(),
@@ -149,7 +106,7 @@ class AllOrgsPage extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => OrgDetails(orgName: orgName)),
+                        builder: (context) => OrganizationPage(orgName: orgName)),
                   );
                 },
               );
