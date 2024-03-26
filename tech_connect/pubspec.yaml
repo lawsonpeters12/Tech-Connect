@@ -64,6 +64,7 @@ dependencies:
   webview_flutter: ^3.0.3
   maps_toolkit: ^3.0.0
   geofence_service: ^5.0.0
+  geocoding: ^3.0.0
 
 dev_dependencies:
   flutter_test:

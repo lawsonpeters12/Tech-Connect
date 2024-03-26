@@ -9,7 +9,7 @@ import 'package:tech_connect/pages/first_page.dart';
 import 'package:tech_connect/pages/login_page.dart';
 import 'package:tech_connect/user/user_preferences.dart';
 // for coding and debugging
-//import 'pages/home_page.dart';
+import 'pages/home_page.dart';
 //import 'pages/user_page.dart';
 //import 'pages/edit_user_page.dart';
 //import 'package:shared_preferences/shared_preferences.dart';
@@ -61,9 +61,11 @@ class MyApp extends StatelessWidget {
       // home: AuthPage(),
        //home: UserPage(),
        //home: EditUserPage(),
-      home: AuthPage(),
+      //home: AuthPage(),
       //home: MapPage(),
-      //home: FirstPage()
+      home: FirstPage()
+      //home: HomePage()
+      //home: MapPage()
     );
   }
 }

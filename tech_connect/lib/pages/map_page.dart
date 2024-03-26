@@ -1,9 +1,14 @@
 // ignore_for_file: prefer_const_constructors
 
-import 'dart:developer';
+//import 'dart:developer';
+//import 'dart:ffi';
+import 'package:geocoding/geocoding.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+//import 'package:geofence_service/geofence_service.dart';
+import 'package:flutter/services.dart';
+//import 'package:location/location.dart' as locationlib;
 
 class MapPage extends StatefulWidget{
   const MapPage({super.key});
@@ -13,16 +18,65 @@ class MapPage extends StatefulWidget{
 }
 
 class _MapPageState extends State<MapPage> {
+
+  //final GeocodingPlatform _geocodingPlatform;
   
   final LatLng northEastBound = LatLng(32.534665145170706, -92.63876772509097);
   final LatLng southWestBound = LatLng(32.523864894532736, -92.6582692918401);
   //final LatLngBounds cameraBounds = LatLngBounds(southwest: southWestBound, northeast: northEastBound);
-
+  //late GeofenceService _geofenceService;
   late GoogleMapController mapController;
+  late String _address;
+  //late LatLng currentLocation;
   //final LatLngBounds cameraLimit = (32.52, -92.);
   final LatLng _center = LatLng(32.52741208116641, -92.64696455825013);
-  final Set<Polygon> _geofences = {};
-  
+  //final List<Geofence> _geofences = [];
+  /*
+  final _geofenceService = GeofenceService.instance.setup(
+    interval: 5000,
+    accuracy: 100,
+    loiteringDelayMs: 60000,
+    statusChangeDelayMs: 10000,
+    useActivityRecognition: true,
+    allowMockLocations: false,
+    printDevLog: false,
+    geofenceRadiusSortType: GeofenceRadiusSortType.DESC
+  );
+
+  final _geofenceList = <Geofence>[
+    Geofence(
+    id: 'IESB', 
+    latitude: 32.52639755141901, 
+    longitude: -92.64279822540782,
+    radius: [GeofenceRadius(id: 'radius_100m', length: 100),
+            GeofenceRadius(id: 'radius_25m', length: 25),
+            GeofenceRadius(id: 'radius_250m', length: 250),
+            GeofenceRadius(id: 'radius_200m', length: 200),]
+    )
+  ];
+
+  Future<void> _onGeofenceStatusChanged(
+    Geofence geofence,
+    GeofenceRadius geofenceRadius,
+    GeofenceStatus geofenceStatus,
+    Location location) async {
+      print('geofence: ${geofence.toJson()}');
+      print('geofenceRadius: ${geofenceRadius.toJson()}');
+      print('geofenceStatus: ${geofenceStatus.toString()}');
+    }
+
+    void _onLocationChanged(Location location) {
+      print('location: ${location.toJson()}');
+    }
+
+    void _onError(error) {
+      final errorCode = getErrorCodesFromError(error);
+      if(errorCode == null) {
+        print('Undefined error: $error');
+        return;
+      }
+    }
+*/
   Future<Position> getUserCurrentLocation() async {
     await Geolocator.requestPermission().then((value){
     }).onError((error, stackTrace) async {
@@ -32,22 +86,31 @@ class _MapPageState extends State<MapPage> {
     return await Geolocator.getCurrentPosition();
   }
 
+  Future<void> getAddressFromLatLng(double latitude, double longitude) async {
+    //const double latitude = 32.52629966078266;
+    //const double longitude = -92.6433865400934;
+    //print('holy shit');
+    //try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
+      Placemark place = placemarks[0];
+
+      setState(() {
+      
+      _address = ("${place.street}");
+      print("Address: $_address");
+      //print('Address: $_address');
+      //, ${place.postalCode}, ${place.locality}, ${place.administrativeArea}, ${place.country}");
+      });
+    //} catch (e) {
+    //  print(e);
+    //}
+  }
+
   Future<void> _getKeyLocations() async {
     //final position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    //GeocodingPlatform _geocodingPlatform;
     setState(() {
-      log('ryan');
-        //_current = LatLng(position.latitude, position.longitude);
-        _geofences.add(Polygon(polygonId: PolygonId('IESB'),
-        points: const [
-          LatLng(32.52686957807876, -92.64404631669886), 
-          LatLng(32.525993264184095, -92.64414494032368),
-          LatLng(32.52589731688815, -92.64160348537621),
-          LatLng(32.52677363171867, -92.6415655532128),
-        ],
-        strokeColor: Color.fromARGB(0, 0, 0, 0),
-        fillColor: Color.fromARGB(0, 0, 0, 0)));
-
-      
+ 
   });
   }
 
@@ -55,17 +118,39 @@ class _MapPageState extends State<MapPage> {
   @override
   void initState() {
     super.initState();
-    _getKeyLocations();
+    //print('this is a fucking debug statement');
+    //_getKeyLocations();
+    //getAddressFromLatLng();
+    
+    //_getKeyLocations();
+
     getUserCurrentLocation().then((value) async {
     // specified current users location
     CameraPosition cameraPosition = CameraPosition(
       target: LatLng(value.latitude, value.longitude),
       zoom: 16,);
-
+    
     final GoogleMapController controller = mapController;
-      controller.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
-      setState(() {
-      });
+    controller.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+
+    getAddressFromLatLng(value.latitude, value.longitude);
+    //print("Address: $_address");
+    });
+    /*
+    //_geofenceService.addGeofenceList(_geofences);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _geofenceService.addGeofenceStatusChangeListener(_onGeofenceStatusChanged);
+      _geofenceService.addLocationChangeListener(_onLocationChanged);
+      //_geofenceService.addLocationServicesStatusChangeListener(_onLocationServicesStatusChanged);
+      //_geofenceService.addActivityChangeListener(_onActivityChanged);
+      _geofenceService.addStreamErrorListener(_onError);
+      _geofenceService.start(_geofenceList).catchError(_onError);
+    }
+    );
+    */
+    //_geofenceService.addGeofenceList(_geofences);
+    setState(() {
+      
     });
   }
 
@@ -98,9 +183,12 @@ class _MapPageState extends State<MapPage> {
       rotateGesturesEnabled: true,
       tiltGesturesEnabled: true,
       cameraTargetBounds: CameraTargetBounds(LatLngBounds(northeast: northEastBound, southwest: southWestBound)),
-      polygons: _geofences,
-    )
+      //polygons: _geofences,
     ),
+    
+    
+    ),
+    
     );
 
   }
