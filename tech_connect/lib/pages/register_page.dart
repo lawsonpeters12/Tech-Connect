@@ -52,7 +52,10 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context){
     return Scaffold(
       backgroundColor: Color.fromRGBO(198, 218, 231, 100),
-      body: SafeArea ( 
+      body: SingleChildScrollView(
+      physics: NeverScrollableScrollPhysics(),
+      child: 
+      SafeArea ( 
         child: Center(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 25.0),
@@ -60,9 +63,10 @@ class _RegisterPageState extends State<RegisterPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 
+                const SizedBox(height:100),
                 // logo
                 const Icon(
-                  Icons.lock,
+                  Icons.person_4,
                   size: 100, 
                 ),
                 
@@ -130,6 +134,6 @@ class _RegisterPageState extends State<RegisterPage> {
           ),
         ),
       ),
-    );
+    ));
   }
 }

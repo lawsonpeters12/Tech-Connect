@@ -25,20 +25,38 @@ class _LoginPageState extends State<LoginPage> {
         password: passwordTextController.text);
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.code)));
-    }  
+    }
+  }
+
+  void logInWithGoogle() async {
+    try {
+      await FirebaseAuth.instance.signInWithProvider(GoogleAuthProvider());
+    } on FirebaseAuthException catch (e){
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.code)));
+    }
   }
 
   @override
+  void initState() {
+    super.initState();
+  }
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(198, 218, 231, 100),
-      body: SafeArea ( 
+      resizeToAvoidBottomInset: false,
+      backgroundColor: Color.fromRGBO(198, 218, 231, 1),
+      body: 
+      SingleChildScrollView( 
+      physics: const NeverScrollableScrollPhysics(),
+      child: 
+      SafeArea ( 
         child: Center(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 25.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                const SizedBox(height: 100),
                 // logo
                 Container(
                   width: 100, 
@@ -119,13 +137,20 @@ class _LoginPageState extends State<LoginPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     // decoration: BoxDecoration(color: Colors.blue),
+                    GestureDetector(
+                      onTap: () => logInWithGoogle(),
+                      child: 
                     Image.asset(
                       "images/google_icon.png",
                       width: 45, height: 45,
                       fit:BoxFit.cover,
-                    ),     
+                    ),
+                  ),
                     const SizedBox(width: 5.0,),
-                    const Text('Sign-in with Google') // add gesture detector
+                  GestureDetector(
+                    onTap: () => logInWithGoogle(),
+                    child: const Text('Sign-in with Google'), // gets a cert error. TODO: fix configuration in firebase.
+                  ),
                   ],
                 ),
             ),
@@ -134,6 +159,6 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
       ),
-    );
+    ));
   }
 }
