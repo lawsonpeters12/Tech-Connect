@@ -14,25 +14,25 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String event1 = 'Last Day of Classes';
-  String event2 = 'Early Web Registration Ends for Spring Quarter 2024';
-  String event3 = '1st Scheduled Purge';
-  String event4 = 'WINTER 2023-2024 QUARTER ENDS';
-  String event5 = 'Winter Commencement Exercises';
-  String event6 = 'All Other Grades Due';
-  String event7 = 'Grades “live” on Student BOSS';
-  String event8 = 'SPRING QUARTER 2024 BEGINS';
-  String event9 = 'Placement Exams';
+  String event1 = 'Last day to register for Spring graduation';
+  String event2 = 'Easter Holiday Begins';
+  String event3 = 'Easter Holiday Ends';
+  String event4 = 'Deadline for completing “I” grade work from Winter';
+  String event5 = 'Deadline for faculty submission of “I” grade work from Winter';
+  String event6 = 'Advising begins for currently enrolled students';
+  String event7 = 'Last day to drop courses or resign with “W” grades';
+  String event8 = 'Early Web Registration for Summer & Fall Quarter 2024';
+  String event9 = 'Early Web Registration for Veterans and Degree Candidate Seniors ≥ 110 hours';
 
-  String eventInfo1 = 'Tuesday, February 27';
-  String eventInfo2 = 'Wednesday, February 28';
-  String eventInfo3 = 'Wednesday, February 28';
-  String eventInfo4 = 'Saturday, March 2';
-  String eventInfo5 = 'Saturday, March 2';
-  String eventInfo6 = 'Monday, March 4';
-  String eventInfo7 = 'Tuesday, March 5';
-  String eventInfo8 = 'Tuesday, March 12';
-  String eventInfo9 = 'Tuesday, March 12';
+  String eventInfo1 = 'Friday, March 29';
+  String eventInfo2 = 'Friday, March 29';
+  String eventInfo3 =  'Monday, April 1';
+  String eventInfo4 = 'Friday, April 5';
+  String eventInfo5 = 'Friday, April 12';
+  String eventInfo6 = 'Monday, April 29';
+  String eventInfo7 = 'Friday, May 3';
+  String eventInfo8 = 'Monday, May 6';
+  String eventInfo9 = 'Monday, May 6';
 
   bool isLoading = false;
   bool isDarkMode = false;
