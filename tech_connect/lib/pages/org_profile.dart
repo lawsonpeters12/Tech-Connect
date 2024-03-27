@@ -102,11 +102,21 @@ class _OrganizationPageState extends State<OrganizationPage> {
                       title: Row(
                         children: [
                           Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => OtherUserPage(otherUserEmail: email),
+                                  ),
+                                );
+                              },
                             child: Text(
                               email,
                               style: TextStyle(fontSize: 14),
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
+                              ),
                             ),
                           ),
                           Row(
