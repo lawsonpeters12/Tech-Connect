@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tech_connect/pages/org_chat.dart';
 import 'package:tech_connect/pages/org_profile.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OrgsPage extends StatefulWidget {
   @override
@@ -10,6 +11,21 @@ class OrgsPage extends StatefulWidget {
 }
 
 class _OrgsPageState extends State<OrgsPage> {
+  bool isDarkMode = false;
+
+  Future<void> getDarkModeValue() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isDarkMode = prefs.getBool('isDarkMode') ?? false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getDarkModeValue();
+  }
+
   void _routeToAllOrgsPage() {
     Navigator.push(
       context,
@@ -27,7 +43,16 @@ class _OrgsPageState extends State<OrgsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(centerTitle: true, title: Text('Organizations')),
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text('Organizations'),
+        backgroundColor: isDarkMode
+            ? Color.fromRGBO(167, 43, 42, 1)
+            : Color.fromRGBO(77, 95, 128, 100),
+      ),
+      backgroundColor: isDarkMode
+          ? Color.fromRGBO(203, 102, 102, 40)
+          : Color.fromRGBO(198, 218, 231, 1),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -73,11 +98,40 @@ class OrganizationButton extends StatelessWidget {
   }
 }
 
-class AllOrgsPage extends StatelessWidget {
+class AllOrgsPage extends StatefulWidget {
+  @override
+  _AllOrgsPageState createState() => _AllOrgsPageState();
+}
+
+class _AllOrgsPageState extends State<AllOrgsPage> {
+  bool isDarkMode = false;
+
+  Future<void> getDarkModeValue() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isDarkMode = prefs.getBool('isDarkMode') ?? false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getDarkModeValue();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(centerTitle: true, title: Text('All Organizations')),
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text('All Organizations'),
+        backgroundColor: isDarkMode
+            ? Color.fromRGBO(167, 43, 42, 1)
+            : Color.fromRGBO(77, 95, 128, 100),
+      ),
+      backgroundColor: isDarkMode
+          ? Color.fromRGBO(203, 102, 102, 40)
+          : Color.fromRGBO(198, 218, 231, 1),
       body: Center(
         child: _buildOrgsList(context),
       ),
@@ -105,8 +159,8 @@ class AllOrgsPage extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) =>
-                            OrganizationPage(orgName: orgName)),
+                      builder: (context) => OrganizationPage(orgName: orgName),
+                    ),
                   );
                 },
               );
@@ -125,11 +179,20 @@ class MyOrgsPage extends StatefulWidget {
 
 class _MyOrgsPageState extends State<MyOrgsPage> {
   List<String> userOrgs = [];
+  bool isDarkMode = false;
 
   @override
   void initState() {
     super.initState();
     _getUserOrgs();
+    getDarkModeValue();
+  }
+
+  Future<void> getDarkModeValue() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isDarkMode = prefs.getBool('isDarkMode') ?? false;
+    });
   }
 
   Future<void> _getUserOrgs() async {
@@ -162,7 +225,15 @@ class _MyOrgsPageState extends State<MyOrgsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('My Organizations')),
+      appBar: AppBar(
+        title: Text('My Organizations'),
+        backgroundColor: isDarkMode
+            ? Color.fromRGBO(167, 43, 42, 1)
+            : Color.fromRGBO(77, 95, 128, 100),
+      ),
+      backgroundColor: isDarkMode
+          ? Color.fromRGBO(203, 102, 102, 40)
+          : Color.fromRGBO(198, 218, 231, 1),
       body: ListView.builder(
         itemCount: userOrgs.length,
         itemBuilder: (context, index) {
@@ -176,7 +247,6 @@ class _MyOrgsPageState extends State<MyOrgsPage> {
                 MaterialPageRoute(
                     builder: (context) => OrganizationPage(orgName: orgName)),
               );
-              // Handle button onPressed event
             },
           );
         },
