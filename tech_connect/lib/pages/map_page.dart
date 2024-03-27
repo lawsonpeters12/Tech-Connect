@@ -88,14 +88,11 @@ class _MapPageState extends State<MapPage> {
   }
 
   Future<void> getAddressFromLatLng(double latitude, double longitude) async {
-    //const double latitude = 32.52629966078266;
-    //const double longitude = -92.6433865400934;
-    //print('holy shit');
-    //try {
-      print('Address before calling placemarks');
+  
+      //print('Address before calling placemarks');
       List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
       Placemark place = placemarks[0];
-      print('Address after calling placemarkss');
+      //print('Address after calling placemarkss');
       //print('Address: ');
 
       setState(() {
@@ -104,34 +101,15 @@ class _MapPageState extends State<MapPage> {
       print("Address: $_address");
       _address = address_dict.addresses[_address];
       print("Address: $_address");
-      //print('Address: $_address');
-      //, ${place.postalCode}, ${place.locality}, ${place.administrativeArea}, ${place.country}");
       });
-    //} catch (e) {
-    //  print(e);
-    //}
   }
 
-  Future<void> _getKeyLocations() async {
-    //final position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-    //GeocodingPlatform _geocodingPlatform;
-    setState(() {
- 
-  });
-  }
-
-  // get rid of this if possible to simplify code.
   @override
   void initState() {
     super.initState();
-    //print('this is a fucking debug statement');
-    //_getKeyLocations();
-    //getAddressFromLatLng();
-    
-    //_getKeyLocations();
 
     getUserCurrentLocation().then((value) async {
-    // specified current users location
+
     CameraPosition cameraPosition = CameraPosition(
       target: LatLng(value.latitude, value.longitude),
       zoom: 16,);
@@ -140,24 +118,12 @@ class _MapPageState extends State<MapPage> {
     controller.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
 
     getAddressFromLatLng(value.latitude, value.longitude);
-    //print("Address: $_address");
     });
     /*
-    //_geofenceService.addGeofenceList(_geofences);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _geofenceService.addGeofenceStatusChangeListener(_onGeofenceStatusChanged);
-      _geofenceService.addLocationChangeListener(_onLocationChanged);
-      //_geofenceService.addLocationServicesStatusChangeListener(_onLocationServicesStatusChanged);
-      //_geofenceService.addActivityChangeListener(_onActivityChanged);
-      _geofenceService.addStreamErrorListener(_onError);
-      _geofenceService.start(_geofenceList).catchError(_onError);
-    }
-    );
-    */
-    //_geofenceService.addGeofenceList(_geofences);
     setState(() {
       
     });
+    */
   }
 
   @override
@@ -171,7 +137,7 @@ class _MapPageState extends State<MapPage> {
 
       // redundant container for formatting later
       body: Container( 
-      //padding: EdgeInsets.all(20.0),
+
       child: GoogleMap(
       onMapCreated: (GoogleMapController controller) {
         mapController = controller;
@@ -188,7 +154,7 @@ class _MapPageState extends State<MapPage> {
       rotateGesturesEnabled: true,
       tiltGesturesEnabled: true,
       cameraTargetBounds: CameraTargetBounds(LatLngBounds(northeast: northEastBound, southwest: southWestBound)),
-      //polygons: _geofences,
+     
     ),
     
     
