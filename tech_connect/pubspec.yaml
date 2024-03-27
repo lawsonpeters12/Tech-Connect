@@ -34,7 +34,7 @@ dependencies:
   html: ^0.15.4
   provider: ^6.0.5
   profanity_filter: ^2.0.0
-  geolocator: ^9.0.2
+  geolocator: ^11.0.0
 
   location:
     git:
@@ -49,8 +49,8 @@ dependencies:
   firebase_auth: ^4.16.0
   cloud_firestore: ^4.14.0
   image_picker: ^1.0.7
-  file_picker: ^6.1.1
-  firebase_storage: 11.6.0
+  file_picker: ^8.0.0+1
+  firebase_storage: ^11.6.9
 
   # persist local data in user profile editting
   shared_preferences: ^2.0.5
@@ -61,7 +61,7 @@ dependencies:
   # google maps api dependencies
   google_maps_flutter: ^2.5.3
   permission_handler: ^11.3.0
-  webview_flutter: ^3.0.3
+  webview_flutter: ^4.7.0
   maps_toolkit: ^3.0.0
   geofence_service: ^5.0.0
   geocoding: ^3.0.0
