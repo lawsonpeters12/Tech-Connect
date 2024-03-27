@@ -5,9 +5,12 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'dart:async';
+import 'package:profanity_filter/profanity_filter.dart';
+
 
 class DirectMessagePage extends StatefulWidget {
   final String otherUserEmail;
+
 
   DirectMessagePage({required this.otherUserEmail});
 
@@ -22,6 +25,8 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
   String otherUserName = '';
   String searchString = '';
   List<String> conversationID = [];
+  final ProfanityFilter profanityFilter = ProfanityFilter();
+
 
   File? imageFile;
   String? fileName;
@@ -43,6 +48,30 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
 
   void _sendMessage() async {
     String message = _messageController.text;
+    String censoredMessage = profanityFilter.censorString(message);
+    
+    if (censoredMessage.isNotEmpty) {
+      if(censoredMessage != message){
+        showDialog(
+          context: context, 
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Profanity Detected"),
+              content: Text("The following words have been removed. Please try again."),
+              actions: [
+                TextButton(
+                  onPressed: (){
+                    Navigator.pop(context);
+                  }, 
+                    child: Text('OK'),
+                  ),
+                ],
+              );         
+            }
+          );
+          return;
+      }
+    }
     if (message.isNotEmpty) {
       User? user = FirebaseAuth.instance.currentUser;
       String userEmail = user?.email ?? 'anonymous';

@@ -5,6 +5,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'dart:async';
+import 'package:profanity_filter/profanity_filter.dart';
+
 
 class OrganizationChatPage extends StatefulWidget {
   final String orgName;
@@ -20,6 +22,8 @@ class _OrganizationChatPageState extends State<OrganizationChatPage> {
   late Future<void> _initializeControllerFuture;
   late StreamController<QuerySnapshot> _messageStreamController;
   String searchString = '';
+  final ProfanityFilter profanityFilter = ProfanityFilter();
+
 
   File? imageFile;
   String? fileName;
@@ -38,7 +42,29 @@ class _OrganizationChatPageState extends State<OrganizationChatPage> {
 
   void _sendMessage() async {
     String message = _messageController.text;
-    if (message.isNotEmpty) {
+    String censoredMessage = profanityFilter.censorString(message);
+    
+    if (censoredMessage.isNotEmpty) {
+      if(censoredMessage != message){
+        showDialog(
+          context: context, 
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Profanity Detected"),
+              content: Text("The following words have been removed. Please try again."),
+              actions: [
+                TextButton(
+                  onPressed: (){
+                    Navigator.pop(context);
+                  }, 
+                    child: Text('OK'),
+                  ),
+                ],
+              );         
+            }
+          );
+          return;
+      }
       User? user = FirebaseAuth.instance.currentUser;
       String userEmail = user?.email ?? 'anonymous';
       String displayName = await _getUserDisplayName(userEmail);
