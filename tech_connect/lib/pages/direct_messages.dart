@@ -418,7 +418,7 @@ void _getConversationID() {
 
                         messageWidgets.add(messageWidget);
                       
-                    } else if (messageData['type'] == 'image') {
+                    } else if (messageData['type'] == 'image' && searchString == '') {
                         Widget messageWidget = Container(
                           margin: EdgeInsets.symmetric(vertical: 8),
                           padding: EdgeInsets.all(8),
