@@ -6,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:profanity_filter/profanity_filter.dart';
 
 
 class CampusChatPage extends StatefulWidget {
@@ -16,16 +17,17 @@ class CampusChatPage extends StatefulWidget {
 }
 
 class _CampusChatPageState extends State<CampusChatPage> {
+  final ProfanityFilter profanityFilter = ProfanityFilter();
+
   TextEditingController _messageController = TextEditingController();
   late Future<void> _initializeControllerFuture;
   String currentChatTopic = "main_chat";
   late StreamController<QuerySnapshot> _messageStreamController;
   String searchString = '';
-
+  
   File? imageFile;
   String? fileName;
   bool isDarkMode = false;
-
 
   @override
   void initState() {
@@ -49,7 +51,30 @@ class _CampusChatPageState extends State<CampusChatPage> {
 
   void _sendMessage() async {
     String message = _messageController.text;
-    if (message.isNotEmpty) {
+    String censoredMessage = profanityFilter.censorString(message);
+    
+    if (censoredMessage.isNotEmpty) {
+      if(censoredMessage != message){
+        showDialog(
+          context: context, 
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Profanity Detected"),
+              content: Text("The following words have been removed. Please try again."),
+              actions: [
+                TextButton(
+                  onPressed: (){
+                    Navigator.pop(context);
+                  }, 
+                    child: Text('OK'),
+                  ),
+                ],
+              );         
+            }
+          );
+          return;
+      }
+      
       User? user = FirebaseAuth.instance.currentUser;
       String userEmail = user?.email ?? 'anonymous';
       String displayName = await _getUserDisplayName(userEmail);
@@ -143,7 +168,7 @@ void showEditMessagePopup(String messageId, String currentMessage) {
           ElevatedButton(
             child: Text("Cancel"),
             onPressed: () {
-              Navigator.of(context).pop();
+              Navigator.pop(context);
             },
           ),
           ElevatedButton(
@@ -352,13 +377,13 @@ void showMessageOptionsPopup(String messageId, String currentMessage, isImage) {
                           setState(() {
                             searchString = '';
                           });
-                          Navigator.of(context).pop();
+                          Navigator.pop(context);
                         },
                         child: Text('Clear Search'),
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).pop();
+                          Navigator.pop(context);
                         },
                         child: Text('Search'),
                       ),
@@ -456,7 +481,7 @@ void showMessageOptionsPopup(String messageId, String currentMessage, isImage) {
                         }
 
                         messageWidgets.add(messageWidget);
-                      } else if (messageData['type'] == 'image') {
+                      } else if (messageData['type'] == 'image' && searchString == '') {
                         Widget messageWidget = Container(
                             margin: EdgeInsets.symmetric(vertical: 8),
                             padding: EdgeInsets.all(8),

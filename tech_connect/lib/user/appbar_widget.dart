@@ -2,7 +2,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tech_connect/main.dart';
 import 'package:tech_connect/pages/student_id.dart';
-import 'package:provider/provider.dart';
 import 'package:tech_connect/main.dart';
 
 void logOut() async {

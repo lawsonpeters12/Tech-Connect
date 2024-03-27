@@ -8,23 +8,20 @@ import 'dart:async';
 import 'package:profanity_filter/profanity_filter.dart';
 
 
-class DirectMessagePage extends StatefulWidget {
-  final String otherUserEmail;
+class OrganizationChatPage extends StatefulWidget {
+  final String orgName;
 
-
-  DirectMessagePage({required this.otherUserEmail});
+  OrganizationChatPage({required this.orgName});
 
   @override
-  _DirectMessagePageState createState() => _DirectMessagePageState();
+  _OrganizationChatPageState createState() => _OrganizationChatPageState();
 }
 
-class _DirectMessagePageState extends State<DirectMessagePage> {
+class _OrganizationChatPageState extends State<OrganizationChatPage> {
   TextEditingController _messageController = TextEditingController();
   late Future<void> _initializeControllerFuture;
   late StreamController<QuerySnapshot> _messageStreamController;
-  String otherUserName = '';
   String searchString = '';
-  List<String> conversationID = [];
   final ProfanityFilter profanityFilter = ProfanityFilter();
 
 
@@ -35,10 +32,7 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
   void initState() {
     super.initState();
     _messageStreamController = StreamController<QuerySnapshot>();
-    _getOtherUserDisplayName();
-    _getConversationID();
     _updateMessageStream();
-
   }
 
   void dispose() {
@@ -71,23 +65,22 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
           );
           return;
       }
-    }
-    if (message.isNotEmpty) {
       User? user = FirebaseAuth.instance.currentUser;
       String userEmail = user?.email ?? 'anonymous';
       String displayName = await _getUserDisplayName(userEmail);
 
-      CollectionReference directMessages =
-          FirebaseFirestore.instance.collection('directmessages');
+      CollectionReference orgMessages = FirebaseFirestore.instance
+          .collection('Organizations')
+          .doc(widget.orgName)
+          .collection('messages');
 
       Timestamp serverTimestamp = Timestamp.now();
 
       try {
-        await directMessages.add({
-          'users': conversationID, 
+        await orgMessages.add({
           'message': message,
-          'sender': userEmail,
           'sender_display_name': displayName,
+          'sender': userEmail,
           'timestamp': serverTimestamp,
           'type': "text",
         });
@@ -98,6 +91,29 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
         print('Error sending message: $e');
       }
     }
+  }
+
+  void _updateMessageStream() {
+    FirebaseFirestore.instance
+        .collection('Organizations')
+        .doc(widget.orgName)
+        .collection('messages')
+        .orderBy('timestamp', descending: true)
+        .snapshots()
+        .listen((data) {
+      _messageStreamController.add(data);
+    });
+  }
+
+  Future<void> _openGallery() async {
+    ImagePicker _picker = ImagePicker();
+
+    await _picker.pickImage(source: ImageSource.gallery).then((xFile) {
+      if (xFile != null) {
+        imageFile = File(xFile.path);
+      }
+      _uploadImageToFirebase();
+    });
   }
 
   Future<String> _getUserDisplayName(String userEmail) async {
@@ -118,68 +134,44 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
     return 'anonymous';
   }
 
-  void _getOtherUserDisplayName() async {
-    try {
-      DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(widget.otherUserEmail)
-          .get();
+  Future<void> _uploadImageToFirebase() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    String userEmail = user?.email ?? 'anonymous';
 
-      if (documentSnapshot.exists) {
-        Map<String, dynamic> userData =
-            documentSnapshot.data() as Map<String, dynamic>;
-        setState(() {
-          otherUserName = userData['name'] ?? '';
-        });
-      }
-    } catch (e) {
-      print('Error fetching other user name: $e');
-    }
+    String timestamp = DateTime.now().toUtc().toIso8601String();
+    fileName = '$userEmail-$timestamp.jpg';
+
+    var ref = FirebaseStorage.instance.ref().child('images').child(fileName!);
+
+    var uploadTask = await ref.putFile(imageFile!);
+
+    String imageUrl = await uploadTask.ref.getDownloadURL();
+
+    uploadImageToFirestore(imageUrl);
   }
 
-  void _showCameraOptions() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Choose an option'),
-          content: Container(
-            height: 100,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Column(
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.camera_alt),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                    Text('Take picture'),
-                  ],
-                ),
-                Column(
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.image),
-                      onPressed: () {
-                        Navigator.pop(context);
-                        _openGallery();
-                      },
-                    ),
-                    Text('Choose from gallery'),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
+  void uploadImageToFirestore(String imageUrl) async {
+    User? user = FirebaseAuth.instance.currentUser;
+    String userEmail = user?.email ?? 'anonymous';
+    String displayName = await _getUserDisplayName(userEmail);
+
+    CollectionReference orgMessages = FirebaseFirestore.instance
+        .collection('Organizations')
+        .doc(widget.orgName)
+        .collection('messages');
+
+    orgMessages.add({
+      'message': imageUrl,
+      'sender': userEmail,
+      'sender_display_name': displayName,
+      'timestamp': FieldValue.serverTimestamp(),
+      'type': "image",
+    }).then((_) {
+      _updateMessageStream();
+    });
   }
 
-  // Function creates a dialog with a textbox containing the message the user wants to edit. If the message is saved, the change is saved to the Firestore using the message's id from Firestore.
+   // Function creates a dialog with a textbox containing the message the user wants to edit. If the message is saved, the change is saved to the Firestore using the message's id from Firestore.
 void showEditMessagePopup(String messageId, String currentMessage) {
  TextEditingController editMessageController = TextEditingController(text: currentMessage);
  showDialog(
@@ -203,7 +195,7 @@ void showEditMessagePopup(String messageId, String currentMessage) {
             onPressed: () async { 
               String editedMessage = editMessageController.text;
               if (editedMessage != "") {
-                await FirebaseFirestore.instance.collection('directmessages').doc(messageId).update(
+                await FirebaseFirestore.instance.collection('Organizations').doc(widget.orgName).collection('messages').doc(messageId).update(
                  {
                     'message': editedMessage,
                 });
@@ -236,7 +228,7 @@ void showMessageOptionsPopup(String messageId, String currentMessage, isImage) {
             ),
             ElevatedButton(
               onPressed: () {
-                FirebaseFirestore.instance.collection('directmessages').doc(messageId).delete();
+                FirebaseFirestore.instance.collection('Organizations').doc(widget.orgName).collection('messages').doc(messageId).delete();
                 Navigator.pop(context);
               },
               child: Text("Delete Message"),
@@ -248,75 +240,11 @@ void showMessageOptionsPopup(String messageId, String currentMessage, isImage) {
   );
 }
 
-void _updateMessageStream() {
-  FirebaseFirestore.instance
-      .collection('directmessages')
-      .where('users', isEqualTo: conversationID) // 'users' field is the sorted array between the 2 unique emails
-      .orderBy('timestamp', descending: true)
-      .snapshots()
-      .listen((data) {
-    _messageStreamController.add(data);
-  });
-}
-
-
-void _getConversationID() {
-  User? user = FirebaseAuth.instance.currentUser;
-  String userEmail = user?.email ?? 'anonymous';
-  conversationID = [userEmail, widget.otherUserEmail]..sort();
-}
-
-  Future<void> _openGallery() async {
-    ImagePicker _picker = ImagePicker();
-
-    await _picker.pickImage(source: ImageSource.gallery).then((xFile) {
-      if (xFile != null) {
-        imageFile = File(xFile.path);
-      }
-      _uploadImageToFirebase();
-    });
-  }
-
-  Future<void> _uploadImageToFirebase() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    String userEmail = user?.email ?? 'anonymous';
-
-    String timestamp = DateTime.now().toUtc().toIso8601String();
-    fileName = '$userEmail-$timestamp.jpg';
-
-    var ref = FirebaseStorage.instance.ref().child('images').child(fileName!);
-
-    var uploadTask = await ref.putFile(imageFile!);
-
-    String imageUrl = await uploadTask.ref.getDownloadURL();
-
-    uploadImageToFirestore(imageUrl);
-  }
-
-  void uploadImageToFirestore(String imageUrl) async {
-    User? user = FirebaseAuth.instance.currentUser;
-    String userEmail = user?.email ?? 'anonymous';
-    String displayName = await _getUserDisplayName(userEmail);
-
-    CollectionReference directMessages =
-        FirebaseFirestore.instance.collection('directmessages');
-    directMessages.add({
-      'users': conversationID,
-      'message': imageUrl,
-      'sender': userEmail,
-      'sender_display_name': displayName,
-      'timestamp': FieldValue.serverTimestamp(),
-      'type': "image",
-    }).then((_) {
-      _updateMessageStream();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
+ @override
+ Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(otherUserName),
+        title: Text(widget.orgName),
         actions: [
           IconButton(
             icon: Icon(Icons.search),
@@ -385,47 +313,83 @@ void _getConversationID() {
                     var messageData = message.data() as Map<String, dynamic>;
                     var timestamp = messageData['timestamp'] as Timestamp?;
 
-                    String senderName = messageData['sender_display_name'] ?? 'unknown';
+                    String senderName =
+                        messageData['sender_display_name'] ?? 'unknown';
 
                     var formattedTime = timestamp != null
                         ? TimeOfDay.fromDateTime(timestamp.toDate())
                             .format(context)
                         : "00:00";
-                    
+
                     var formattedDate = timestamp != null
                         ? "${timestamp.toDate().month}/${timestamp.toDate().day}"
                         : "";
 
                     bool isCurrentUser = messageData['sender'] == userEmail;
-                    Color color = isCurrentUser ? Color.fromRGBO(145, 174, 241, 1) : Color.fromRGBO(184, 178, 178, 1);
+                    Color color = isCurrentUser
+                        ? Color.fromRGBO(145, 174, 241, 1)
+                        : Color.fromRGBO(184, 178, 178, 1);
 
                     if (messageData['type'] == 'text') {
-                        Widget messageWidget = Container(
-                          margin: EdgeInsets.symmetric(vertical: 8),
-                          padding: EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: color,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: ListTile(
-                              title: RichText(
-                                text: TextSpan(
+                      Widget messageWidget = Container(
+                        margin: EdgeInsets.symmetric(vertical: 8),
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: color,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: ListTile(
+                          title: RichText(
+                            text: TextSpan(
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 16,
+                              ),
+                              children: [
+                                TextSpan(
+                                  text: '$senderName: ',
                                   style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                  children: [
-                                    TextSpan(
-                                      text: '$senderName: ',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text: '${messageData['message']}',
-                                    ),
-                                  ],
                                 ),
+                                TextSpan(
+                                  text: '${messageData['message']}',
+                                ),
+                              ],
+                            ),
+                          ),
+                          subtitle: Text(
+                            '$formattedDate\t\t\t$formattedTime',
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 101, 101, 101),
+                            ),
+                          ),
+                        ),
+                      );
+
+                      messageWidgets.add(messageWidget);
+                    } else if (messageData['type'] == 'image') {
+                      Widget messageWidget = Container(
+                        margin: EdgeInsets.symmetric(vertical: 8),
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: color,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              senderName,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            ListTile(
+                              title: Image.network(
+                                messageData['message'],
+                                height: 150,
                               ),
                               subtitle: Text(
                                 '$formattedDate\t\t\t$formattedTime',
@@ -434,8 +398,10 @@ void _getConversationID() {
                                 ),
                               ),
                             ),
+                          ],
+                        ),
                         );
-                        
+
                         if (isCurrentUser) {
                           messageWidget = GestureDetector(
                             onLongPress: () {
@@ -444,10 +410,11 @@ void _getConversationID() {
                             child: messageWidget,
                           );
                         }
-
+                        
                         messageWidgets.add(messageWidget);
                       
                     } else if (messageData['type'] == 'image' && searchString == '') {
+
                         Widget messageWidget = Container(
                           margin: EdgeInsets.symmetric(vertical: 8),
                           padding: EdgeInsets.all(8),
@@ -461,35 +428,35 @@ void _getConversationID() {
                               Text(
                                 senderName,
                                 style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
+                                 color: Colors.black,
+                                 fontWeight: FontWeight.bold,
                                 ),
                               ),
                               ListTile(
                                 title: Image.network(
-                                  messageData['message'],
-                                  height: 150,
+                                 messageData['message'],
+                                 height: 150,
                                 ),
                                 subtitle: Text(
-                                  '$formattedDate\t\t\t$formattedTime',
-                                  style: TextStyle(
+                                 '$formattedDate\t\t\t$formattedTime',
+                                 style: TextStyle(
                                     color: Color.fromARGB(255, 101, 101, 101),
-                                  ),
+                                 ),
                                 ),
                               ),
                             ],
                         ),
                       );
+
                       if (isCurrentUser) {
                         messageWidget = GestureDetector(
                           onLongPress: () {
-                            showMessageOptionsPopup(message.id, messageData['message'], true);
+                            showMessageOptionsPopup(message.id, messageData['message'], false);
                           },
                           child: messageWidget,
-                          );
-                        }
-
-                        messageWidgets.add(messageWidget);
+                        );
+                      }
+                      messageWidgets.add(messageWidget);
                     }
                   }
 
@@ -522,7 +489,7 @@ void _getConversationID() {
                   ),
                   IconButton(
                     icon: Icon(Icons.camera_alt),
-                    onPressed: _showCameraOptions,
+                    onPressed: _openGallery,
                   ),
                   IconButton(
                     icon: Icon(Icons.send),

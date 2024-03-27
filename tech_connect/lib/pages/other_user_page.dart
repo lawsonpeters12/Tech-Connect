@@ -6,14 +6,11 @@ import 'package:tech_connect/user/user.dart';
 import 'package:tech_connect/pages/direct_messages.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tech_connect/user/numbers_widget.dart';
-
-
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OtherUserPage extends StatefulWidget {
   final String otherUserEmail;
-  final bool darkMode;
-
-  OtherUserPage({required this.otherUserEmail, this.darkMode = false});
+  OtherUserPage({required this.otherUserEmail});
 
   @override
   _OtherUserPageState createState() => _OtherUserPageState();
@@ -22,6 +19,7 @@ class OtherUserPage extends StatefulWidget {
 class _OtherUserPageState extends State<OtherUserPage> {
   late Future<UserInf> otherUserFuture;
   late bool isFriend;
+  bool isDarkMode = false;
 
   @override
   void initState() {
@@ -31,7 +29,6 @@ class _OtherUserPageState extends State<OtherUserPage> {
     getDarkModeValue();
   }
   
-  bool isDarkMode = false;
   Color pageBackgroundColor = Color.fromRGBO(198, 218, 231, 1);
   Color appBarBackgroundColor = Color.fromRGBO(77, 95, 128, 100);
 

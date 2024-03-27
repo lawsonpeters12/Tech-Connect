@@ -2,14 +2,13 @@
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:tech_connect/auth/auth.dart';
 import 'package:tech_connect/firebase_options.dart';
 import 'package:tech_connect/pages/first_page.dart';
 import 'package:tech_connect/pages/login_page.dart';
 import 'package:tech_connect/user/user_preferences.dart';
 // for coding and debugging
-//import 'pages/home_page.dart';
+import 'pages/home_page.dart';
 //import 'pages/user_page.dart';
 //import 'pages/edit_user_page.dart';
 //import 'package:shared_preferences/shared_preferences.dart';
@@ -62,8 +61,6 @@ class MyApp extends StatelessWidget {
        //home: UserPage(),
        //home: EditUserPage(),
       home: AuthPage(),
-      //home: MapPage(),
-      //home: FirstPage()
     );
   }
 }
