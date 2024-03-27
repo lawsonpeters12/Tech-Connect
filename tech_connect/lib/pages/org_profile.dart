@@ -3,17 +3,31 @@ import 'package:tech_connect/pages/org_chat.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tech_connect/pages/add_event_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class OrganizationPage extends StatelessWidget {
+class OrganizationPage extends StatefulWidget {
   final String orgName;
 
   OrganizationPage({required this.orgName});
 
   @override
+  _OrganizationPageState createState() => _OrganizationPageState();
+}
+
+class _OrganizationPageState extends State<OrganizationPage> {
+  bool isDarkMode = false;
+
+  @override
+  void initState() {
+    super.initState();
+    getDarkModeValue();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(orgName),
+        title: Text(widget.orgName),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
@@ -24,7 +38,7 @@ class OrganizationPage extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.group),
             onPressed: () {
-              _showMembers(context, orgName);
+              _showMembers(context, widget.orgName);
             },
           ),
         ],
@@ -52,7 +66,7 @@ class OrganizationPage extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) =>
-                        OrganizationChatPage(orgName: orgName),
+                        OrganizationChatPage(orgName: widget.orgName),
                   ),
                 );
               },
@@ -65,7 +79,7 @@ class OrganizationPage extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => AddEventPage(orgName: orgName),
+                    builder: (context) => AddEventPage(orgName: widget.orgName),
                   ),
                 );
               },
@@ -82,12 +96,19 @@ class OrganizationPage extends StatelessWidget {
               style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
             ),
             Expanded(
-              child: EventList(orgName: orgName),
+              child: EventList(orgName: widget.orgName),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> getDarkModeValue() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isDarkMode = prefs.getBool('isDarkMode') ?? false;
+    });
   }
 
   Future<void> addMember(String orgName, User currentUser) async {
@@ -116,7 +137,7 @@ class OrganizationPage extends StatelessWidget {
     User? currentUser = FirebaseAuth.instance.currentUser;
 
     if (currentUser != null) {
-      addMember(orgName, currentUser);
+      addMember(widget.orgName, currentUser);
     }
   }
 
