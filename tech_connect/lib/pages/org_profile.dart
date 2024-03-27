@@ -23,7 +23,9 @@ class OrganizationPage extends StatelessWidget {
         actions: [
           IconButton(
             icon: Icon(Icons.group),
-            onPressed: () {},
+            onPressed: () {
+              _showMembers(context, orgName);
+            },
           ),
         ],
       ),
@@ -116,6 +118,67 @@ class OrganizationPage extends StatelessWidget {
     if (currentUser != null) {
       addMember(orgName, currentUser);
     }
+  }
+
+  void _showMembers(BuildContext context, String orgName) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Organization Members'),
+          content: Container(
+            width: double.maxFinite,
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('Organizations')
+                  .doc(orgName)
+                  .collection('members')
+                  .snapshots(),
+              builder: (BuildContext context,
+                  AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                }
+
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                }
+                final List<String> members =
+                    snapshot.data!.docs.map((DocumentSnapshot document) {
+                  final dynamic data = document.data();
+
+                  // Check if data is null or not a map
+                  if (data == null || data is! Map<String, dynamic>) {
+                    return '';
+                  }
+
+                  // Access the 'user' field and convert it to a string
+                  final dynamic userData = data['user'];
+                  return userData?.toString() ?? '';
+                }).toList();
+
+                return ListView.builder(
+                  itemCount: members.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return ListTile(
+                      title: Text(members[index]),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
