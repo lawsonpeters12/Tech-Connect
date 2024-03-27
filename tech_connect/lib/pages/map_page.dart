@@ -27,7 +27,7 @@ class _MapPageState extends State<MapPage> {
   //final LatLngBounds cameraBounds = LatLngBounds(southwest: southWestBound, northeast: northEastBound);
   //late GeofenceService _geofenceService;
   late GoogleMapController mapController;
-  late String _address;
+  String? _address;
   //late LatLng currentLocation;
   //final LatLngBounds cameraLimit = (32.52, -92.);
   final LatLng _center = LatLng(32.52741208116641, -92.64696455825013);
