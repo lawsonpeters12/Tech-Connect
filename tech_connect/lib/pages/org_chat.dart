@@ -7,45 +7,46 @@ import 'dart:io';
 import 'dart:async';
 
 class OrganizationChatPage extends StatefulWidget {
- final String orgName;
+  final String orgName;
 
- OrganizationChatPage({required this.orgName});
+  OrganizationChatPage({required this.orgName});
 
- @override
- _OrganizationChatPageState createState() => _OrganizationChatPageState();
+  @override
+  _OrganizationChatPageState createState() => _OrganizationChatPageState();
 }
 
 class _OrganizationChatPageState extends State<OrganizationChatPage> {
- TextEditingController _messageController = TextEditingController();
- late Future<void> _initializeControllerFuture;
- late StreamController<QuerySnapshot> _messageStreamController;
- String searchString = '';
+  TextEditingController _messageController = TextEditingController();
+  late Future<void> _initializeControllerFuture;
+  late StreamController<QuerySnapshot> _messageStreamController;
+  String searchString = '';
 
- File? imageFile;
- String? fileName;
+  File? imageFile;
+  String? fileName;
 
- @override
- void initState() {
+  @override
+  void initState() {
     super.initState();
     _messageStreamController = StreamController<QuerySnapshot>();
     _updateMessageStream();
- }
+  }
 
- void dispose() {
+  void dispose() {
     _messageStreamController.close();
     super.dispose();
- }
+  }
 
- void _sendMessage() async {
+  void _sendMessage() async {
     String message = _messageController.text;
     if (message.isNotEmpty) {
       User? user = FirebaseAuth.instance.currentUser;
       String userEmail = user?.email ?? 'anonymous';
       String displayName = await _getUserDisplayName(userEmail);
 
-
-      CollectionReference orgMessages =
-          FirebaseFirestore.instance.collection('Organizations').doc(widget.orgName).collection('messages');
+      CollectionReference orgMessages = FirebaseFirestore.instance
+          .collection('Organizations')
+          .doc(widget.orgName)
+          .collection('messages');
 
       Timestamp serverTimestamp = Timestamp.now();
 
@@ -64,9 +65,9 @@ class _OrganizationChatPageState extends State<OrganizationChatPage> {
         print('Error sending message: $e');
       }
     }
- }
+  }
 
- void _updateMessageStream() {
+  void _updateMessageStream() {
     FirebaseFirestore.instance
         .collection('Organizations')
         .doc(widget.orgName)
@@ -76,9 +77,9 @@ class _OrganizationChatPageState extends State<OrganizationChatPage> {
         .listen((data) {
       _messageStreamController.add(data);
     });
- }
+  }
 
- Future<void> _openGallery() async {
+  Future<void> _openGallery() async {
     ImagePicker _picker = ImagePicker();
 
     await _picker.pickImage(source: ImageSource.gallery).then((xFile) {
@@ -87,9 +88,9 @@ class _OrganizationChatPageState extends State<OrganizationChatPage> {
       }
       _uploadImageToFirebase();
     });
- }
+  }
 
-   Future<String> _getUserDisplayName(String userEmail) async {
+  Future<String> _getUserDisplayName(String userEmail) async {
     try {
       DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
           .collection('users')
@@ -107,7 +108,7 @@ class _OrganizationChatPageState extends State<OrganizationChatPage> {
     return 'anonymous';
   }
 
- Future<void> _uploadImageToFirebase() async {
+  Future<void> _uploadImageToFirebase() async {
     User? user = FirebaseAuth.instance.currentUser;
     String userEmail = user?.email ?? 'anonymous';
 
@@ -121,16 +122,17 @@ class _OrganizationChatPageState extends State<OrganizationChatPage> {
     String imageUrl = await uploadTask.ref.getDownloadURL();
 
     uploadImageToFirestore(imageUrl);
- }
+  }
 
- void uploadImageToFirestore(String imageUrl) async {
+  void uploadImageToFirestore(String imageUrl) async {
     User? user = FirebaseAuth.instance.currentUser;
     String userEmail = user?.email ?? 'anonymous';
     String displayName = await _getUserDisplayName(userEmail);
 
-
-    CollectionReference orgMessages =
-        FirebaseFirestore.instance.collection('Organizations').doc(widget.orgName).collection('messages');
+    CollectionReference orgMessages = FirebaseFirestore.instance
+        .collection('Organizations')
+        .doc(widget.orgName)
+        .collection('messages');
 
     orgMessages.add({
       'message': imageUrl,
@@ -141,10 +143,10 @@ class _OrganizationChatPageState extends State<OrganizationChatPage> {
     }).then((_) {
       _updateMessageStream();
     });
- }
+  }
 
- @override
- Widget build(BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.orgName),
@@ -155,7 +157,7 @@ class _OrganizationChatPageState extends State<OrganizationChatPage> {
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
-                 return AlertDialog(
+                  return AlertDialog(
                     title: Text('Search Messages'),
                     content: TextField(
                       onChanged: (value) {
@@ -183,7 +185,7 @@ class _OrganizationChatPageState extends State<OrganizationChatPage> {
                         child: Text('Search'),
                       ),
                     ],
-                 );
+                  );
                 },
               );
             },
@@ -198,118 +200,121 @@ class _OrganizationChatPageState extends State<OrganizationChatPage> {
               child: StreamBuilder<QuerySnapshot>(
                 stream: _messageStreamController.stream,
                 builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                 if (!snapshot.hasData) {
+                  if (!snapshot.hasData) {
                     return CircularProgressIndicator();
-                 }
+                  }
 
-                 var messages = snapshot.data!.docs.where((message) {
+                  var messages = snapshot.data!.docs.where((message) {
                     var messageData = message.data() as Map<String, dynamic>;
                     return messageData['message'].contains(searchString);
-                 }).toList();
+                  }).toList();
 
-                 List<Widget> messageWidgets = [];
-                  
+                  List<Widget> messageWidgets = [];
+
                   User? user = FirebaseAuth.instance.currentUser;
                   String userEmail = user?.email ?? 'anonymous';
 
-                 for (var message in messages) {
+                  for (var message in messages) {
                     var messageData = message.data() as Map<String, dynamic>;
                     var timestamp = messageData['timestamp'] as Timestamp?;
 
-                    String senderName = messageData['sender_display_name'] ?? 'unknown';
+                    String senderName =
+                        messageData['sender_display_name'] ?? 'unknown';
 
                     var formattedTime = timestamp != null
-                        ? TimeOfDay.fromDateTime(timestamp.toDate()).format(context)
+                        ? TimeOfDay.fromDateTime(timestamp.toDate())
+                            .format(context)
                         : "00:00";
-                    
+
                     var formattedDate = timestamp != null
                         ? "${timestamp.toDate().month}/${timestamp.toDate().day}"
                         : "";
 
                     bool isCurrentUser = messageData['sender'] == userEmail;
-                    Color color = isCurrentUser ? Color.fromRGBO(145, 174, 241, 1) : Color.fromRGBO(184, 178, 178, 1);
+                    Color color = isCurrentUser
+                        ? Color.fromRGBO(145, 174, 241, 1)
+                        : Color.fromRGBO(184, 178, 178, 1);
 
                     if (messageData['type'] == 'text') {
-                        Widget messageWidget = Container(
-                          margin: EdgeInsets.symmetric(vertical: 8),
-                          padding: EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: color,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: ListTile(
-                              title: RichText(
-                                text: TextSpan(
-                                 style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 16,
-                                 ),
-                                 children: [
-                                    TextSpan(
-                                      text: '$senderName: ',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text: '${messageData['message']}',
-                                    ),
-                                 ],
+                      Widget messageWidget = Container(
+                        margin: EdgeInsets.symmetric(vertical: 8),
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: color,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: ListTile(
+                          title: RichText(
+                            text: TextSpan(
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 16,
+                              ),
+                              children: [
+                                TextSpan(
+                                  text: '$senderName: ',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
+                                TextSpan(
+                                  text: '${messageData['message']}',
+                                ),
+                              ],
+                            ),
+                          ),
+                          subtitle: Text(
+                            '$formattedDate\t\t\t$formattedTime',
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 101, 101, 101),
+                            ),
+                          ),
+                        ),
+                      );
+
+                      messageWidgets.add(messageWidget);
+                    } else if (messageData['type'] == 'image') {
+                      Widget messageWidget = Container(
+                        margin: EdgeInsets.symmetric(vertical: 8),
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: color,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              senderName,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            ListTile(
+                              title: Image.network(
+                                messageData['message'],
+                                height: 150,
                               ),
                               subtitle: Text(
                                 '$formattedDate\t\t\t$formattedTime',
                                 style: TextStyle(
-                                 color: Color.fromARGB(255, 101, 101, 101),
+                                  color: Color.fromARGB(255, 101, 101, 101),
                                 ),
                               ),
                             ),
-                        );
-                        
-                        messageWidgets.add(messageWidget);
-                      
-                    } else if (messageData['type'] == 'image') {
-                        Widget messageWidget = Container(
-                          margin: EdgeInsets.symmetric(vertical: 8),
-                          padding: EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: color,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                senderName,
-                                style: TextStyle(
-                                 color: Colors.black,
-                                 fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              ListTile(
-                                title: Image.network(
-                                 messageData['message'],
-                                 height: 150,
-                                ),
-                                subtitle: Text(
-                                 '$formattedDate\t\t\t$formattedTime',
-                                 style: TextStyle(
-                                    color: Color.fromARGB(255, 101, 101, 101),
-                                 ),
-                                ),
-                              ),
-                            ],
+                          ],
                         ),
                       );
                       messageWidgets.add(messageWidget);
                     }
-                 }
+                  }
 
-                 return ListView.builder(
+                  return ListView.builder(
                     reverse: true,
                     itemCount: messageWidgets.length,
                     itemBuilder: (context, index) => messageWidgets[index],
-                 );
+                  );
                 },
               ),
             ),
@@ -321,8 +326,8 @@ class _OrganizationChatPageState extends State<OrganizationChatPage> {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Row(
-                              children: [
-                 Expanded(
+                children: [
+                  Expanded(
                     child: TextField(
                       controller: _messageController,
                       decoration: InputDecoration(
@@ -331,15 +336,15 @@ class _OrganizationChatPageState extends State<OrganizationChatPage> {
                       ),
                       onSubmitted: (_) => _sendMessage(),
                     ),
-                 ),
-                 IconButton(
+                  ),
+                  IconButton(
                     icon: Icon(Icons.camera_alt),
                     onPressed: _openGallery,
-                 ),
-                 IconButton(
+                  ),
+                  IconButton(
                     icon: Icon(Icons.send),
                     onPressed: _sendMessage,
-                 ),
+                  ),
                 ],
               ),
             ),
@@ -347,5 +352,5 @@ class _OrganizationChatPageState extends State<OrganizationChatPage> {
         ),
       ),
     );
- }
+  }
 }
