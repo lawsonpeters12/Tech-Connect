@@ -4,13 +4,12 @@ import 'package:tech_connect/user/profile_widget.dart';
 import 'package:tech_connect/user/user.dart';
 import 'package:tech_connect/pages/direct_messages.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'package:tech_connect/user/numbers_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OtherUserPage extends StatefulWidget {
   final String otherUserEmail;
-  final bool darkMode;
-
-  OtherUserPage({required this.otherUserEmail, this.darkMode = false});
+  OtherUserPage({required this.otherUserEmail});
 
   @override
   _OtherUserPageState createState() => _OtherUserPageState();
@@ -18,11 +17,22 @@ class OtherUserPage extends StatefulWidget {
 
 class _OtherUserPageState extends State<OtherUserPage> {
   late Future<UserInf> otherUserFuture;
+  late bool isFriend;
+  bool isDarkMode = false;
+
+  Future<void> getDarkModeValue() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isDarkMode = prefs.getBool('isDarkMode') ?? false;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
     otherUserFuture = fetchOtherUserData();
+    checkIfFriend();
+    getDarkModeValue();
   }
 
   Future<UserInf> fetchOtherUserData() async {
@@ -44,6 +54,20 @@ class _OtherUserPageState extends State<OtherUserPage> {
     );
   }
 
+  Future<void> checkIfFriend() async {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    String userEmail = currentUser?.email ?? '';
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userEmail)
+        .get();
+
+    List<dynamic> friendsList = userDoc.get('friends_list') ?? [];
+    setState(() {
+      isFriend = friendsList.contains(widget.otherUserEmail);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,9 +84,9 @@ class _OtherUserPageState extends State<OtherUserPage> {
             }
           },
         ),
-        backgroundColor: widget.darkMode ? Color.fromRGBO(167, 43, 42, 1) : Color.fromRGBO(77, 95, 128, 100),
+        backgroundColor: isDarkMode ? Color.fromRGBO(167, 43, 42, 1) : Color.fromRGBO(77, 95, 128, 100),
       ),
-      backgroundColor: widget.darkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1),
+      backgroundColor: isDarkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1),
       body: FutureBuilder<UserInf>(
         future: otherUserFuture,
         builder: (context, snapshot) {
@@ -88,6 +112,7 @@ class _OtherUserPageState extends State<OtherUserPage> {
                 ),
                 const SizedBox(height: 24),
                 buildName(otherUser),
+                NumbersWidget(userEmail: otherUser.email),
                 const SizedBox(height: 24),
                 buildAbout(otherUser),
                 const SizedBox(height: 24),
@@ -100,8 +125,9 @@ class _OtherUserPageState extends State<OtherUserPage> {
                       },
                       child: Text('Message'),
                     ),
-                    ElevatedButton(
-                      onPressed: () async {
+                    if (!isFriend) // Don't display "add friend" button if user is already your friend
+                      ElevatedButton(
+                        onPressed: () async {
                         // Update the current user's document in Firestore
                         User? currentUser = FirebaseAuth.instance.currentUser;
                         String userEmail = currentUser?.email ?? '';
@@ -161,7 +187,7 @@ class _OtherUserPageState extends State<OtherUserPage> {
         style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 15,
-            color: Colors.grey),
+            color: Colors.black),
       ),
       const SizedBox(height: 4),
       Text(

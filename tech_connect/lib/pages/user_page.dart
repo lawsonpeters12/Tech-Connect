@@ -6,6 +6,7 @@ import 'package:tech_connect/pages/student_id.dart';
 import 'package:tech_connect/user/user.dart';
 import 'package:tech_connect/user/numbers_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 /*
@@ -29,6 +30,23 @@ class _UserPageState extends State<UserPage> {
   void logOut() async {
     await FirebaseAuth.instance.signOut();
   }
+
+    Future<void> getDarkModeValue() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isDarkMode = prefs.getBool('isDarkMode') ?? false;
+      backgroundColor = isDarkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1);
+    });
+  }
+
+    Future<void> toggleDarkMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    isDarkMode = !isDarkMode;
+    await prefs.setBool('isDarkMode', isDarkMode);
+    setState(() {
+      backgroundColor = isDarkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1);
+    });
+  }
 // checks if the user doc exists
 /*
 // TODO: get access to fire store and work on this
@@ -45,6 +63,7 @@ class _UserPageState extends State<UserPage> {
   void initState() {
     super.initState();
     userFuture = fetchUserData();
+    getDarkModeValue();
   }
 
   Future<UserInf> fetchUserData() async {
@@ -114,7 +133,7 @@ class _UserPageState extends State<UserPage> {
                 ),
                 const SizedBox(height: 24),
                 buildName(user),
-                NumbersWidget(),
+                NumbersWidget(userEmail: user.email,),
                 const SizedBox(height: 48),
                 buildAbout(user),
               ],
@@ -138,12 +157,7 @@ class _UserPageState extends State<UserPage> {
         IconButton(
           icon: isDarkMode ? Icon(Icons.toggle_on) : Icon(Icons.toggle_off),
           onPressed: () {
-            // Toggle dark mode
-            setState(() {
-              isDarkMode = !isDarkMode;
-              // Change background color
-              backgroundColor = isDarkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1);
-            });
+            toggleDarkMode();
           },
         ),
         IconButton(

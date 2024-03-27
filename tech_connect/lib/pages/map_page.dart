@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 //import 'package:permission_handler/permission_handler.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class MapPage extends StatefulWidget{
   const MapPage({super.key});
@@ -14,6 +16,15 @@ class MapPage extends StatefulWidget{
 }
 
 class _MapPageState extends State<MapPage> {
+  bool isDarkMode = false;
+
+  Future<void> getDarkModeValue() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isDarkMode = prefs.getBool('isDarkMode') ?? false;
+    });
+  }
+
 late GoogleMapController mapController;
   LatLng _center = LatLng(32.52741208116641, -92.64696455825013);
   final Set<Marker> _markers = {};
@@ -84,14 +95,16 @@ late GoogleMapController mapController;
   void initState() {
     super.initState();
     _getKeyLocations();
+    getDarkModeValue();
   }
 
   @override
   Widget build(BuildContext context) {
 
     return Scaffold(
-      backgroundColor: Color.fromRGBO(77, 95, 128, 100),
+      backgroundColor: isDarkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1),
       appBar: AppBar( title: Text('Campus Map'),
+      backgroundColor: isDarkMode ? Color.fromRGBO(167, 43, 42, 1) : Color.fromRGBO(77, 95, 128, 100),
       toolbarHeight: 80,
       ),
       body: Container( 

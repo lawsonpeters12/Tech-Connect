@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tech_connect/pages/other_user_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FriendPage extends StatefulWidget {
   const FriendPage({super.key});
@@ -12,11 +13,13 @@ class FriendPage extends StatefulWidget {
 
 class _FriendPageState extends State<FriendPage> {
   late Future<List<String>> friendsList;
+  bool isDarkMode = false;
 
   @override
   void initState() {
     super.initState();
     friendsList = fetchFriendsList();
+    getDarkModeValue();
   }
 
   Future<List<String>> fetchFriendsList() async {
@@ -31,6 +34,13 @@ class _FriendPageState extends State<FriendPage> {
 
     List<dynamic> friendsList = userData?['friends_list'] ?? [];
     return friendsList.cast<String>();
+  }
+
+    Future<void> getDarkModeValue() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isDarkMode = prefs.getBool('isDarkMode') ?? false;
+    });
   }
 
   Future<List<String>> getIncomingFriendRequests() async {
@@ -58,9 +68,9 @@ class _FriendPageState extends State<FriendPage> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        backgroundColor: Color.fromRGBO(198, 218, 231, 100),
+        backgroundColor: isDarkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1),
         appBar: AppBar(
-          backgroundColor: Color.fromRGBO(198, 218, 231, 100),
+          backgroundColor: isDarkMode ? Color.fromRGBO(167, 43, 42, 1) : Color.fromRGBO(77, 95, 128, 100),
           leading: IconButton(
             icon: Icon(Icons.arrow_back),
             onPressed: () {
@@ -97,7 +107,7 @@ class _FriendPageState extends State<FriendPage> {
             return [
               SliverAppBar(
                 automaticallyImplyLeading: false,
-                backgroundColor: Color.fromRGBO(198, 218, 231, 100),
+                backgroundColor: isDarkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1),
                 title: TabBar(
                   tabs: [
                     Tab(text: 'Friends'),
@@ -161,13 +171,22 @@ class _FriendPageState extends State<FriendPage> {
                       itemCount: incomingRequests.length,
                       itemBuilder: (context, index) {
                         String requestEmail = incomingRequests[index];
-                        return ListTile(
-                          title: Text(requestEmail),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: Icon(Icons.check),
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => OtherUserPage(otherUserEmail: requestEmail),
+                              ),
+                            );
+                          },
+                          child: ListTile(
+                            title: Text(requestEmail),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: Icon(Icons.check),
                                 onPressed: () async {
                                   User? currentUser = FirebaseAuth.instance.currentUser;
                                   String userEmail = currentUser?.email ?? '';
@@ -216,9 +235,10 @@ class _FriendPageState extends State<FriendPage> {
                                       'outgoing_friend_requests': FieldValue.arrayRemove([userEmail])
                                   });
                                   refreshRequests(); 
-                                },
-                              ),
-                            ],
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
                         );
                       },
@@ -228,7 +248,7 @@ class _FriendPageState extends State<FriendPage> {
               ),
             ],
           ),
-        ),
+        ),  
       ),
     );
   }
@@ -299,7 +319,6 @@ class MySearchDelegate extends SearchDelegate {
                     MaterialPageRoute(
                       builder: (context) => OtherUserPage(
                         otherUserEmail: suggestion,
-                        darkMode: false,
                       ),
                     ),
                   );
