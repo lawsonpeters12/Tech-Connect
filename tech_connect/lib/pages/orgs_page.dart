@@ -73,7 +73,6 @@ class OrganizationButton extends StatelessWidget {
   }
 }
 
-
 class AllOrgsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -106,7 +105,8 @@ class AllOrgsPage extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => OrganizationPage(orgName: orgName)),
+                        builder: (context) =>
+                            OrganizationPage(orgName: orgName)),
                   );
                 },
               );
@@ -118,13 +118,68 @@ class AllOrgsPage extends StatelessWidget {
   }
 }
 
-class MyOrgsPage extends StatelessWidget {
+class MyOrgsPage extends StatefulWidget {
+  @override
+  _MyOrgsPageState createState() => _MyOrgsPageState();
+}
+
+class _MyOrgsPageState extends State<MyOrgsPage> {
+  List<String> userOrgs = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _getUserOrgs();
+  }
+
+  Future<void> _getUserOrgs() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) return; // Return if user is not logged in
+
+    String userEmail = user.email ?? 'anonymous';
+
+    QuerySnapshot orgsSnapshot =
+        await FirebaseFirestore.instance.collection('Organizations').get();
+
+    List<String> userOrgIds = [];
+
+    for (QueryDocumentSnapshot orgSnapshot in orgsSnapshot.docs) {
+      QuerySnapshot membershipSnapshot = await orgSnapshot.reference
+          .collection('members')
+          .where('user', isEqualTo: userEmail)
+          .get();
+
+      if (membershipSnapshot.docs.isNotEmpty) {
+        userOrgIds.add(orgSnapshot.id);
+      }
+    }
+
+    setState(() {
+      userOrgs = userOrgIds;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('My Organizations')),
-      body: Center(
-        child: Text('This page will display organizations user is a member of'),
+      body: ListView.builder(
+        itemCount: userOrgs.length,
+        itemBuilder: (context, index) {
+          String orgName = userOrgs[index];
+
+          return OrganizationButton(
+            label: orgName,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => OrganizationPage(orgName: orgName)),
+              );
+              // Handle button onPressed event
+            },
+          );
+        },
       ),
     );
   }

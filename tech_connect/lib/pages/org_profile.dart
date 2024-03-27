@@ -3,6 +3,7 @@ import 'package:tech_connect/pages/org_chat.dart';
 import 'package:tech_connect/pages/other_user_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tech_connect/pages/add_event_page.dart';
 
 class OrganizationPage extends StatefulWidget {
   final String orgName;
@@ -317,7 +318,13 @@ class _OrganizationPageState extends State<OrganizationPage> {
                   alignment: WrapAlignment.center,
                   children: [
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AddEventPage(orgName: widget.orgName))
+                        );
+                      },
                       child: Text('Add Event'),
                     ),
                   ],
@@ -330,9 +337,7 @@ class _OrganizationPageState extends State<OrganizationPage> {
               style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
             ),
             Expanded(
-              child: ListView(
-                children: [],
-              ),
+              child: EventList(orgName: widget.orgName),
             ),
           ],
         ),
@@ -392,6 +397,53 @@ class OrganizationMembersPage extends StatelessWidget {
           }
         },
       ),
+    );
+  }
+}
+
+// Lists the upcoming events for an organization
+class EventList extends StatelessWidget {
+  final String orgName;
+
+  EventList({required this.orgName});
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('Organizations')
+          .doc(orgName)
+          .collection('Events')
+          .snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        }
+
+        final List<Widget> eventTiles =
+            snapshot.data!.docs.map((DocumentSnapshot document) {
+          final Map<String, dynamic>? data =
+              document.data() as Map<String, dynamic>?;
+
+          if (data == null || data['eventName'] == null) {
+            return SizedBox(); 
+          }
+
+          final String eventName = data['eventName'];
+
+          return ListTile(
+            title: Text(eventName),
+          );
+        }).toList();
+
+        return ListView(
+          children: eventTiles,
+        );
+      },
     );
   }
 }
