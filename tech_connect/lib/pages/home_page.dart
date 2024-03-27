@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart' as parser;
 import 'package:http/http.dart' as http;
@@ -44,10 +46,27 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void createGoogleUser() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    String userEmail = user?.email ?? 'anonymous';
+    var userDocRef = FirebaseFirestore.instance.collection('users').doc(userEmail);
+    var doc = await userDocRef.get();
+    if (!doc.exists){
+      await FirebaseFirestore.instance.collection('users').doc(userEmail).set({
+        'email': userEmail,
+        'about': "Nothing is known about this user yet",
+        'major': "Undeclared",
+        'profile_picture': "https://firebasestorage.googleapis.com/v0/b/techconnect-42543.appspot.com/o/images%2Fdefault_user.PNG?alt=media&token=c592af94-a160-43c1-8f2b-29a7123756dd",
+        'name': userEmail
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     getDarkModeValue();
+    createGoogleUser();
   }
 
   Future<List<String>> extractData() async {

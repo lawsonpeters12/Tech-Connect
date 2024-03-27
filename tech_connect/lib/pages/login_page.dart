@@ -138,8 +138,7 @@ class _LoginPageState extends State<LoginPage> {
                   children: <Widget>[
                     // decoration: BoxDecoration(color: Colors.blue),
                     GestureDetector(
-                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => PasswordReset())),
+                      onTap: () => logInWithGoogle(),
                       child: 
                     Image.asset(
                       "images/google_icon.png",
@@ -150,7 +149,7 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(width: 5.0,),
                   GestureDetector(
                     onTap: () => logInWithGoogle(),
-                    child: Text('Sign-in with Google'),
+                    child: const Text('Sign-in with Google'), // gets a cert error. TODO: fix configuration in firebase.
                   ),
                   ],
                 ),
