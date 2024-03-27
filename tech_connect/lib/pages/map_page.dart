@@ -8,6 +8,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 //import 'package:geofence_service/geofence_service.dart';
 import 'package:flutter/services.dart';
+import 'package:tech_connect/components/map_dict.dart' as address_dict;
 //import 'package:location/location.dart' as locationlib;
 
 class MapPage extends StatefulWidget{
@@ -91,12 +92,17 @@ class _MapPageState extends State<MapPage> {
     //const double longitude = -92.6433865400934;
     //print('holy shit');
     //try {
+      print('Address before calling placemarks');
       List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
       Placemark place = placemarks[0];
+      print('Address after calling placemarkss');
+      //print('Address: ');
 
       setState(() {
       
       _address = ("${place.street}");
+      print("Address: $_address");
+      _address = address_dict.addresses[_address];
       print("Address: $_address");
       //print('Address: $_address');
       //, ${place.postalCode}, ${place.locality}, ${place.administrativeArea}, ${place.country}");
@@ -159,14 +165,13 @@ class _MapPageState extends State<MapPage> {
 
     return Scaffold(
       backgroundColor: Color.fromRGBO(77, 95, 128, 100),
-      appBar: AppBar( title: Text('Campus Map'),
+      appBar: AppBar( title: Text('Campus Map --- $_address'),
       toolbarHeight: 80,
       ),
 
       // redundant container for formatting later
       body: Container( 
       //padding: EdgeInsets.all(20.0),
-
       child: GoogleMap(
       onMapCreated: (GoogleMapController controller) {
         mapController = controller;
