@@ -7,6 +7,7 @@ import 'dart:io';
 import 'dart:async';
 import 'package:profanity_filter/profanity_filter.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OrganizationChatPage extends StatefulWidget {
   final String orgName;
@@ -23,7 +24,6 @@ class _OrganizationChatPageState extends State<OrganizationChatPage> {
   late StreamController<QuerySnapshot> _messageStreamController;
   String searchString = '';
   final ProfanityFilter profanityFilter = ProfanityFilter();
-
 
   File? imageFile;
   String? fileName;
@@ -43,27 +43,27 @@ class _OrganizationChatPageState extends State<OrganizationChatPage> {
   void _sendMessage() async {
     String message = _messageController.text;
     String censoredMessage = profanityFilter.censorString(message);
-    
+
     if (censoredMessage.isNotEmpty) {
-      if(censoredMessage != message){
+      if (censoredMessage != message) {
         showDialog(
-          context: context, 
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text("Profanity Detected"),
-              content: Text("The following words have been removed. Please try again."),
-              actions: [
-                TextButton(
-                  onPressed: (){
-                    Navigator.pop(context);
-                  }, 
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text("Profanity Detected"),
+                content: Text(
+                    "The following words have been removed. Please try again."),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
                     child: Text('OK'),
                   ),
                 ],
-              );         
-            }
-          );
-          return;
+              );
+            });
+        return;
       }
       User? user = FirebaseAuth.instance.currentUser;
       String userEmail = user?.email ?? 'anonymous';
@@ -171,77 +171,88 @@ class _OrganizationChatPageState extends State<OrganizationChatPage> {
     });
   }
 
-   // Function creates a dialog with a textbox containing the message the user wants to edit. If the message is saved, the change is saved to the Firestore using the message's id from Firestore.
-void showEditMessagePopup(String messageId, String currentMessage) {
- TextEditingController editMessageController = TextEditingController(text: currentMessage);
- showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text("Edit Message"),
-        content: TextField(
-          controller: editMessageController,
-          decoration: InputDecoration(hintText: "Edit message"),
-        ),
-        actions: [
-          ElevatedButton(
-            child: Text("Cancel"),
-            onPressed: () {
-              Navigator.pop(context);
-            },
+  // Function creates a dialog with a textbox containing the message the user wants to edit. If the message is saved, the change is saved to the Firestore using the message's id from Firestore.
+  void showEditMessagePopup(String messageId, String currentMessage) {
+    TextEditingController editMessageController =
+        TextEditingController(text: currentMessage);
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Edit Message"),
+          content: TextField(
+            controller: editMessageController,
+            decoration: InputDecoration(hintText: "Edit message"),
           ),
-          ElevatedButton(
-            child: Text("Save"),
-            onPressed: () async { 
-              String editedMessage = editMessageController.text;
-              if (editedMessage != "") {
-                await FirebaseFirestore.instance.collection('Organizations').doc(widget.orgName).collection('messages').doc(messageId).update(
-                 {
-                    'message': editedMessage,
-                });
-                Navigator.pop(context); 
-              }
-            },
-          ),
-        ],
-      );
-    },
- );
-}
-
-void showMessageOptionsPopup(String messageId, String currentMessage, isImage) {
- showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text("Message Options"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if(!isImage) // Can't edit image messages, only text messages
+          actions: [
             ElevatedButton(
+              child: Text("Cancel"),
               onPressed: () {
                 Navigator.pop(context);
-                showEditMessagePopup(messageId, currentMessage);
               },
-              child: Text("Edit Message"),
             ),
             ElevatedButton(
-              onPressed: () {
-                FirebaseFirestore.instance.collection('Organizations').doc(widget.orgName).collection('messages').doc(messageId).delete();
-                Navigator.pop(context);
+              child: Text("Save"),
+              onPressed: () async {
+                String editedMessage = editMessageController.text;
+                if (editedMessage != "") {
+                  await FirebaseFirestore.instance
+                      .collection('Organizations')
+                      .doc(widget.orgName)
+                      .collection('messages')
+                      .doc(messageId)
+                      .update({
+                    'message': editedMessage,
+                  });
+                  Navigator.pop(context);
+                }
               },
-              child: Text("Delete Message"),
             ),
           ],
-        ),
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
 
- @override
- Widget build(BuildContext context) {
+  void showMessageOptionsPopup(
+      String messageId, String currentMessage, isImage) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Message Options"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (!isImage) // Can't edit image messages, only text messages
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    showEditMessagePopup(messageId, currentMessage);
+                  },
+                  child: Text("Edit Message"),
+                ),
+              ElevatedButton(
+                onPressed: () {
+                  FirebaseFirestore.instance
+                      .collection('Organizations')
+                      .doc(widget.orgName)
+                      .collection('messages')
+                      .doc(messageId)
+                      .delete();
+                  Navigator.pop(context);
+                },
+                child: Text("Delete Message"),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.orgName),
@@ -400,58 +411,59 @@ void showMessageOptionsPopup(String messageId, String currentMessage, isImage) {
                             ),
                           ],
                         ),
+                      );
+
+                      if (isCurrentUser) {
+                        messageWidget = GestureDetector(
+                          onLongPress: () {
+                            showMessageOptionsPopup(
+                                message.id, messageData['message'], false);
+                          },
+                          child: messageWidget,
                         );
+                      }
 
-                        if (isCurrentUser) {
-                          messageWidget = GestureDetector(
-                            onLongPress: () {
-                              showMessageOptionsPopup(message.id, messageData['message'], false);
-                            },
-                            child: messageWidget,
-                          );
-                        }
-                        
-                        messageWidgets.add(messageWidget);
-                      
-                    } else if (messageData['type'] == 'image' && searchString == '') {
-
-                        Widget messageWidget = Container(
-                          margin: EdgeInsets.symmetric(vertical: 8),
-                          padding: EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: color,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                senderName,
+                      messageWidgets.add(messageWidget);
+                    } else if (messageData['type'] == 'image' &&
+                        searchString == '') {
+                      Widget messageWidget = Container(
+                        margin: EdgeInsets.symmetric(vertical: 8),
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: color,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              senderName,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            ListTile(
+                              title: Image.network(
+                                messageData['message'],
+                                height: 150,
+                              ),
+                              subtitle: Text(
+                                '$formattedDate\t\t\t$formattedTime',
                                 style: TextStyle(
-                                 color: Colors.black,
-                                 fontWeight: FontWeight.bold,
+                                  color: Color.fromARGB(255, 101, 101, 101),
                                 ),
                               ),
-                              ListTile(
-                                title: Image.network(
-                                 messageData['message'],
-                                 height: 150,
-                                ),
-                                subtitle: Text(
-                                 '$formattedDate\t\t\t$formattedTime',
-                                 style: TextStyle(
-                                    color: Color.fromARGB(255, 101, 101, 101),
-                                 ),
-                                ),
-                              ),
-                            ],
+                            ),
+                          ],
                         ),
                       );
 
                       if (isCurrentUser) {
                         messageWidget = GestureDetector(
                           onLongPress: () {
-                            showMessageOptionsPopup(message.id, messageData['message'], false);
+                            showMessageOptionsPopup(
+                                message.id, messageData['message'], false);
                           },
                           child: messageWidget,
                         );

@@ -4,6 +4,7 @@ import 'package:tech_connect/pages/other_user_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tech_connect/pages/add_event_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OrganizationPage extends StatefulWidget {
   final String orgName;
@@ -19,6 +20,7 @@ class _OrganizationPageState extends State<OrganizationPage> {
   late Future<bool> isMember;
   late Future<bool> isAdmin;
 
+  bool isDarkMode = false;
 
   @override
   void initState() {
@@ -35,7 +37,8 @@ class _OrganizationPageState extends State<OrganizationPage> {
   Future<bool> checkIfMember() async {
     User? currentUser = FirebaseAuth.instance.currentUser;
     String userEmail = currentUser?.email ?? '';
-    DocumentSnapshot<Map<String, dynamic>> members = await FirebaseFirestore.instance
+    DocumentSnapshot<Map<String, dynamic>> members = await FirebaseFirestore
+        .instance
         .collection('Organizations')
         .doc(widget.orgName)
         .collection('members')
@@ -49,28 +52,34 @@ class _OrganizationPageState extends State<OrganizationPage> {
   Future<bool> checkIfAdmin() async {
     User? currentUser = FirebaseAuth.instance.currentUser;
     String userEmail = currentUser?.email ?? '';
-    
-    DocumentSnapshot<Map<String, dynamic>> orgDoc = await FirebaseFirestore.instance
+
+    DocumentSnapshot<Map<String, dynamic>> orgDoc = await FirebaseFirestore
+        .instance
         .collection('Organizations')
         .doc(widget.orgName)
         .get();
-    
+
     List<dynamic>? admins = orgDoc.data()?['admins'];
     return (admins != null && admins.contains(userEmail));
   }
 
   Future<void> acceptJoinRequest(String userEmail) async {
-    DocumentReference orgDocRef = FirebaseFirestore.instance.collection('Organizations').doc(widget.orgName);
+    DocumentReference orgDocRef = FirebaseFirestore.instance
+        .collection('Organizations')
+        .doc(widget.orgName);
     await orgDocRef.update({
       'join_requests': FieldValue.arrayRemove([userEmail]),
     });
-    await orgDocRef.collection('members').doc(userEmail).set({
-      'email': userEmail
-    });
+    await orgDocRef
+        .collection('members')
+        .doc(userEmail)
+        .set({'email': userEmail});
   }
 
   Future<void> declineJoinRequest(String userEmail) async {
-    DocumentReference orgDocRef = FirebaseFirestore.instance.collection('Organizations').doc(widget.orgName);
+    DocumentReference orgDocRef = FirebaseFirestore.instance
+        .collection('Organizations')
+        .doc(widget.orgName);
     await orgDocRef.update({
       'join_requests': FieldValue.arrayRemove([userEmail]),
     });
@@ -79,9 +88,9 @@ class _OrganizationPageState extends State<OrganizationPage> {
   // Lists all the users in the 'join_requests' field for an organization. An admin can choose to let them join or decline the request.
   Future<void> showJoinRequestsPopup(BuildContext context) async {
     DocumentSnapshot orgDoc = await FirebaseFirestore.instance
-          .collection('Organizations')
-          .doc(widget.orgName)
-          .get();
+        .collection('Organizations')
+        .doc(widget.orgName)
+        .get();
     Map<String, dynamic> orgData = orgDoc.data() as Map<String, dynamic>;
     List<dynamic> joinRequests = orgData['join_requests'] ?? [];
 
@@ -107,15 +116,16 @@ class _OrganizationPageState extends State<OrganizationPage> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => OtherUserPage(otherUserEmail: email),
+                                    builder: (context) =>
+                                        OtherUserPage(otherUserEmail: email),
                                   ),
                                 );
                               },
-                            child: Text(
-                              email,
-                              style: TextStyle(fontSize: 14),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
+                              child: Text(
+                                email,
+                                style: TextStyle(fontSize: 14),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
                               ),
                             ),
                           ),
@@ -167,9 +177,8 @@ class _OrganizationPageState extends State<OrganizationPage> {
               return CircularProgressIndicator();
             } else {
               var data = snapshot.data!.data() as Map<String, dynamic>;
-              var profilePictureUrl =
-                  data['profile_picture'] ??
-                      'https://firebasestorage.googleapis.com/v0/b/techconnect-42543.appspot.com/o/images%2Ftechconnect.PNG?alt=media&token=ad8c3eff-3c7b-4a60-8939-693de6fd9558';
+              var profilePictureUrl = data['profile_picture'] ??
+                  'https://firebasestorage.googleapis.com/v0/b/techconnect-42543.appspot.com/o/images%2Ftechconnect.PNG?alt=media&token=ad8c3eff-3c7b-4a60-8939-693de6fd9558';
               return Row(
                 children: [
                   ClipOval(
@@ -194,7 +203,8 @@ class _OrganizationPageState extends State<OrganizationPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => OrganizationMembersPage(orgName: widget.orgName),
+                  builder: (context) =>
+                      OrganizationMembersPage(orgName: widget.orgName),
                 ),
               );
             },
@@ -214,13 +224,15 @@ class _OrganizationPageState extends State<OrganizationPage> {
                   return CircularProgressIndicator();
                 } else {
                   var data = snapshot.data!.data() as Map<String, dynamic>;
-                  var description = data['description'] ?? 'Organization at Louisiana Tech University';
+                  var description = data['description'] ??
+                      'Organization at Louisiana Tech University';
                   return Column(
                     children: [
                       SizedBox(height: 20),
                       Text(
                         'About:',
-                        style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 18.0, fontWeight: FontWeight.bold),
                       ),
                       SizedBox(height: 10),
                       Text(
@@ -242,7 +254,8 @@ class _OrganizationPageState extends State<OrganizationPage> {
                     FutureBuilder<bool>(
                       future: isMember,
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
                           return CircularProgressIndicator();
                         } else {
                           bool isMember = snapshot.data ?? false;
@@ -251,9 +264,13 @@ class _OrganizationPageState extends State<OrganizationPage> {
                               onPressed: () async {
                                 User? user = FirebaseAuth.instance.currentUser;
                                 String userEmail = user?.email ?? 'anonymous';
-                                DocumentReference orgDocRef = FirebaseFirestore.instance.collection('Organizations').doc(widget.orgName);
+                                DocumentReference orgDocRef = FirebaseFirestore
+                                    .instance
+                                    .collection('Organizations')
+                                    .doc(widget.orgName);
                                 await orgDocRef.update({
-                                  'join_requests': FieldValue.arrayUnion([userEmail]),
+                                  'join_requests':
+                                      FieldValue.arrayUnion([userEmail]),
                                 });
                               },
                               child: Text('Request to Join'),
@@ -274,7 +291,8 @@ class _OrganizationPageState extends State<OrganizationPage> {
                     FutureBuilder<bool>(
                       future: isMember,
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
                           return CircularProgressIndicator();
                         } else {
                           bool isMember = snapshot.data ?? false;
@@ -284,7 +302,8 @@ class _OrganizationPageState extends State<OrganizationPage> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => OrganizationChatPage(orgName: widget.orgName),
+                                    builder: (context) => OrganizationChatPage(
+                                        orgName: widget.orgName),
                                   ),
                                 );
                               },
@@ -300,29 +319,30 @@ class _OrganizationPageState extends State<OrganizationPage> {
                 ),
                 SizedBox(height: 20),
                 Wrap(
-              alignment: WrapAlignment.center,
-              children: [
-                // Only show "View Join Requests" button if user is admin
-                FutureBuilder<bool>(
-                  future: isAdmin,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
-                    } else {
-                      bool isAdmin = snapshot.data ?? false;
-                      if (isAdmin) {
-                        return ElevatedButton(
-                          onPressed: () => showJoinRequestsPopup(context),
-                          child: Text('View Join Requests'),
-                        );
-                      } else {
-                        return SizedBox.shrink();
-                      }
-                    }
-                  },
+                  alignment: WrapAlignment.center,
+                  children: [
+                    // Only show "View Join Requests" button if user is admin
+                    FutureBuilder<bool>(
+                      future: isAdmin,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return CircularProgressIndicator();
+                        } else {
+                          bool isAdmin = snapshot.data ?? false;
+                          if (isAdmin) {
+                            return ElevatedButton(
+                              onPressed: () => showJoinRequestsPopup(context),
+                              child: Text('View Join Requests'),
+                            );
+                          } else {
+                            return SizedBox.shrink();
+                          }
+                        }
+                      },
+                    ),
+                  ],
                 ),
-              ],
-            ),
                 SizedBox(height: 20),
                 Wrap(
                   alignment: WrapAlignment.center,
@@ -330,10 +350,10 @@ class _OrganizationPageState extends State<OrganizationPage> {
                     ElevatedButton(
                       onPressed: () {
                         Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => AddEventPage(orgName: widget.orgName))
-                        );
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    AddEventPage(orgName: widget.orgName)));
                       },
                       child: Text('Add Event'),
                     ),
@@ -390,7 +410,8 @@ class OrganizationMembersPage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => OtherUserPage(otherUserEmail: members[index]),
+                        builder: (context) =>
+                            OtherUserPage(otherUserEmail: members[index]),
                       ),
                     );
                   },
@@ -407,6 +428,67 @@ class OrganizationMembersPage extends StatelessWidget {
           }
         },
       ),
+    );
+  }
+
+  void _showMembers(BuildContext context, String orgName) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Organization Members'),
+          content: Container(
+            width: double.maxFinite,
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('Organizations')
+                  .doc(orgName)
+                  .collection('members')
+                  .snapshots(),
+              builder: (BuildContext context,
+                  AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                }
+
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                }
+                final List<String> members =
+                    snapshot.data!.docs.map((DocumentSnapshot document) {
+                  final dynamic data = document.data();
+
+                  // Check if data is null or not a map
+                  if (data == null || data is! Map<String, dynamic>) {
+                    return '';
+                  }
+
+                  // Access the 'user' field and convert it to a string
+                  final dynamic userData = data['user'];
+                  return userData?.toString() ?? '';
+                }).toList();
+
+                return ListView.builder(
+                  itemCount: members.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return ListTile(
+                      title: Text(members[index]),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Close'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -440,7 +522,7 @@ class EventList extends StatelessWidget {
               document.data() as Map<String, dynamic>?;
 
           if (data == null || data['eventName'] == null) {
-            return SizedBox(); 
+            return SizedBox();
           }
 
           final String eventName = data['eventName'];
