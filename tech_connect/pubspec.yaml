@@ -30,9 +30,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
+  # dependencies needed for webscraper
   http: ^1.1.2
   html: ^0.15.4
   provider: ^6.0.5
+  #requests: ^4.7.0
 
   geolocator: ^9.0.2
 
@@ -61,7 +64,6 @@ dependencies:
   # google maps api dependencies
   google_maps_flutter: ^2.5.3
   permission_handler: ^11.3.0
-  webview_flutter: ^3.0.3
   maps_toolkit: ^3.0.0
   geofence_service: ^5.0.0
   geocoding: ^3.0.0

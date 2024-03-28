@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart' as parser;
 import 'package:http/http.dart' as http;
 import 'package:tech_connect/pages/DM_page.dart';
 import 'package:tech_connect/pages/friend_page.dart';
 import 'package:tech_connect/pages/id_page.dart';
+//import 'package:';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -35,16 +37,21 @@ class _HomePageState extends State<HomePage> {
 
   bool isLoading = false;
 
-  Future<List<String>> extractData() async {
-    final url = Uri.parse('https://events.latech.edu/academic-calendar/all');
+  // might need to be Future<List<String>>
+  Future<void> extractData() async {
+    String url = 'https://events.latech.edu';
+    
+    final response = await http.Client().get(Uri.parse(url));
+    //print(response);
+    //print('-----------------------------');
+    print(response.body);
+    //print(http.Request(response.body, Uri.parse(url)));
+    
+    //var responseData = json.decode(response.body);
 
-    final response = await http.Client().get(url);
-
-    var document = parser.parse(response.body);
-    List<String> data = document.getElementsByClassName("lw_events_title").map((e) => e.innerHtml).toList();
-
-    print(data);
-
+    //print(responseData);
+  }
+/*
     if (response.statusCode == 200) {
       try {
         var responseEvent1 = document
@@ -106,6 +113,13 @@ class _HomePageState extends State<HomePage> {
     } else {
       return ['', '', 'ERROR: ${response.statusCode}.', '', '', ''];
     }
+  }
+*/
+  @override
+  void initState() {
+    super.initState();
+    extractData();
+
   }
 
   @override
