@@ -20,64 +20,15 @@ class MapPage extends StatefulWidget{
 
 class _MapPageState extends State<MapPage> {
 
-  //final GeocodingPlatform _geocodingPlatform;
   
   final LatLng northEastBound = LatLng(32.534665145170706, -92.63876772509097);
   final LatLng southWestBound = LatLng(32.523864894532736, -92.6582692918401);
-  //final LatLngBounds cameraBounds = LatLngBounds(southwest: southWestBound, northeast: northEastBound);
-  //late GeofenceService _geofenceService;
+
   late GoogleMapController mapController;
   String? _address;
-  //late LatLng currentLocation;
-  //final LatLngBounds cameraLimit = (32.52, -92.);
+
   final LatLng _center = LatLng(32.52741208116641, -92.64696455825013);
-  //final List<Geofence> _geofences = [];
-  /*
-  final _geofenceService = GeofenceService.instance.setup(
-    interval: 5000,
-    accuracy: 100,
-    loiteringDelayMs: 60000,
-    statusChangeDelayMs: 10000,
-    useActivityRecognition: true,
-    allowMockLocations: false,
-    printDevLog: false,
-    geofenceRadiusSortType: GeofenceRadiusSortType.DESC
-  );
-
-  final _geofenceList = <Geofence>[
-    Geofence(
-    id: 'IESB', 
-    latitude: 32.52639755141901, 
-    longitude: -92.64279822540782,
-    radius: [GeofenceRadius(id: 'radius_100m', length: 100),
-            GeofenceRadius(id: 'radius_25m', length: 25),
-            GeofenceRadius(id: 'radius_250m', length: 250),
-            GeofenceRadius(id: 'radius_200m', length: 200),]
-    )
-  ];
-
-  Future<void> _onGeofenceStatusChanged(
-    Geofence geofence,
-    GeofenceRadius geofenceRadius,
-    GeofenceStatus geofenceStatus,
-    Location location) async {
-      print('geofence: ${geofence.toJson()}');
-      print('geofenceRadius: ${geofenceRadius.toJson()}');
-      print('geofenceStatus: ${geofenceStatus.toString()}');
-    }
-
-    void _onLocationChanged(Location location) {
-      print('location: ${location.toJson()}');
-    }
-
-    void _onError(error) {
-      final errorCode = getErrorCodesFromError(error);
-      if(errorCode == null) {
-        print('Undefined error: $error');
-        return;
-      }
-    }
-*/
+ 
   Future<Position> getUserCurrentLocation() async {
     await Geolocator.requestPermission().then((value){
     }).onError((error, stackTrace) async {
