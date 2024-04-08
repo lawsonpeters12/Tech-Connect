@@ -516,7 +516,7 @@ class EventList extends StatelessWidget {
           return CircularProgressIndicator();
         }
 
-        final List<Widget> eventTiles =
+        final List<Widget> eventButtons =
             snapshot.data!.docs.map((DocumentSnapshot document) {
           final Map<String, dynamic>? data =
               document.data() as Map<String, dynamic>?;
@@ -527,15 +527,50 @@ class EventList extends StatelessWidget {
 
           final String eventName = data['eventName'];
 
-          return ListTile(
-            title: Text(eventName),
+          return EventButton(
+            eventName: eventName,
+            onPressed: () {},
           );
         }).toList();
 
         return ListView(
-          children: eventTiles,
+          children: eventButtons,
         );
       },
+    );
+  }
+}
+
+class EventButton extends StatelessWidget {
+  final String eventName;
+  final VoidCallback onPressed;
+
+  const EventButton({required this.eventName, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(50),
+        color: Colors.white,
+      ),
+      margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+      child: TextButton(
+        onPressed: onPressed,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              eventName,
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            Text(
+              'Tap to view event details',
+              style: TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
