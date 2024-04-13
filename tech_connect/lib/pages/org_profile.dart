@@ -6,6 +6,19 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tech_connect/pages/add_event_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+//class to store and display member info
+class Member {
+  final String email;
+  final String name;
+  final String major;
+
+  Member({
+    required this.email,
+    required this.name,
+    required this.major,
+  });
+}
+
 class OrganizationPage extends StatefulWidget {
   final String orgName;
 
@@ -70,10 +83,23 @@ class _OrganizationPageState extends State<OrganizationPage> {
     await orgDocRef.update({
       'join_requests': FieldValue.arrayRemove([userEmail]),
     });
-    await orgDocRef
-        .collection('members')
-        .doc(userEmail)
-        .set({'email': userEmail});
+
+    //Get user document from users collectino for user's displayed information
+    DocumentSnapshot<Map<String, dynamic>> userSnapshot =
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userEmail)
+            .get();
+
+    if (userSnapshot.exists) {
+      String userName = userSnapshot.get('name');
+      String userMajor = userSnapshot.get('name');
+
+      await orgDocRef
+          .collection('members')
+          .doc(userEmail)
+          .set({'email': userEmail, 'name': userName, 'major': userMajor});
+    }
   }
 
   Future<void> declineJoinRequest(String userEmail) async {
@@ -164,6 +190,8 @@ class _OrganizationPageState extends State<OrganizationPage> {
       },
     );
   }
+
+  // displays bottom sheet that contains the details of an event
 
   // App bar displays org name, org profile picture, and an icon to view the members of the org
   @override
@@ -401,24 +429,35 @@ class OrganizationMembersPage extends StatelessWidget {
             );
           }
           if (snapshot.hasData) {
-            var members = snapshot.data!.docs.map((doc) => doc.id).toList();
+            var members = snapshot.data!.docs.map((doc) {
+              var data = doc.data() as Map<String, dynamic>;
+              return Member(
+                email: data['email'] ?? 'email',
+                name: data['name'] ?? 'name',
+                major: data['major'] ?? 'major',
+              );
+            }).toList();
+
             return ListView.builder(
               itemCount: members.length,
               itemBuilder: (context, index) {
                 return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            OtherUserPage(otherUserEmail: members[index]),
-                      ),
-                    );
-                  },
-                  child: ListTile(
-                    title: Text(members[index]),
-                  ),
-                );
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => OtherUserPage(
+                              otherUserEmail: members[index].email),
+                        ),
+                      );
+                    },
+                    child: Column(
+                      children: [
+                        ListTile(
+                            title: Text(members[index].name),
+                            subtitle: Text(members[index].email)),
+                      ],
+                    ));
               },
             );
           } else {
@@ -529,7 +568,9 @@ class EventList extends StatelessWidget {
 
           return EventButton(
             eventName: eventName,
-            onPressed: () {},
+            onPressed: () {
+              _showEventDetails(context, data);
+            },
           );
         }).toList();
 
@@ -538,6 +579,35 @@ class EventList extends StatelessWidget {
         );
       },
     );
+  }
+
+  void _showEventDetails(BuildContext context, Map<String, dynamic> eventData) {
+    showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        builder: (BuildContext context) {
+          return SizedBox(
+              width: MediaQuery.of(context).size.width,
+              child: Container(
+                  padding: EdgeInsets.all(16),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          eventData['eventName'] ?? 'name',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          eventData['location'] ?? 'location',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 10),
+                      ])));
+        });
   }
 }
 
