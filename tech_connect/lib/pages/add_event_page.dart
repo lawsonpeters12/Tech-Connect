@@ -12,7 +12,25 @@ class AddEventPage extends StatefulWidget {
 }
 
 class _AddEventPageState extends State<AddEventPage> {
+  //text controllers for admin to add fields to an event
   TextEditingController _eventNameController = TextEditingController();
+  TextEditingController _locationController = TextEditingController();
+  //TextEditingController _dateController = TextEditingController();
+  //TextEditingController _timeController = TextEditingController();
+
+  DateTime selected = DateTime.now();
+  TimeOfDay selectedTime = TimeOfDay.now();
+
+//async function to select date using DatePicker widget
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+        context: context, firstDate: DateTime.now(), lastDate: DateTime(2101));
+    if (picked != null && picked != selected) {
+      setState(() {
+        selected = picked;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +49,19 @@ class _AddEventPageState extends State<AddEventPage> {
                 labelText: 'Event Name',
               ),
             ),
+            SizedBox(
+              height: 20,
+            ),
+            TextField(
+              controller: _locationController,
+              decoration: InputDecoration(labelText: 'Event Location'),
+            ),
+            SizedBox(height: 20),
+            TextButton(
+                onPressed: () {
+                  _selectDate(context);
+                },
+                child: Text('Select date')),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
@@ -47,10 +78,12 @@ class _AddEventPageState extends State<AddEventPage> {
 
   void _saveEvent() {
     String eventName = _eventNameController.text;
+    String location = _locationController.text;
+    String date = selected.toString();
     // Check if eventName is not empty
     if (eventName.isNotEmpty) {
       // Save event to Firestore
-      addEventToOrganization(eventName);
+      addEventToOrganization(eventName, location, date);
       // Navigate back to previous screen
       Navigator.pop(context);
     } else {
@@ -75,18 +108,52 @@ class _AddEventPageState extends State<AddEventPage> {
     }
   }
 
-  void addEventToOrganization(String eventName) {
-    // Get a reference to the events collection
-    CollectionReference eventsRef = FirebaseFirestore.instance
-        .collection('Organizations')
-        .doc(widget.orgName)
-        .collection('Events');
+  void addEventToOrganization(
+      String eventName, String location, String date) async {
+    // Get a reference to the events collection for EventButton
+    CollectionReference orgsRef =
+        FirebaseFirestore.instance.collection('Organizations');
 
-    // Add the event to Firestore
-    eventsRef.add({'eventName': eventName}).then((value) {
-      print('Event added to organization successfully');
-    }).catchError((error) {
-      print('Failed to add event to organization: $error');
-    });
+    try {
+      final orgDoc = await orgsRef.doc(widget.orgName).get();
+      if (!orgDoc.exists) {
+        await orgsRef.doc(widget.orgName).set({});
+      }
+
+      CollectionReference eventsRef =
+          orgsRef.doc(widget.orgName).collection('Events');
+
+      await eventsRef
+          .doc(eventName)
+          .set({'eventName': eventName, 'location': location, 'date': date});
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Event added successfully'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+
+      // Navigate back to the previous screen
+      Navigator.pop(context);
+    } catch (e) {
+      // Show an error message if something goes wrong
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('Failed to add event: $e'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 }
