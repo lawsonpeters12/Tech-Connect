@@ -15,7 +15,23 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    getDarkModeValue();
+    createGoogleUser();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
   String event1 = 'Last day to register for Spring graduation';
   String event2 = 'Easter Holiday Begins';
   String event3 = 'Easter Holiday Ends';
@@ -60,13 +76,6 @@ class _HomePageState extends State<HomePage> {
         'name': userEmail
       });
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    getDarkModeValue();
-    createGoogleUser();
   }
 
   Future<List<String>> extractData() async {
@@ -159,19 +168,24 @@ class _HomePageState extends State<HomePage> {
               }),
           SizedBox(width: 20),
         ],
+        bottom: TabBar(
+          tabs: [
+            Tab(text: 'Academic Calendar'),
+            Tab(text: 'Crime and Alerts'),
+          ],
+          controller: _tabController,
+        ),
       ),
       backgroundColor: isDarkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1),
-      body: DefaultTabController(
-        length: 2,
-        child: TabBarView(
+      body: TabBarView(
           children: [
             Center(
               child: Scaffold(
                 appBar: AppBar(
                   title: Text('Academic Calendar'),
-                  backgroundColor: isDarkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1),
-                ),
                 backgroundColor: isDarkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1),
+              ),
+                  backgroundColor: isDarkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1),
                 body: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Center(
@@ -241,18 +255,18 @@ class _HomePageState extends State<HomePage> {
                                       Text(eventInfo9),
                                       SizedBox(height: MediaQuery.of(context).size.height * 0.05),
                                     ],
-                                  ),
                                 ),
-                              )
-                      ],
-                    ),
+                              ),
+                            )
+                    ],
                   ),
                 ),
               ),
             ),
-            const Center(child: Text('Alert and Crime')),
-          ],
-        ),
+          ),
+          const Center(child: Text('Alert and Crime')),
+        ],
+        controller: _tabController,
       ),
     );
   }
