@@ -37,6 +37,13 @@ class _MapPageState extends State<MapPage> {
     LatLng(32.525984, -92.648776),
   ];
 
+  List<LatLng> bookstoreProfessor = [
+    LatLng(32.528047, -92.649054),
+    LatLng(32.527743, -92.649199),
+    LatLng(32.527543, -92.648323),
+    LatLng(32.527853, -92.648187),  
+  ];
+
   bool isDarkMode = false;
 
   Future<void> getDarkModeValue() async {
@@ -111,6 +118,17 @@ class _MapPageState extends State<MapPage> {
           points: tolliverResident,
           fillColor: Colors.red.withOpacity(0.3),
           strokeColor: Colors.red,
+          geodesic: true,
+          strokeWidth: 4,
+        )
+      );
+
+    _polygon.add(
+        Polygon(
+          polygonId: PolygonId('3'),
+          points: bookstoreProfessor,
+          fillColor: Colors.blue.withOpacity(0.3),
+          strokeColor: Colors.blue,
           geodesic: true,
           strokeWidth: 4,
         )

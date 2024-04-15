@@ -19,10 +19,19 @@ class CalendarPage extends StatefulWidget {
 class _CalendarPageState extends State<CalendarPage> {
   late DateTime _selectedDay;
   late Map<DateTime, List<Event>> _events;
+  bool isDarkMode = false;
+
+  Future<void> getDarkModeValue() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isDarkMode = prefs.getBool('isDarkMode') ?? false;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    getDarkModeValue();
     _selectedDay = DateTime.now();
     _events = {};
   }
@@ -70,7 +79,11 @@ class _CalendarPageState extends State<CalendarPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("User Calendar")),
+      appBar: AppBar(
+        title: Text("User Calendar"),
+        backgroundColor: isDarkMode ? Color.fromRGBO(167, 43, 42, 1) : Color.fromRGBO(77, 95, 128, 100),
+      ),
+      backgroundColor: isDarkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
