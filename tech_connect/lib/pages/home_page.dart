@@ -348,7 +348,7 @@ Widget build(BuildContext context) {
           ),
         ),
         StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance.collection('alerts').snapshots(),
+          stream: FirebaseFirestore.instance.collection('alerts').orderBy('timestamp',descending: true).snapshots(),
           builder:
               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if (snapshot.hasError) {
