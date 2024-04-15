@@ -7,6 +7,7 @@ import 'package:tech_connect/pages/DM_page.dart';
 import 'package:tech_connect/pages/friend_page.dart';
 import 'package:tech_connect/pages/campus_chat_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -171,7 +172,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         bottom: TabBar(
           tabs: [
             Tab(text: 'Academic Calendar'),
-            Tab(text: 'Crime and Alerts'),
+            Tab(text: 'Alerts'),
           ],
           controller: _tabController,
         ),
@@ -264,7 +265,30 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               ),
             ),
           ),
-          const Center(child: Text('Alert and Crime')),
+          StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance.collection('alerts').snapshots(),
+            builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator();
+              }
+
+              return ListView(
+                children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                  Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+                  DateTime timestamp = data['timestamp'].toDate();
+                  String message = data['message'];
+
+                  return ListTile(
+                    title: Text(
+                      message,
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                      subtitle: Text(DateFormat('EEEE, MMMM d h:mm a').format(timestamp)),
+                  );
+                }).toList(),
+              );
+            },
+          ),
         ],
         controller: _tabController,
       ),
