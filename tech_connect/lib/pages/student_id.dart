@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import "package:flutter/material.dart";
+import 'package:flutter/services.dart';
 import "package:shared_preferences/shared_preferences.dart";
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:tech_connect/pages/test_id.dart';
@@ -31,13 +32,34 @@ class _StudentIDState extends State<StudentID> {
   }
 ValueNotifier<dynamic> result = ValueNotifier(null);
 
+void nfcFeedback(String message) async {
+  ScaffoldMessenger.of(context).removeCurrentSnackBar();
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  await SystemChannels.platform.invokeMethod<void>(
+    'HapticFeedback.vibrate',
+    'HapticFeedback.lightImpact',
+  );
+}
+
 void _tagRead() {
-  /// make a popup that will tell the user to scan their card
+  nfcFeedback("Please tap Student ID to the back of your phone.");
   NfcManager.instance.startSession(onDiscovered: (NfcTag tag) async {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    String userEmailNFC = currentUser?.email ?? '';
+    
     result.value = tag.data;
     // store data in user's firebase table
+    await FirebaseFirestore.instance.collection('users').doc(userEmailNFC).update({
+    'nfc_data': result.value,
+    });
+    
+    nfcFeedback("ID scanned! Refreshing page...");
     NfcManager.instance.stopSession();
   });
+}
+
+void _tagWriteNFCA() {
+  nfcFeedback("Ready to scan...");
 }
 
 Future<bool> nfcDataExists() async {
@@ -54,6 +76,7 @@ Future<bool> nfcDataExists() async {
   if (nfcData == '') {
     return false;
   }
+  _tagWriteNFCA();
   return true;
 }
 
@@ -71,7 +94,9 @@ Future<bool> nfcDataExists() async {
         leading:
           IconButton(
             icon: Icon(Icons.arrow_back),
-            onPressed: () {Navigator.pop(context);
+            onPressed: () {
+              Navigator.pop(context);
+              NfcManager.instance.stopSession();
             },
           ),
         title:
@@ -102,22 +127,30 @@ Future<bool> nfcDataExists() async {
                       return  CircularProgressIndicator();
                     } 
                     else {
-                      bool hasNFCData = snapshot.data ?? false; // change this to grab from the function up top
+                      bool hasNFCData = snapshot.data ?? false;
                       if (!hasNFCData) {
                         return ElevatedButton(
                           child: Text("Scan Student ID?"),
-                          onPressed: _tagRead,);
+                          onPressed: _tagRead,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: appBarBackgroundColor,
+                            textStyle: TextStyle(fontSize: 20),
+                            foregroundColor: Colors.black,
+                          ),
+                          );
                       }
                       else {
-                        Container (
+                        return Column(
+                          children: [Container (
                           width: 300,
                           child: Image.asset("images/card.png"),
-                          );
-                        // i dont know if I should return here, i might try to do return children: [] with these two containers in it
-                        return Container (
+                          ),
+                        Container (
                           width: 50,
                           child: Image.asset("images/wireless.png"),
                           // output NFC data here
+                        ),
+                        ],
                         );
                       }
                     }
