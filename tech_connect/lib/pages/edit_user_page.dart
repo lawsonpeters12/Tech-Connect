@@ -32,6 +32,7 @@ class _EditUserPageState extends State<EditUserPage> {
     _loadUserData();
     getDarkModeValue();
   }
+
   bool isDarkMode = false;
   Color pageBackgroundColor = Color.fromRGBO(198, 218, 231, 1);
 
@@ -39,12 +40,11 @@ class _EditUserPageState extends State<EditUserPage> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       isDarkMode = prefs.getBool('isDarkMode') ?? false;
-      pageBackgroundColor = isDarkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1);
+      pageBackgroundColor = isDarkMode
+          ? Color.fromRGBO(203, 102, 102, 40)
+          : Color.fromRGBO(198, 218, 231, 1);
     });
   }
-
-
-
 
   Future<void> _loadUserData() async {
     // Get the current user's email
@@ -71,7 +71,7 @@ class _EditUserPageState extends State<EditUserPage> {
     });
   }
 
-    Future<void> _openGallery() async {
+  Future<void> _openGallery() async {
     ImagePicker _picker = ImagePicker();
 
     await _picker.pickImage(source: ImageSource.gallery).then((xFile) {
@@ -83,39 +83,40 @@ class _EditUserPageState extends State<EditUserPage> {
   }
 
   Future<void> _uploadProfilePictureToFirebase() async {
-  User? currentUser = FirebaseAuth.instance.currentUser;
-  String userEmail = currentUser?.email ?? 'anonymous';
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    String userEmail = currentUser?.email ?? 'anonymous';
 
-  String timestamp = DateTime.now().toUtc().toIso8601String();
-  fileName = '$userEmail-$timestamp.jpg';
+    String timestamp = DateTime.now().toUtc().toIso8601String();
+    fileName = '$userEmail-$timestamp.jpg';
 
-  var ref = FirebaseStorage.instance.ref().child('images').child(fileName!);
+    var ref = FirebaseStorage.instance.ref().child('images').child(fileName!);
 
-  var uploadTask = await ref.putFile(imageFile!);
+    var uploadTask = await ref.putFile(imageFile!);
 
-  String imageUrl = await uploadTask.ref.getDownloadURL();
+    String imageUrl = await uploadTask.ref.getDownloadURL();
 
-  uploadProfilePictureToFirestore(imageUrl, currentUser!);
-}
+    uploadProfilePictureToFirestore(imageUrl, currentUser!);
+  }
 
-void uploadProfilePictureToFirestore(String imageUrl, User currentUser) async {
-  String userEmail = currentUser.email ?? 'anonymous';
+  void uploadProfilePictureToFirestore(
+      String imageUrl, User currentUser) async {
+    String userEmail = currentUser.email ?? 'anonymous';
 
-  await FirebaseFirestore.instance.collection('users').doc(userEmail).update({
-    'profile_picture': imageUrl,
-  });
+    await FirebaseFirestore.instance.collection('users').doc(userEmail).update({
+      'profile_picture': imageUrl,
+    });
 
-  // Create a new UserInf instance with the new profile picture so the picture is immediately shown on user_page when this page is popped
-  UserInf updatedUser = UserInf(
-    imagePath: imageUrl,
-    name: user.name,
-    major: user.major,
-    email: user.email,
-    about: user.about,
-  );
+    // Create a new UserInf instance with the new profile picture so the picture is immediately shown on user_page when this page is popped
+    UserInf updatedUser = UserInf(
+      imagePath: imageUrl,
+      name: user.name,
+      major: user.major,
+      email: user.email,
+      about: user.about,
+    );
 
-  widget.updateUserData(updatedUser);
-}
+    widget.updateUserData(updatedUser);
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -127,7 +128,7 @@ void uploadProfilePictureToFirestore(String imageUrl, User currentUser) async {
                 padding: EdgeInsets.symmetric(horizontal: 32),
                 physics: BouncingScrollPhysics(),
                 children: [
-                  const SizedBox(height:75), 
+                  const SizedBox(height: 75),
                   ProfileWidget(
                     imagePath: user.imagePath,
                     isEdit: true,
