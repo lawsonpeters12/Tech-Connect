@@ -97,17 +97,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Message Options"),
+          title: Text("Delete Alert?"),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (!isImage) // Can't edit image messages, only text messages
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text("Edit Message"),
-                ),
               ElevatedButton(
                 onPressed: () {
                   FirebaseFirestore.instance
@@ -116,7 +109,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                       .delete();
                   Navigator.pop(context);
                 },
-                child: Text("Delete Message"),
+                child: Text("Delete Alert"),
               ),
             ],
           ),
@@ -270,6 +263,7 @@ Future<void> addAlert() async {
       ),
       backgroundColor: isDarkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1),
       body: TabBarView(
+          controller: _tabController,
           children: [
             Center(
               child: Scaffold(
@@ -392,16 +386,7 @@ StreamBuilder<QuerySnapshot>(
     );
   },
 ),
-        if (isAdmin)
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: FloatingActionButton(
-              onPressed: addAlert,
-              child: Text('Add Alert'),
-            ),
-          ),
       ],
-      controller: _tabController,
     ),
   );
   }
