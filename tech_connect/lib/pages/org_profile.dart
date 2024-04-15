@@ -11,12 +11,13 @@ class Member {
   final String email;
   final String name;
   final String major;
+  final String role;
 
-  Member({
-    required this.email,
-    required this.name,
-    required this.major,
-  });
+  Member(
+      {required this.email,
+      required this.name,
+      required this.major,
+      required this.role});
 }
 
 class OrganizationPage extends StatefulWidget {
@@ -93,12 +94,16 @@ class _OrganizationPageState extends State<OrganizationPage> {
 
     if (userSnapshot.exists) {
       String userName = userSnapshot.get('name');
-      String userMajor = userSnapshot.get('name');
+      String userMajor = userSnapshot.get('major');
+      String userRole = userSnapshot.get('role');
+      String userEmail = userSnapshot.get('email');
 
-      await orgDocRef
-          .collection('members')
-          .doc(userEmail)
-          .set({'email': userEmail, 'name': userName, 'major': userMajor});
+      await orgDocRef.collection('members').doc(userEmail).set({
+        'email': userEmail,
+        'name': userName,
+        'major': userMajor,
+        'role': userRole
+      });
     }
   }
 
@@ -190,8 +195,6 @@ class _OrganizationPageState extends State<OrganizationPage> {
       },
     );
   }
-
-  // displays bottom sheet that contains the details of an event
 
   // App bar displays org name, org profile picture, and an icon to view the members of the org
   @override
@@ -432,10 +435,10 @@ class OrganizationMembersPage extends StatelessWidget {
             var members = snapshot.data!.docs.map((doc) {
               var data = doc.data() as Map<String, dynamic>;
               return Member(
-                email: data['email'] ?? 'email',
-                name: data['name'] ?? 'name',
-                major: data['major'] ?? 'major',
-              );
+                  email: data['email'] ?? 'email',
+                  name: data['name'] ?? 'name',
+                  major: data['major'] ?? 'major',
+                  role: data['role'] ?? 'role');
             }).toList();
 
             return ListView.builder(
@@ -454,8 +457,11 @@ class OrganizationMembersPage extends StatelessWidget {
                     child: Column(
                       children: [
                         ListTile(
-                            title: Text(members[index].name),
-                            subtitle: Text(members[index].email)),
+                          title: Text(members[index].name),
+                          subtitle: Text(members[index].email),
+                          isThreeLine: true,
+                          trailing: Text(members[index].role),
+                        ),
                       ],
                     ));
               },
