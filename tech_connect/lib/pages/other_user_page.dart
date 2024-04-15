@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tech_connect/user/profile_widget.dart';
 import 'package:tech_connect/user/user.dart';
 import 'package:tech_connect/pages/direct_messages.dart';
@@ -20,19 +21,24 @@ class _OtherUserPageState extends State<OtherUserPage> {
   late bool isFriend;
   bool isDarkMode = false;
 
-  Future<void> getDarkModeValue() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      isDarkMode = prefs.getBool('isDarkMode') ?? false;
-    });
-  }
-
   @override
   void initState() {
     super.initState();
     otherUserFuture = fetchOtherUserData();
     checkIfFriend();
     getDarkModeValue();
+  }
+  
+  Color pageBackgroundColor = Color.fromRGBO(198, 218, 231, 1);
+  Color appBarBackgroundColor = Color.fromRGBO(77, 95, 128, 100);
+
+  Future<void> getDarkModeValue() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isDarkMode = prefs.getBool('isDarkMode') ?? false;
+      pageBackgroundColor = isDarkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1);
+      appBarBackgroundColor = isDarkMode ? Color.fromRGBO(167, 43, 42, 1) : Color.fromRGBO(77, 95, 128, 100);
+    });
   }
 
   Future<UserInf> fetchOtherUserData() async {
@@ -84,9 +90,9 @@ class _OtherUserPageState extends State<OtherUserPage> {
             }
           },
         ),
-        backgroundColor: isDarkMode ? Color.fromRGBO(167, 43, 42, 1) : Color.fromRGBO(77, 95, 128, 100),
+        backgroundColor: appBarBackgroundColor,
       ),
-      backgroundColor: isDarkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1),
+      backgroundColor: pageBackgroundColor,
       body: FutureBuilder<UserInf>(
         future: otherUserFuture,
         builder: (context, snapshot) {

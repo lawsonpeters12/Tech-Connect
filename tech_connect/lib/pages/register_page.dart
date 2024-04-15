@@ -40,19 +40,22 @@ class _RegisterPageState extends State<RegisterPage> {
         'about': "Nothing is known about this user yet",
         'major': "Undeclared",
         'profile_picture': "https://firebasestorage.googleapis.com/v0/b/techconnect-42543.appspot.com/o/images%2Fdefault_user.PNG?alt=media&token=c592af94-a160-43c1-8f2b-29a7123756dd",
-        'name': userEmail
+        'name': userEmail,
+        'nfc_data': '',
       });
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.code)));
     }
   }
 
-
   @override
   Widget build(BuildContext context){
     return Scaffold(
       backgroundColor: Color.fromRGBO(198, 218, 231, 100),
-      body: SafeArea ( 
+      body: SingleChildScrollView(
+      physics: NeverScrollableScrollPhysics(),
+      child: 
+      SafeArea ( 
         child: Center(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 25.0),
@@ -60,9 +63,10 @@ class _RegisterPageState extends State<RegisterPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 
+                const SizedBox(height:100),
                 // logo
                 const Icon(
-                  Icons.lock,
+                  Icons.person_4,
                   size: 100, 
                 ),
                 
@@ -130,6 +134,6 @@ class _RegisterPageState extends State<RegisterPage> {
           ),
         ),
       ),
-    );
+    ));
   }
 }

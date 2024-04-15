@@ -10,7 +10,6 @@ void logOut() async {
 
 AppBar buildAppBar(BuildContext context){
   return AppBar(
-    backgroundColor: Color.fromRGBO(75, 97, 126, 1),
     elevation: 0,
     leading:
       IconButton(
