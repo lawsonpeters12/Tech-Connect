@@ -65,6 +65,7 @@ dependencies:
   maps_toolkit: ^3.0.0
   geofence_service: ^5.0.0
   geocoding: ^3.0.0
+  nfc_manager: ^3.4.0
 
 dev_dependencies:
   flutter_test:
