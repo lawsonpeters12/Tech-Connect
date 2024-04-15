@@ -18,6 +18,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  late bool isAdmin = false;
 
   @override
   void initState() {
@@ -25,6 +26,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     _tabController = TabController(length: 2, vsync: this);
     getDarkModeValue();
     createGoogleUser();
+    checkAdminStatus();
   }
 
   @override
@@ -32,6 +34,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     _tabController.dispose();
     super.dispose();
   }
+
+  bool isLoading = false;
+  bool isDarkMode = false;
 
   String event1 = 'Last day to register for Spring graduation';
   String event2 = 'Easter Holiday Begins';
@@ -52,9 +57,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   String eventInfo7 = 'Friday, May 3';
   String eventInfo8 = 'Monday, May 6';
   String eventInfo9 = 'Monday, May 6';
-
-  bool isLoading = false;
-  bool isDarkMode = false;
 
   Future<void> getDarkModeValue() async {
     final prefs = await SharedPreferences.getInstance();
@@ -78,6 +80,95 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       });
     }
   }
+
+    Future<void> checkAdminStatus() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    String userEmail = user?.email ?? '';
+    var adminDoc = await FirebaseFirestore.instance.collection('admins').doc(userEmail).get();
+    setState(() {
+      isAdmin = adminDoc.exists;
+    });
+  }
+
+  
+  void showMessageOptionsPopup(
+      String messageId, String currentMessage, isImage) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Message Options"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (!isImage) // Can't edit image messages, only text messages
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text("Edit Message"),
+                ),
+              ElevatedButton(
+                onPressed: () {
+                  FirebaseFirestore.instance
+                      .collection('alerts')
+                      .doc(messageId)
+                      .delete();
+                  Navigator.pop(context);
+                },
+                child: Text("Delete Message"),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+Future<void> addAlert() async {
+  String? message = await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      TextEditingController controller = TextEditingController();
+      return AlertDialog(
+        title: Text('Add Alert'),
+        content: TextField(
+          controller: controller,
+          decoration: InputDecoration(hintText: 'Enter alert message'),
+          onChanged: (value) => setState(() {}),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(controller.text);
+            },
+            child: Text('Add'),
+          ),
+        ],
+      );
+    },
+  );
+
+  if (message != null && message.isNotEmpty) {
+    CollectionReference alerts = FirebaseFirestore.instance.collection('alerts');
+    Timestamp serverTimestamp = Timestamp.now();
+
+    try {
+      await alerts.add({ 
+        'message': message,
+        'timestamp': serverTimestamp,
+      });
+    } catch (e) {
+      print('Error sending message: $e');
+    }
+  }
+}
 
   Future<List<String>> extractData() async {
     final url = Uri.parse('https://events.latech.edu/academic-calendar/all');
@@ -265,33 +356,53 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               ),
             ),
           ),
-          StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance.collection('alerts').snapshots(),
-            builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
-              }
+StreamBuilder<QuerySnapshot>(
+  stream: FirebaseFirestore.instance.collection('alerts').snapshots(),
+  builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+    if (snapshot.hasError) {
+      return Text('Error: ${snapshot.error}');
+    }
 
-              return ListView(
-                children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                  Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-                  DateTime timestamp = data['timestamp'].toDate();
-                  String message = data['message'];
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return CircularProgressIndicator();
+    }
 
-                  return ListTile(
-                    title: Text(
-                      message,
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                      subtitle: Text(DateFormat('EEEE, MMMM d h:mm a').format(timestamp)),
-                  );
-                }).toList(),
-              );
-            },
+    return ListView.builder(
+      itemCount: snapshot.data!.docs.length,
+      itemBuilder: (context, index) {
+        Map<String, dynamic> data = snapshot.data!.docs[index].data() as Map<String, dynamic>;
+        DateTime timestamp = data['timestamp'].toDate();
+        String message = data['message'];
+
+        return GestureDetector(
+          onLongPress: () {
+            if (isAdmin) {
+              showMessageOptionsPopup(snapshot.data!.docs[index].id, message, false);
+            }
+          },
+          child: ListTile(
+            title: Text(
+              message,
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text(DateFormat('EEEE, MMMM d h:mm a').format(timestamp)), // Format timestamp as desired
           ),
-        ],
-        controller: _tabController,
-      ),
+        );
+      },
     );
+  },
+),
+        if (isAdmin)
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: FloatingActionButton(
+              onPressed: addAlert,
+              child: Text('Add Alert'),
+            ),
+          ),
+      ],
+      controller: _tabController,
+    ),
+  );
   }
 }
