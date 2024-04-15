@@ -27,6 +27,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     getDarkModeValue();
     createGoogleUser();
     checkAdminStatus();
+    eventGrabber();
   }
 
   @override
@@ -231,6 +232,22 @@ Future<void> addAlert() async {
     } else {
       return ['', '', 'ERROR: ${response.statusCode}.', '', '', ''];
     }
+  }
+
+  Future<List> queryValues() async {
+  final snapshot = await firestore.collection('academic_calendar_events2').orderBy('date', descending: false).get();
+  late List eventsQuery;
+  if(snapshot.docs.isNotEmpty){
+    eventsQuery = snapshot.docs.map((doc) => doc.data()).toList();
+  }
+  return eventsQuery;
+}
+
+  void eventGrabber() async {
+    List eventsQ = await queryValues();
+    setState(() {
+      events = eventsQ;
+    });
   }
 
 @override

@@ -609,7 +609,6 @@ packages:
     source: hosted
     version: "0.2.1+1"
   intl:
-    dependency: transitive
     dependency: "direct main"
     description:
       name: intl

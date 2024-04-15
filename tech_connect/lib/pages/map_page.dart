@@ -60,7 +60,7 @@ class _MapPageState extends State<MapPage> {
 
   bool buttonTextBool = false;
   bool currentEventBool = true;
-  String locationImageURL = '';
+  String locationImageURL = 'https://firebasestorage.googleapis.com/v0/b/techconnect-42543.appspot.com/o/images%2Ftechconnect.PNG?alt=media&token=ad8c3eff-3c7b-4a60-8939-693de6fd9558';
   late GoogleMapController mapController;
   late List events = [];
   String? _address;
