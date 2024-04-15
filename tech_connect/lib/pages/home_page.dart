@@ -6,7 +6,6 @@ import 'package:http/http.dart' as http;
 import 'package:tech_connect/pages/DM_page.dart';
 import 'package:tech_connect/pages/calendar_page.dart';
 import 'package:tech_connect/pages/friend_page.dart';
-import 'package:tech_connect/pages/campus_chat_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 
@@ -49,15 +48,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   String event8 = 'Early Web Registration for Summer & Fall Quarter 2024';
   String event9 = 'Early Web Registration for Veterans and Degree Candidate Seniors ≥ 110 hours';
 
-  String eventInfo1 = 'Friday, March 29';
-  String eventInfo2 = 'Friday, March 29';
-  String eventInfo3 =  'Monday, April 1';
-  String eventInfo4 = 'Friday, April 5';
-  String eventInfo5 = 'Friday, April 12';
-  String eventInfo6 = 'Monday, April 29';
-  String eventInfo7 = 'Friday, May 3';
-  String eventInfo8 = 'Monday, May 6';
-  String eventInfo9 = 'Monday, May 6';
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+  TextStyle headerStyle = const TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0);
+  TextStyle bodyStyle = const TextStyle(fontSize: 20.0);
+
+  List events = [];
 
   Future<void> getDarkModeValue() async {
     final prefs = await SharedPreferences.getInstance();
@@ -237,163 +233,146 @@ Future<void> addAlert() async {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-      backgroundColor: isDarkMode ? Color.fromRGBO(167, 43, 42, 1) : Color.fromRGBO(77, 95, 128, 100),
-        title: Text('Home Page'),
-        leading: Container(),
-        actions: [
-          Image.asset("images/logo.png", fit: BoxFit.contain, height: 60),
-          IconButton(
-              icon: Icon(Icons.calendar_today_outlined),
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: ((context) => CalendarPage())));
-              }),
-          Spacer(),
-          IconButton(
-              icon: Icon(Icons.send_outlined),
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: ((context) => FriendPage())));
-              }),
-          SizedBox(width: 20),
-        ],
-        bottom: TabBar(
-          tabs: [
-            Tab(text: 'Academic Calendar'),
-            Tab(text: 'Alerts'),
-          ],
-          controller: _tabController,
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      backgroundColor: isDarkMode
+          ? const Color.fromRGBO(167, 43, 42, 1)
+          : const Color.fromRGBO(77, 95, 128, 1),
+      title: const Text('Home Page'),
+      leading: Container(),
+      actions: [
+        Image.asset("images/logo.png", fit: BoxFit.contain, height: 60),
+        IconButton(
+          icon: Icon(Icons.calendar_today_outlined),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => CalendarPage()),
+            );
+          },
         ),
+        Spacer(),
+        IconButton(
+          icon: const Icon(Icons.send_outlined),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const FriendPage()),
+            );
+          },
+        ),
+        const SizedBox(width: 20),
+      ],
+      bottom: TabBar(
+        tabs: [
+          Tab(text: 'Academic Calendar'),
+          Tab(text: 'Alerts'),
+        ],
+        controller: _tabController,
       ),
-      backgroundColor: isDarkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1),
-      body: TabBarView(
-          controller: _tabController,
-          children: [
-            Center(
-              child: Scaffold(
-                appBar: AppBar(
-                  title: Text('Academic Calendar'),
-                backgroundColor: isDarkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1),
-              ),
-                  backgroundColor: isDarkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1),
-                body: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        isLoading
-                            ? CircularProgressIndicator()
-                            : Expanded(
-                                child: SizedBox(
-                                  height: 200.0,
-                                  child: ListView(
-                                    scrollDirection: Axis.vertical,
-                                    children: [
-                                      Text(
-                                        event1,
-                                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(eventInfo1),
-                                      SizedBox(height: MediaQuery.of(context).size.height * 0.05),
-                                      Text(
-                                        event2,
-                                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(eventInfo2),
-                                      SizedBox(height: MediaQuery.of(context).size.height * 0.05),
-                                      Text(
-                                        event3,
-                                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(eventInfo3),
-                                      SizedBox(height: MediaQuery.of(context).size.height * 0.05),
-                                      Text(
-                                        event4,
-                                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(eventInfo4),
-                                      SizedBox(height: MediaQuery.of(context).size.height * 0.05),
-                                      Text(
-                                        event5,
-                                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(eventInfo5),
-                                      SizedBox(height: MediaQuery.of(context).size.height * 0.05),
-                                      Text(
-                                        event6,
-                                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(eventInfo6),
-                                      SizedBox(height: MediaQuery.of(context).size.height * 0.05),
-                                      Text(
-                                        event7,
-                                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(eventInfo7),
-                                      SizedBox(height: MediaQuery.of(context).size.height * 0.05),
-                                      Text(
-                                        event8,
-                                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(eventInfo8),
-                                      SizedBox(height: MediaQuery.of(context).size.height * 0.05),
-                                      Text(
-                                        event9,
-                                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(eventInfo9),
-                                      SizedBox(height: MediaQuery.of(context).size.height * 0.05),
-                                    ],
-                                ),
+    ),
+    backgroundColor: isDarkMode
+        ? Color.fromRGBO(203, 102, 102, 1)
+        : Color.fromRGBO(198, 218, 231, 1),
+    body: TabBarView(
+      controller: _tabController,
+      children: [
+        Center(
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text('Academic Calendar'),
+              backgroundColor: isDarkMode
+                  ? Color.fromRGBO(203, 102, 102, 1)
+                  : Color.fromRGBO(198, 218, 231, 1),
+            ),
+            backgroundColor: isDarkMode
+                ? Color.fromRGBO(203, 102, 102, 1)
+                : Color.fromRGBO(198, 218, 231, 1),
+            body: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    (events.isEmpty)
+                        ? const CircularProgressIndicator()
+                        : Expanded(
+                            child: SizedBox(
+                              height: 200.0,
+                              child: ListView(
+                                scrollDirection: Axis.vertical,
+                                children: [
+                                  for (var i = 0; i < 11; i++)
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          events[i]['formatted_date'],
+                                          style: headerStyle,
+                                        ),
+                                        Text(
+                                          events[i]['event'],
+                                          style: bodyStyle,
+                                        ),
+                                        const SizedBox(height: 20),
+                                      ],
+                                    ),
+                                ],
                               ),
-                            )
-                    ],
-                  ),
+                            ),
+                          ),
+                  ],
                 ),
               ),
             ),
           ),
-StreamBuilder<QuerySnapshot>(
-  stream: FirebaseFirestore.instance.collection('alerts').snapshots(),
-  builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-    if (snapshot.hasError) {
-      return Text('Error: ${snapshot.error}');
-    }
-
-    if (snapshot.connectionState == ConnectionState.waiting) {
-      return CircularProgressIndicator();
-    }
-
-    return ListView.builder(
-      itemCount: snapshot.data!.docs.length,
-      itemBuilder: (context, index) {
-        Map<String, dynamic> data = snapshot.data!.docs[index].data() as Map<String, dynamic>;
-        DateTime timestamp = data['timestamp'].toDate();
-        String message = data['message'];
-
-        return GestureDetector(
-          onLongPress: () {
-            if (isAdmin) {
-              showMessageOptionsPopup(snapshot.data!.docs[index].id, message, false);
+        ),
+        StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance.collection('alerts').snapshots(),
+          builder:
+              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
             }
+
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return CircularProgressIndicator();
+            }
+
+            return ListView.builder(
+              itemCount: snapshot.data!.docs.length,
+              itemBuilder: (context, index) {
+                Map<String, dynamic> data =
+                    snapshot.data!.docs[index].data() as Map<String, dynamic>;
+                DateTime timestamp = data['timestamp'].toDate();
+                String message = data['message'];
+
+                return GestureDetector(
+                  onLongPress: () {
+                    if (isAdmin) {
+                      showMessageOptionsPopup(
+                          snapshot.data!.docs[index].id, message, false);
+                    }
+                  },
+                  child: ListTile(
+                    title: Text(
+                      message,
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(DateFormat('EEEE, MMMM d h:mm a')
+                        .format(timestamp)), // Format timestamp as desired
+                  ),
+                );
+              },
+            );
           },
-          child: ListTile(
-            title: Text(
-              message,
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            subtitle: Text(DateFormat('EEEE, MMMM d h:mm a').format(timestamp)), // Format timestamp as desired
-          ),
-        );
-      },
-    );
-  },
-),
+        ),
       ],
     ),
   );
-  }
+}
 }

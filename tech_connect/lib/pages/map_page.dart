@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'dart:collection';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -9,9 +10,9 @@ import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
 import 'package:tech_connect/components/map_dict.dart' as address_dict;
+import 'package:tech_connect/pages/org_profile.dart';
 
 class MapPage extends StatefulWidget{
-  const MapPage({super.key});
 
   @override
   State<MapPage> createState() => _MapPageState();
@@ -55,17 +56,56 @@ class _MapPageState extends State<MapPage> {
   
   final LatLng northEastBound = LatLng(32.534665145170706, -92.63876772509097);
   final LatLng southWestBound = LatLng(32.523864894532736, -92.6582692918401);
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+  bool buttonTextBool = false;
+  bool currentEventBool = true;
+  String locationImageURL = '';
   late GoogleMapController mapController;
+  late List events = [];
   String? _address;
 
   final LatLng _center = LatLng(32.52741208116641, -92.64696455825013);
   
+
+  late String eventData;
+
+ 
   Future<Position> getUserCurrentLocation() async {
     await Geolocator.requestPermission().then((value){
     }).onError((error, stackTrace) async {
       await Geolocator.requestPermission();
+
     });
     return await Geolocator.getCurrentPosition();
+  }
+
+  Future<List> queryValues() async {
+  final snapshot = await firestore.collection('eventsGlobal').where('location', isEqualTo: '$_address').get();
+  late List eventsQuery;
+  if(snapshot.docs.isNotEmpty){
+    eventsQuery = snapshot.docs.map((doc) => doc.data()).toList();
+  }
+  //print(eventsQuery);
+  return eventsQuery;
+}
+
+  void eventGrabber() async {
+    List eventsQ = await queryValues();
+    setState(() {
+      events = eventsQ;
+    });
+  }
+
+  Future<void> checkIn() async{
+    // checks user in
+    //print('checkin');
+    //print(getImageUrl());
+  }
+
+  Future<void> checkOut() async{
+    // checks user out
+    //print('checkout');
   }
 
   Future<void> getAddressFromLatLng(double latitude, double longitude) async {
@@ -74,12 +114,27 @@ class _MapPageState extends State<MapPage> {
       Placemark place = placemarks[0];
 
       setState(() {
+      // leave print statements for debugging
       
-      _address = ("${place.street}");
-      print("Address: $_address");
-      _address = address_dict.addresses[_address];
-      print("Address: $_address");
+      String address = ("${place.street}");
+      //print("Address: $_address");
+      _address = address_dict.addresses[address][0];
+      //print("Address: $_address");
+      locationImageURL = address_dict.addresses[address][1];
+      //print('image url: $locationImageURL');
+      eventGrabber();
       });
+  }
+  
+
+  Future<void> getImageUrl() async {
+    DocumentReference documentReference = FirebaseFirestore.instance
+    .collection('map_images')
+    .doc('$_address');
+
+    await documentReference.get().then((snapshot) {
+      locationImageURL = snapshot['picture'].toString();
+    });
   }
 
   @override
@@ -98,6 +153,8 @@ class _MapPageState extends State<MapPage> {
     controller.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
 
     getAddressFromLatLng(value.latitude, value.longitude);
+
+    print('somethign address');
     });
     
     //initalize polygon
@@ -134,22 +191,52 @@ class _MapPageState extends State<MapPage> {
         )
       );
     }
+    
+
+  
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-      backgroundColor: isDarkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1),
-      appBar: AppBar( title: Text('Campus Map --- $_address'),
-      backgroundColor: isDarkMode ? Color.fromRGBO(167, 43, 42, 1) : Color.fromRGBO(77, 95, 128, 100),
+      backgroundColor:const Color.fromRGBO(77, 95, 128, 100),
+      appBar: AppBar( title: const Text('Campus Map'),
       toolbarHeight: 80,
       ),
+      drawer: Drawer(
+        child: Center(
+          child: (_address == null) ? CircularProgressIndicator() : Column(
+            
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Container(alignment: Alignment.topLeft,
+              padding: const EdgeInsets.all(30.0),
+              child: Text('$_address', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0))
+              ),
+              const SizedBox(height: 30.0),
+              Image.network(locationImageURL),
+              const SizedBox(height: 30.0),
+              (events.isNotEmpty) ? Column(
 
-      // redundant container for formatting later
-      body: Container( 
-
-      child: GoogleMap(
-      polygons: _polygon,
+              children: [Text(events[0]['organization'] + 'is hosting: '),
+              Text(events[0]['event']),
+              const SizedBox(height: 30.0),
+              currentEventBool ?
+              ElevatedButton(
+                style: ButtonStyle(backgroundColor: buttonTextBool ? const MaterialStatePropertyAll<Color>(Colors.red) : const MaterialStatePropertyAll<Color>(Colors.green)),
+                child: buttonTextBool ? const Text("Check-Out") : const Text("Check-In"),
+                onPressed: () {
+                  setState(() {
+                    buttonTextBool ? checkOut() : checkIn();
+                    buttonTextBool = !buttonTextBool;
+                  });
+                }
+              ) : const SizedBox()
+            ]) : Text('Currently no events at $_address')
+          ],
+            ),
+        )
+        ),
+      body: GoogleMap(
       onMapCreated: (GoogleMapController controller) {
         mapController = controller;
       },
@@ -165,13 +252,8 @@ class _MapPageState extends State<MapPage> {
       rotateGesturesEnabled: true,
       tiltGesturesEnabled: true,
       cameraTargetBounds: CameraTargetBounds(LatLngBounds(northeast: northEastBound, southwest: southWestBound)),
-     
+      polygons: _polygon,
     ),
-    
-    
-    ),
-    
     );
-
   }
 }

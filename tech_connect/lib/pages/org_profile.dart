@@ -209,6 +209,8 @@ class _OrganizationPageState extends State<OrganizationPage> {
     );
   }
 
+  // displays bottom sheet that contains the details of an event
+
   // App bar displays org name, org profile picture, and an icon to view the members of the org
   @override
   Widget build(BuildContext context) {
