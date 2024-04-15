@@ -1,17 +1,14 @@
 // ignore_for_file: prefer_const_constructors
 
-//import 'dart:developer';
-//import 'dart:ffi';
+import 'dart:async';
+import 'dart:collection';
 import 'package:geocoding/geocoding.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-//import 'package:geofence_service/geofence_service.dart';
 import 'package:flutter/services.dart';
 import 'package:tech_connect/components/map_dict.dart' as address_dict;
-//import 'package:location/location.dart' as locationlib;
 
 class MapPage extends StatefulWidget{
   const MapPage({super.key});
@@ -21,6 +18,32 @@ class MapPage extends StatefulWidget{
 }
 
 class _MapPageState extends State<MapPage> {
+  // created controller to display google maps 
+  Completer<GoogleMapController> _controller = Completer();
+
+  Set<Polygon> _polygon = HashSet<Polygon>();
+
+  List<LatLng> tolliverCommuter = [
+    LatLng(32.526683, -92.649363),
+    LatLng(32.526752, -92.649664),
+    LatLng(32.526200, -92.649879),
+    LatLng(32.526149, -92.649460),
+  ];
+
+  List<LatLng> tolliverResident = [
+    LatLng(32.525730, -92.649045),
+    LatLng(32.525470, -92.648331),
+    LatLng(32.525726, -92.647824),
+    LatLng(32.525984, -92.648776),
+  ];
+
+  List<LatLng> bookstoreProfessor = [
+    LatLng(32.528047, -92.649054),
+    LatLng(32.527743, -92.649199),
+    LatLng(32.527543, -92.648323),
+    LatLng(32.527853, -92.648187),  
+  ];
+
   bool isDarkMode = false;
 
   Future<void> getDarkModeValue() async {
@@ -29,82 +52,26 @@ class _MapPageState extends State<MapPage> {
       isDarkMode = prefs.getBool('isDarkMode') ?? false;
     });
   }
-
-
-  //final GeocodingPlatform _geocodingPlatform;
   
   final LatLng northEastBound = LatLng(32.534665145170706, -92.63876772509097);
   final LatLng southWestBound = LatLng(32.523864894532736, -92.6582692918401);
-  //final LatLngBounds cameraBounds = LatLngBounds(southwest: southWestBound, northeast: northEastBound);
-  //late GeofenceService _geofenceService;
   late GoogleMapController mapController;
   String? _address;
-  //late LatLng currentLocation;
-  //final LatLngBounds cameraLimit = (32.52, -92.);
+
   final LatLng _center = LatLng(32.52741208116641, -92.64696455825013);
-  //final List<Geofence> _geofences = [];
-  /*
-  final _geofenceService = GeofenceService.instance.setup(
-    interval: 5000,
-    accuracy: 100,
-    loiteringDelayMs: 60000,
-    statusChangeDelayMs: 10000,
-    useActivityRecognition: true,
-    allowMockLocations: false,
-    printDevLog: false,
-    geofenceRadiusSortType: GeofenceRadiusSortType.DESC
-  );
-
-  final _geofenceList = <Geofence>[
-    Geofence(
-    id: 'IESB', 
-    latitude: 32.52639755141901, 
-    longitude: -92.64279822540782,
-    radius: [GeofenceRadius(id: 'radius_100m', length: 100),
-            GeofenceRadius(id: 'radius_25m', length: 25),
-            GeofenceRadius(id: 'radius_250m', length: 250),
-            GeofenceRadius(id: 'radius_200m', length: 200),]
-    )
-  ];
-
-  Future<void> _onGeofenceStatusChanged(
-    Geofence geofence,
-    GeofenceRadius geofenceRadius,
-    GeofenceStatus geofenceStatus,
-    Location location) async {
-      print('geofence: ${geofence.toJson()}');
-      print('geofenceRadius: ${geofenceRadius.toJson()}');
-      print('geofenceStatus: ${geofenceStatus.toString()}');
-    }
-
-    void _onLocationChanged(Location location) {
-      print('location: ${location.toJson()}');
-    }
-
-    void _onError(error) {
-      final errorCode = getErrorCodesFromError(error);
-      if(errorCode == null) {
-        print('Undefined error: $error');
-        return;
-      }
-    }
-*/
+  
   Future<Position> getUserCurrentLocation() async {
     await Geolocator.requestPermission().then((value){
     }).onError((error, stackTrace) async {
       await Geolocator.requestPermission();
-      //print("ERROR"+error.toString());
     });
     return await Geolocator.getCurrentPosition();
   }
 
   Future<void> getAddressFromLatLng(double latitude, double longitude) async {
   
-      //print('Address before calling placemarks');
       List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
       Placemark place = placemarks[0];
-      //print('Address after calling placemarkss');
-      //print('Address: ');
 
       setState(() {
       
@@ -118,6 +85,7 @@ class _MapPageState extends State<MapPage> {
   @override
   void initState() {
     super.initState();
+
     getDarkModeValue();
 
     getUserCurrentLocation().then((value) async {
@@ -131,12 +99,41 @@ class _MapPageState extends State<MapPage> {
 
     getAddressFromLatLng(value.latitude, value.longitude);
     });
-    /*
-    setState(() {
-      
-    });
-    */
-  }
+    
+    //initalize polygon
+    _polygon.add(
+      Polygon(
+        polygonId: PolygonId('1'),
+        points: tolliverCommuter,
+        fillColor: Colors.yellow.withOpacity(0.3),
+        strokeColor: Colors.yellow,
+        geodesic: true,
+        strokeWidth: 4,
+      )
+    );
+
+    _polygon.add(
+        Polygon(
+          polygonId: PolygonId('2'),
+          points: tolliverResident,
+          fillColor: Colors.red.withOpacity(0.3),
+          strokeColor: Colors.red,
+          geodesic: true,
+          strokeWidth: 4,
+        )
+      );
+
+    _polygon.add(
+        Polygon(
+          polygonId: PolygonId('3'),
+          points: bookstoreProfessor,
+          fillColor: Colors.blue.withOpacity(0.3),
+          strokeColor: Colors.blue,
+          geodesic: true,
+          strokeWidth: 4,
+        )
+      );
+    }
 
   @override
   Widget build(BuildContext context) {
@@ -152,6 +149,7 @@ class _MapPageState extends State<MapPage> {
       body: Container( 
 
       child: GoogleMap(
+      polygons: _polygon,
       onMapCreated: (GoogleMapController controller) {
         mapController = controller;
       },
