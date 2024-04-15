@@ -5,8 +5,10 @@ import 'package:table_calendar/table_calendar.dart';
 import 'dart:collection';
 
 class Event {
+  final String id;
   final String title;
-  Event(this.title);
+
+  Event({required this.id, required this.title});
 }
 
 class CalendarPage extends StatefulWidget {
@@ -41,6 +43,7 @@ class _CalendarPageState extends State<CalendarPage> {
       context: context,
       builder: (context) {
         String eventTitle = '';
+
         return AlertDialog(
           title: Text('Add Event'),
           content: TextField(
@@ -53,12 +56,15 @@ class _CalendarPageState extends State<CalendarPage> {
             TextButton(
               onPressed: () {
                 setState(() {
-                  final event = Event(eventTitle);
+                  final eventId = UniqueKey().toString();
+                  final event = Event(id: eventId, title: eventTitle);
+
                   if (_events[day] == null) {
                     _events[day] = [event];
                   } else {
                     _events[day]!.add(event);
                   }
+
                   Navigator.pop(context);
                 });
               },
@@ -70,9 +76,15 @@ class _CalendarPageState extends State<CalendarPage> {
     );
   }
 
-  void _onDaySelected(DateTime day, DateTime focusedDay) {
+  void _deleteEvent(DateTime day, String eventId) {
     setState(() {
-      _selectedDay = day;
+      _events[day]?.removeWhere((event) => event.id == eventId);
+    });
+  }
+
+  void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
+    setState(() {
+      _selectedDay = selectedDay;
     });
   }
 
@@ -88,7 +100,7 @@ class _CalendarPageState extends State<CalendarPage> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            Text("Selected Day = " + _selectedDay.toString().split(" ")[0]),
+            Text("Selected Day: " + _selectedDay.toString().split(" ")[0]),
             Container(
               child: TableCalendar(
                 locale: "en_US",
@@ -115,8 +127,15 @@ class _CalendarPageState extends State<CalendarPage> {
                 itemCount: _events[_selectedDay]?.length ?? 0,
                 itemBuilder: (context, index) {
                   final event = _events[_selectedDay]![index];
+
                   return ListTile(
                     title: Text(event.title),
+                    trailing: IconButton(
+                      icon: Icon(Icons.delete),
+                      onPressed: () {
+                        _deleteEvent(_selectedDay, event.id);
+                      },
+                    ),
                   );
                 },
               ),
