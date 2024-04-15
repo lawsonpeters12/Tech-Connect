@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:html/parser.dart' as parser;
 import 'package:http/http.dart' as http;
 import 'package:tech_connect/pages/DM_page.dart';
+import 'package:tech_connect/pages/calendar_page.dart';
 import 'package:tech_connect/pages/friend_page.dart';
 import 'package:tech_connect/pages/campus_chat_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -151,6 +152,11 @@ class _HomePageState extends State<HomePage> {
         leading: Container(),
         actions: [
           Image.asset("images/logo.png", fit: BoxFit.contain, height: 60),
+          IconButton(
+              icon: Icon(Icons.calendar_today_outlined),
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: ((context) => CalendarPage())));
+              }),
           Spacer(),
           IconButton(
               icon: Icon(Icons.send_outlined),
