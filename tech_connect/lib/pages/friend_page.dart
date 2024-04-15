@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 import 'package:tech_connect/pages/other_user_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -61,6 +62,18 @@ class _FriendPageState extends State<FriendPage> {
   Future<void> refreshRequests() async {
     setState(() {}); // Refresh the UI
     friendsList = fetchFriendsList();
+  }
+
+  // gives user feedback when they accept a friend request
+  Future<void> requestAcceptedFeedback() async {
+    // SnackBar
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Friend request accepted!")));
+    // Light haptic feedback
+    await SystemChannels.platform.invokeMethod<void>(
+      'HapticFeedback.vibrate',
+      'HapticFeedbackType.lightImpact',
+    );
   }
 
   @override
@@ -215,6 +228,8 @@ class _FriendPageState extends State<FriendPage> {
                                       'friends_list': FieldValue.arrayUnion([requestEmail])
                                   }, SetOptions(merge: true));
                                   refreshRequests(); 
+                                  // TEST THIS
+                                  requestAcceptedFeedback();
                                 },
                               ),
                               IconButton(
@@ -234,7 +249,9 @@ class _FriendPageState extends State<FriendPage> {
                                       .update({
                                       'outgoing_friend_requests': FieldValue.arrayRemove([userEmail])
                                   });
-                                  refreshRequests(); 
+                                  refreshRequests();
+                                  // TEST THIS 
+                                  requestAcceptedFeedback();
                                   },
                                 ),
                               ],

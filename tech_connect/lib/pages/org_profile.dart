@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:tech_connect/pages/org_chat.dart';
 import 'package:tech_connect/pages/other_user_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -114,6 +115,18 @@ class _OrganizationPageState extends State<OrganizationPage> {
     await orgDocRef.update({
       'join_requests': FieldValue.arrayRemove([userEmail]),
     });
+  }
+
+  // gives user feedback when they request to join
+  Future<void> requestSentFeedback() async {
+    // SnackBar
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Request sent!")));
+    // Light haptic feedback
+    await SystemChannels.platform.invokeMethod<void>(
+      'HapticFeedback.vibrate',
+      'HapticFeedbackType.lightImpact',
+    );
   }
 
   // Lists all the users in the 'join_requests' field for an organization. An admin can choose to let them join or decline the request.
@@ -303,6 +316,8 @@ class _OrganizationPageState extends State<OrganizationPage> {
                                   'join_requests':
                                       FieldValue.arrayUnion([userEmail]),
                                 });
+                                // Request sent
+                                requestSentFeedback();
                               },
                               child: Text('Request to Join'),
                             );
