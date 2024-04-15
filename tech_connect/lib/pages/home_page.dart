@@ -17,7 +17,7 @@ class _HomePageState extends State<HomePage> {
 
   bool isDarkMode = false;
 
-  TextStyle headerStyle = const TextStyle(fontWeight: FontWeight.bold, fontSize: 30.0);
+  TextStyle headerStyle = const TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0);
   TextStyle bodyStyle = const TextStyle(fontSize: 20.0);
 
   List events = [];

@@ -25,7 +25,7 @@ class _MapPageState extends State<MapPage> {
   bool currentEventBool = true;
   String locationImageURL = '';
   late GoogleMapController mapController;
-  late List events;
+  late List events = [];
   String? _address;
   //late String locationImageURL = 'https://firebasestorage.googleapis.com/v0/b/techconnect-42543.appspot.com/o/images%2Fltp012%40email.latech.edu-2024-02-26T22%3A03%3A04.720577Z.jpg?alt=media&token=133169be-e402-4d99-b7c1-f051a8155a6c';
 
@@ -81,9 +81,9 @@ class _MapPageState extends State<MapPage> {
       String address = ("${place.street}");
       //print("Address: $_address");
       _address = address_dict.addresses[address][0];
-      //print("Address: $_address");
+      print("Address: $_address");
       locationImageURL = address_dict.addresses[address][1];
-      //print('image url: $locationImageURL');
+      print('image url: $locationImageURL');
       eventGrabber();
       });
   }
@@ -113,6 +113,8 @@ class _MapPageState extends State<MapPage> {
     controller.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
 
     getAddressFromLatLng(value.latitude, value.longitude);
+
+    print('somethign address');
     });
   }
 
@@ -125,7 +127,8 @@ class _MapPageState extends State<MapPage> {
       ),
       drawer: Drawer(
         child: Center(
-          child: Column(
+          child: (_address == null) ? CircularProgressIndicator() : Column(
+            
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Container(alignment: Alignment.topLeft,
@@ -133,10 +136,11 @@ class _MapPageState extends State<MapPage> {
               child: Text('$_address', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0))
               ),
               const SizedBox(height: 30.0),
-              // TODO put in event button widget
               Image.network(locationImageURL),
               const SizedBox(height: 30.0),
-              Text(events[0]['organization'] + 'is hosting: '),
+              (events.isNotEmpty) ? Column(
+
+              children: [Text(events[0]['organization'] + 'is hosting: '),
               Text(events[0]['event']),
               const SizedBox(height: 30.0),
               currentEventBool ?
@@ -150,6 +154,7 @@ class _MapPageState extends State<MapPage> {
                   });
                 }
               ) : const SizedBox()
+            ]) : Text('Currently no events at $_address')
           ],
             ),
         )
