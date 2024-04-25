@@ -1,13 +1,10 @@
-import 'dart:typed_data';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import "package:flutter/material.dart";
 import 'package:flutter/services.dart';
 import "package:shared_preferences/shared_preferences.dart";
 import 'package:nfc_manager/nfc_manager.dart';
-import 'package:tech_connect/pages/test_id.dart';
+import 'package:tech_connect/components/ID_button.dart';
 
 class StudentID extends StatefulWidget {
   StudentID({super.key});
@@ -19,9 +16,10 @@ class StudentID extends StatefulWidget {
 class _StudentIDState extends State<StudentID> {
   bool isDarkMode = false;
   late  Future<bool> hasNFCData;
+  late Future<dynamic> userPFP;
+  late Future<dynamic> userName;
   Color pageBackgroundColor = Color.fromRGBO(198, 218, 231, 1);
   Color appBarBackgroundColor = Color.fromRGBO(77, 95, 128, 100);
-
   Future<void> getDarkModeValue() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -35,6 +33,8 @@ ValueNotifier<dynamic> result = ValueNotifier(null);
 void nfcFeedback(String message) async {
   ScaffoldMessenger.of(context).removeCurrentSnackBar();
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  //pop-up dialog test
+  //showDialog(context: context, builder: (context) => AlertDialog(title: Text(message)));
   await SystemChannels.platform.invokeMethod<void>(
     'HapticFeedback.vibrate',
     'HapticFeedback.lightImpact',
@@ -53,12 +53,22 @@ void _tagRead() {
     'nfc_data': result.value,
     });
     
-    nfcFeedback("ID scanned! Refreshing page...");
+    nfcFeedback("ID scanned! Please Refresh the Page...");
     NfcManager.instance.stopSession();
   });
 }
 
+void _deleteTag() async {
+  User? currentUser = FirebaseAuth.instance.currentUser;
+  String userEmailNFC = currentUser?.email ?? '';
+  await FirebaseFirestore.instance.collection('users').doc(userEmailNFC).update({
+    'nfc_data': FieldValue.delete(),
+  });
+  nfcFeedback("ID Deleted, Please Refresh Page...");
+}
+
 void _tagWriteNFCA() {
+  // check if it is already writing, stop it if it is
   nfcFeedback("Ready to scan...");
 }
 
@@ -76,8 +86,24 @@ Future<bool> nfcDataExists() async {
   if (nfcData == '') {
     return false;
   }
-  _tagWriteNFCA();
+  nfcFeedback("Tap ID Button to Scan.");
   return true;
+}
+
+
+// do this later, i dont feel like finishing this now
+Future<String> getPFP() async {
+ User? currentUser = FirebaseAuth.instance.currentUser;
+ String userEmail = currentUser?.email ?? '';
+ DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+ .collection('users')
+ .doc(userEmail)
+ .get();
+
+ Map<String, dynamic> userData = userSnapshot.data() as Map<String, dynamic>;
+ var userPFP = userData['profile_picture'] ?? 'https://firebasestorage.googleapis.com/v0/b/techconnect-42543.appspot.com/o/images%2Fdefault_user.PNG?alt=media&token=c592af94-a160-43c1-8f2b-29a7123756dd';
+ 
+ return userPFP;
 }
 
   @override
@@ -101,14 +127,6 @@ Future<bool> nfcDataExists() async {
           ),
         title:
           Text('Student ID'),
-        actions: [
-          // TESTING PAGE
-          IconButton(
-            icon: Icon(Icons.arrow_forward),
-            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => TestID())),
-            ),
-          ],
         backgroundColor: appBarBackgroundColor,
       ),
       // Conditionally set this page based on whether or not NFC data is stored
@@ -129,27 +147,54 @@ Future<bool> nfcDataExists() async {
                     else {
                       bool hasNFCData = snapshot.data ?? false;
                       if (!hasNFCData) {
-                        return ElevatedButton(
-                          child: Text("Scan Student ID?"),
-                          onPressed: _tagRead,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: appBarBackgroundColor,
-                            textStyle: TextStyle(fontSize: 20),
-                            foregroundColor: Colors.black,
-                          ),
-                          );
+                        return Container (
+                          width: 400,
+                          height: 200,
+                          child:
+                          ElevatedButton(
+                            child: Text("No ID on File.\n\nScan Student ID?", textAlign: TextAlign.center,),
+                              onPressed: _tagRead,
+                              style: ElevatedButton.styleFrom(
+                              backgroundColor: appBarBackgroundColor,
+                              textStyle: TextStyle(fontSize: 20),
+                              foregroundColor: Colors.black,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25))
+                            ),
+                          )
+                        );
                       }
                       else {
                         return Column(
-                          children: [Container (
-                          width: 300,
-                          child: Image.asset("images/card.png"),
-                          ),
-                        Container (
-                          width: 50,
-                          child: Image.asset("images/wireless.png"),
-                          // output NFC data here
-                        ),
+                          children: [
+                            // Card image
+                            // Add button with user image and name in it. on pressed - begin or stop nfc writing
+                            // ID
+                            IDButton(
+                              onTap: _tagWriteNFCA,
+                              text: "Username here...", //grab id before page loads and store in variable
+                              backgroundColor: pageBackgroundColor, 
+                              edgeColor: appBarBackgroundColor, 
+                              userImage: const AssetImage("images/logo.png"), // grab user pfp before page loads and store in variable
+                            ),
+                            // wireless transmit image
+                            const SizedBox(height: 20,),
+                            Container (
+                              width: 50,
+                              child: Image.asset("images/wireless.png"),
+                            ),
+                            // delete user NFC data
+                            const SizedBox(
+                              height: 200
+                            ),
+                            ElevatedButton(
+                              onPressed: _deleteTag,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: pageBackgroundColor,
+                                textStyle: TextStyle(fontSize: 20),
+                                foregroundColor: Colors.black,
+                              ),
+                              child: Text("Delete NFC Data")
+                            )
                         ],
                         );
                       }
