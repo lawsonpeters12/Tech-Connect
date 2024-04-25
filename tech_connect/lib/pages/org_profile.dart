@@ -40,12 +40,20 @@ class _OrganizationPageState extends State<OrganizationPage> {
   @override
   void initState() {
     super.initState();
+    getDarkModeValue();
     orgSnapshot = FirebaseFirestore.instance
         .collection('Organizations')
         .doc(widget.orgName)
         .get();
     isMember = checkIfMember();
     isAdmin = checkIfAdmin();
+  }
+
+  Future<void> getDarkModeValue() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isDarkMode = prefs.getBool('isDarkMode') ?? false;
+    });
   }
 
   // Checks if user is a member of the organization, chat is only viewable to user if they're an org member.
@@ -121,7 +129,8 @@ class _OrganizationPageState extends State<OrganizationPage> {
   Future<void> requestSentFeedback() async {
     // SnackBar
     ScaffoldMessenger.of(context).removeCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Request sent!")));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text("Request sent!")));
     // Light haptic feedback
     await SystemChannels.platform.invokeMethod<void>(
       'HapticFeedback.vibrate',
@@ -209,8 +218,6 @@ class _OrganizationPageState extends State<OrganizationPage> {
     );
   }
 
-  // displays bottom sheet that contains the details of an event
-
   // App bar displays org name, org profile picture, and an icon to view the members of the org
   @override
   Widget build(BuildContext context) {
@@ -256,7 +263,13 @@ class _OrganizationPageState extends State<OrganizationPage> {
             },
           ),
         ],
+        backgroundColor: isDarkMode
+            ? Color.fromRGBO(167, 43, 42, 1)
+            : Color.fromRGBO(77, 95, 128, 100),
       ),
+      backgroundColor: isDarkMode
+          ? Color.fromRGBO(203, 102, 102, 40)
+          : Color.fromRGBO(198, 218, 231, 1),
       // Org description is stored and retrieved from the Firestore.
       body: Padding(
         padding: const EdgeInsets.all(16.0),
