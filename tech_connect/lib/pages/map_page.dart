@@ -24,6 +24,8 @@ class _MapPageState extends State<MapPage> {
 
   Set<Polygon> _polygon = HashSet<Polygon>();
 
+
+
   List<LatLng> tolliverCommuter = [
     LatLng(32.526683, -92.649363),
     LatLng(32.526752, -92.649664),
@@ -43,6 +45,131 @@ class _MapPageState extends State<MapPage> {
     LatLng(32.527743, -92.649199),
     LatLng(32.527543, -92.648323),
     LatLng(32.527853, -92.648187),  
+  ];
+
+  List<LatLng> tacLot = [
+    LatLng(32.532605, -92.660327),
+    LatLng(32.532971, -92.659742),
+    LatLng(32.532510, -92.659694),
+    LatLng(32.532384, -92.660005),
+  ];
+
+  List<LatLng> tacLot2 = [
+    LatLng(32.533249, -92.659727),
+    LatLng(32.533312, -92.659304),
+    LatLng(32.533274, -92.659291),
+    LatLng(32.533188, -92.659713)
+  ];
+
+  List<LatLng> stadiumCircle = [
+    LatLng(32.533520, -92.657772),
+    LatLng(32.533775, -92.657131),
+    LatLng(32.534001, -92.656611),
+    LatLng(32.534081, -92.656131),
+    LatLng(32.534020, -92.655418),
+    LatLng(32.533313, -92.655644),
+    LatLng(32.533329, -92.656056),
+    LatLng(32.533213, -92.656419),
+    LatLng(32.533119, -92.656391),
+    LatLng(32.532980, -92.656745),
+    LatLng(32.532713, -92.657018),
+    LatLng(32.532294, -92.657154),
+    LatLng(32.532005, -92.657186),
+    LatLng(32.531801, -92.657092),
+    LatLng(32.531362, -92.656757),
+    LatLng(32.531209, -92.656411),
+    LatLng(32.530915, -92.656143),
+    LatLng(32.530860, -92.656303),
+    LatLng(32.530933, -92.657234),
+    LatLng(32.531491, -92.657237),
+    LatLng(32.532121, -92.657362),
+    LatLng(32.532693, -92.657474),
+    LatLng(32.533054, -92.657515),
+  ];
+
+  List<LatLng> stadiumLot = [
+    LatLng(32.533074, -92.655044),
+    LatLng(32.533074, -92.654636),
+    LatLng(32.532913, -92.654661),
+    LatLng(32.532880, -92.655050),
+  ];
+
+  List<LatLng> stadiumLot2 = [
+    LatLng(32.530896, -92.655430),
+    LatLng(32.531147, -92.654894),
+    LatLng(32.530837, -92.654678),
+    LatLng(32.530704, -92.654958),
+    LatLng(32.530748, -92.654987),
+    LatLng(32.530728, -92.655056),
+    LatLng(32.530823, -92.655123),
+    LatLng(32.530735, -92.655314)
+  ];
+
+  List<LatLng> universityParkLot = [
+    LatLng(32.532558, -92.651816),
+    LatLng(32.532552, -92.651100),
+    LatLng(32.532368, -92.651046),
+    LatLng(32.532365, -92.650982),
+    LatLng(32.531908, -92.650978),
+    LatLng(32.531901, -92.651069),
+    LatLng(32.531825, -92.651071),
+    LatLng(32.531831, -92.651748),
+    LatLng(32.531889, -92.651765),
+    LatLng(32.531901, -92.651824),
+  ];
+
+  List<LatLng> universityParkLot2 = [
+    LatLng(32.532944, -92.650639),
+    LatLng(32.532939, -92.650520),
+    LatLng(32.532984, -92.650515),
+    LatLng(32.532984, -92.650276),
+    LatLng(32.532919, -92.650276),
+    LatLng(32.532918, -92.650214),
+    LatLng(32.533100, -92.650215),
+    LatLng(32.533101, -92.650009),
+    LatLng(32.533150, -92.650010),
+    LatLng(32.533148, -92.649867),
+    LatLng(32.533089, -92.649867),
+    LatLng(32.533083, -92.649798),
+    LatLng(32.533024, -92.649797),
+    LatLng(32.533019, -92.649858),
+    LatLng(32.532972, -92.649858),
+    LatLng(32.532964, -92.649800),
+    LatLng(32.532671, -92.649810),
+    LatLng(32.532640, -92.649907),
+    LatLng(32.532661, -92.650445),
+    LatLng(32.532703, -92.650503),
+    LatLng(32.532629, -92.650536),
+    LatLng(32.532540, -92.650532),
+    LatLng(32.532536, -92.650496),
+    LatLng(32.532588, -92.650493),
+    LatLng(32.532581, -92.649948),
+    LatLng(32.532536, -92.649943),
+    LatLng(32.532482, -92.649850),
+    LatLng(32.532391, -92.649851),
+    LatLng(32.532387, -92.649793),
+    LatLng(32.532001, -92.649803),
+    LatLng(32.532002, -92.649858),
+    LatLng(32.531870, -92.649847),
+    LatLng(32.531871, -92.649921),
+    LatLng(32.531896, -92.649961),
+    LatLng(32.531858, -92.649984),
+    LatLng(32.531860, -92.650061),
+    LatLng(32.531901, -92.650061),
+    LatLng(32.531912, -92.650189),
+    LatLng(32.532072, -92.650181),
+    LatLng(32.532083, -92.650619),
+    LatLng(32.532144, -92.650618),
+    LatLng(32.532153, -92.650681),
+    LatLng(32.532290, -92.650681),
+    LatLng(32.532293, -92.650615),
+    LatLng(32.532431, -92.650616),
+    LatLng(32.532439, -92.650674),
+    LatLng(32.532707, -92.650677),
+    LatLng(32.532708, -92.650608),
+    LatLng(32.532745, -92.650567),
+    LatLng(32.532841, -92.650567),
+    LatLng(32.532847, -92.650634),
   ];
 
   bool isDarkMode = false;
@@ -188,6 +315,83 @@ class _MapPageState extends State<MapPage> {
           strokeColor: Colors.blue,
           geodesic: true,
           strokeWidth: 4,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('2'),
+          points: tacLot,
+          fillColor: Colors.yellow.withOpacity(0.3),
+          strokeColor: Colors.yellow,
+          geodesic: true,
+          strokeWidth: 2,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('2'),
+          points: tacLot2,
+          fillColor: Colors.yellow.withOpacity(0.3),
+          strokeColor: Colors.yellow,
+          geodesic: true,
+          strokeWidth: 2,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('2'),
+          points: stadiumCircle,
+          fillColor: Colors.yellow.withOpacity(0.3),
+          strokeColor: Colors.yellow,
+          geodesic: true,
+          strokeWidth: 2,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('2'),
+          points: stadiumLot,
+          fillColor: Colors.yellow.withOpacity(0.3),
+          strokeColor: Colors.yellow,
+          geodesic: true,
+          strokeWidth: 2,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('2'),
+          points: stadiumLot2,
+          fillColor: Colors.yellow.withOpacity(0.3),
+          strokeColor: Colors.yellow,
+          geodesic: true,
+          strokeWidth: 2,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('2'),
+          points: universityParkLot,
+          fillColor: Colors.yellow.withOpacity(0.3),
+          strokeColor: Colors.yellow,
+          geodesic: true,
+          strokeWidth: 2,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('2'),
+          points: universityParkLot2,
+          fillColor: Colors.yellow.withOpacity(0.3),
+          strokeColor: Colors.yellow,
+          geodesic: true,
+          strokeWidth: 2,
         )
       );
     }
