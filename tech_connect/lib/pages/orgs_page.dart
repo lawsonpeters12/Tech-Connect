@@ -26,6 +26,7 @@ class _OrgsPageState extends State<OrgsPage> {
     super.initState();
     getDarkModeValue();
     _getUserOrgs();
+    _getUserEvents();
   }
 
   Future<void> _getUserOrgs() async {
@@ -61,24 +62,34 @@ class _OrgsPageState extends State<OrgsPage> {
 
     String userEmail = user.email ?? 'anonymous';
 
-    QuerySnapshot orgsSnapshot = await FirebaseFirestore.instance
-        .collection('Organizations')
-        .where('members', arrayContains: userEmail)
-        .get();
+    QuerySnapshot orgsSnapshot =
+        await FirebaseFirestore.instance.collection('Organizations').get();
 
-    List<String> orgIds = orgsSnapshot.docs.map((doc) => doc.id).toList();
+    List<String> userOrgIds = [];
 
-    List<String> events = [];
-    for (String orgId in orgIds) {
-      QuerySnapshot eventsSnapshot = await FirebaseFirestore.instance
-          .collection('eventsGlobal')
-          .where('organization', isEqualTo: orgId)
+    for (QueryDocumentSnapshot orgSnapshot in orgsSnapshot.docs) {
+      QuerySnapshot membershipSnapshot = await orgSnapshot.reference
+          .collection('members')
+          .where('email', isEqualTo: userEmail)
           .get();
-      events.addAll(eventsSnapshot.docs.map((doc) => doc['event'].toString()));
+      if (membershipSnapshot.docs.isNotEmpty) {
+        userOrgIds.add(orgSnapshot.id);
+      }
     }
-    setState(() {
-      userEvents = events;
-    });
+    for (String orgId in userOrgIds) {
+      QuerySnapshot eventSnapshot = await FirebaseFirestore.instance
+          .collection('Organizations')
+          .doc(orgId)
+          .collection('Events')
+          .get();
+      List<String> orgEvents = eventSnapshot.docs
+          .map((eventDoc) => eventDoc['eventName'].toString())
+          .toList();
+
+      setState(() {
+        userEvents.addAll(orgEvents);
+      });
+    }
   }
 
   void _routeToAllOrgsPage() {
@@ -232,6 +243,84 @@ class EventButton extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class EventList extends StatelessWidget {
+  final String orgName;
+
+  EventList({required this.orgName});
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('Organizations')
+          .doc(orgName)
+          .collection('Events')
+          .snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        }
+
+        final List<Widget> eventButtons =
+            snapshot.data!.docs.map((DocumentSnapshot document) {
+          final Map<String, dynamic>? data =
+              document.data() as Map<String, dynamic>?;
+
+          if (data == null || data['eventName'] == null) {
+            return SizedBox();
+          }
+
+          final String eventName = data['eventName'];
+
+          return EventButton(
+            eventName: eventName,
+            onPressed: () {
+              _showEventDetails(context, data);
+            },
+          );
+        }).toList();
+
+        return ListView(
+          children: eventButtons,
+        );
+      },
+    );
+  }
+
+  void _showEventDetails(BuildContext context, Map<String, dynamic> eventData) {
+    showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        builder: (BuildContext context) {
+          return SizedBox(
+              width: MediaQuery.of(context).size.width,
+              child: Container(
+                  padding: EdgeInsets.all(16),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          eventData['eventName'] ?? 'name',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          eventData['location'] ?? 'location',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 10),
+                      ])));
+        });
   }
 }
 
