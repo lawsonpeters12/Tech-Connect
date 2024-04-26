@@ -5,7 +5,6 @@ import 'package:tech_connect/pages/other_user_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tech_connect/pages/add_event_page.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 //class to store and display member info
 class Member {

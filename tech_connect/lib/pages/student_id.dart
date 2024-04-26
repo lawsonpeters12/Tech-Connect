@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import "package:shared_preferences/shared_preferences.dart";
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:tech_connect/components/ID_button.dart';
+import 'package:tech_connect/user/user.dart';
 
 class StudentID extends StatefulWidget {
   StudentID({super.key});
@@ -16,8 +17,9 @@ class StudentID extends StatefulWidget {
 class _StudentIDState extends State<StudentID> {
   bool isDarkMode = false;
   late  Future<bool> hasNFCData;
-  late Future<dynamic> userPFP;
+  late Future<String> userPFP;
   late Future<dynamic> userName;
+  late UserInf user;
   Color pageBackgroundColor = Color.fromRGBO(198, 218, 231, 1);
   Color appBarBackgroundColor = Color.fromRGBO(77, 95, 128, 100);
   Future<void> getDarkModeValue() async {
@@ -92,7 +94,7 @@ Future<bool> nfcDataExists() async {
 
 
 // do this later, i dont feel like finishing this now
-Future<String> getPFP() async {
+Future<void> getPFP() async {
  User? currentUser = FirebaseAuth.instance.currentUser;
  String userEmail = currentUser?.email ?? '';
  DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
@@ -101,9 +103,13 @@ Future<String> getPFP() async {
  .get();
 
  Map<String, dynamic> userData = userSnapshot.data() as Map<String, dynamic>;
+ user = UserInf(
+  imagePath: userData['profile_picture'],
+  name: userData['name'] ?? '',
+  email: '',
+  about: '',
+ );
  var userPFP = userData['profile_picture'] ?? 'https://firebasestorage.googleapis.com/v0/b/techconnect-42543.appspot.com/o/images%2Fdefault_user.PNG?alt=media&token=c592af94-a160-43c1-8f2b-29a7123756dd';
- 
- return userPFP;
 }
 
   @override
@@ -111,6 +117,7 @@ Future<String> getPFP() async {
     super.initState();
     getDarkModeValue();
     hasNFCData = nfcDataExists();
+    getPFP();
   }
 
   @override
@@ -166,15 +173,23 @@ Future<String> getPFP() async {
                       else {
                         return Column(
                           children: [
-                            // Card image
-                            // Add button with user image and name in it. on pressed - begin or stop nfc writing
                             // ID
-                            IDButton(
-                              onTap: _tagWriteNFCA,
-                              text: "Username here...", //grab id before page loads and store in variable
-                              backgroundColor: pageBackgroundColor, 
-                              edgeColor: appBarBackgroundColor, 
-                              userImage: const AssetImage("images/logo.png"), // grab user pfp before page loads and store in variable
+                            FutureBuilder(future: getPFP(), 
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState == ConnectionState.waiting){
+                                return CircularProgressIndicator();
+                              }
+                              else {
+                                String nameText = "Louisiana Tech University ID\n\n\n\n${user.name}";
+                                  return IDButton(
+                                    onTap: _tagWriteNFCA,
+                                    text: nameText,
+                                    backgroundColor: pageBackgroundColor, 
+                                    edgeColor: appBarBackgroundColor,
+                                    userImage: user.imagePath,
+                                  );
+                              }
+                            }
                             ),
                             // wireless transmit image
                             const SizedBox(height: 20,),
