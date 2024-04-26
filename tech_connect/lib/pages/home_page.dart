@@ -271,6 +271,7 @@ Widget build(BuildContext context) {
           },
         ),
         Spacer(),
+        // add a stack widget here (FutureBuilder as well?) that will display a dot over this button if there is an unread message
         IconButton(
           icon: const Icon(Icons.send_outlined),
           onPressed: () {
