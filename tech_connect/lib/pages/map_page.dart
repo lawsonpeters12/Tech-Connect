@@ -22,6 +22,8 @@ class _MapPageState extends State<MapPage> {
   // created controller to display google maps 
   Completer<GoogleMapController> _controller = Completer();
 
+  Color background = Colors.white;
+
   Set<Polygon> _polygon = HashSet<Polygon>();
 
   List<LatLng> tolliverCommuter = [
@@ -140,9 +142,11 @@ class _MapPageState extends State<MapPage> {
   @override
   void initState() {
     super.initState();
-
+    
     getDarkModeValue();
-
+    setState(() {
+    isDarkMode ? background = Colors.red : background = Colors.white;
+    print(isDarkMode);
     getUserCurrentLocation().then((value) async {
 
     CameraPosition cameraPosition = CameraPosition(
@@ -155,10 +159,7 @@ class _MapPageState extends State<MapPage> {
     //getAddressFromLatLng(value.latitude, value.longitude);
       List<Placemark> placemarks = await placemarkFromCoordinates(value.latitude, value.longitude);
       Placemark place = placemarks[0];
-
-      setState(() {
       // leave print statements for debugging
-      
       String address = ("${place.street}");
       print("Address place.street: $address");
       _address = address_dict.addresses[address][0];
@@ -212,13 +213,14 @@ class _MapPageState extends State<MapPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:const Color.fromRGBO(77, 95, 128, 100),
       appBar: AppBar( title: const Text('Campus Map'),
       toolbarHeight: 80,
+      backgroundColor: background,
       ),
       drawer: Drawer(
+        backgroundColor: background,
         child: Center(
-          child: (_address == null) ? CircularProgressIndicator() : Column(
+          child: Column(
             
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -227,9 +229,9 @@ class _MapPageState extends State<MapPage> {
               child: Text('$_address', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0))
               ),
               const SizedBox(height: 30.0),
-              Image.network(locationImageURL),
+              (_address == null) ? CircularProgressIndicator() : Image.network(locationImageURL),
               const SizedBox(height: 30.0),
-              (events.isNotEmpty) ? Column(
+              (_address == null) ? CircularProgressIndicator() : (events.isNotEmpty) ? Column(
 
               children: [Text(events[0]['organization'] + 'is hosting: '),
               Text(events[0]['event']),
