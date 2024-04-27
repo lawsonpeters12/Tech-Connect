@@ -79,9 +79,9 @@ class _MapPageState extends State<MapPage> {
       // leave print statements for debugging
       
       String address = ("${place.street}");
-      //print("Address: $_address");
+      print("Address place.street: $address");
       _address = address_dict.addresses[address][0];
-      print("Address: $_address");
+      print("Address _: $_address");
       locationImageURL = address_dict.addresses[address][1];
       print('image url: $locationImageURL');
       eventGrabber();
@@ -112,9 +112,23 @@ class _MapPageState extends State<MapPage> {
     final GoogleMapController controller = mapController;
     controller.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
 
-    getAddressFromLatLng(value.latitude, value.longitude);
+    //getAddressFromLatLng(value.latitude, value.longitude);
+      List<Placemark> placemarks = await placemarkFromCoordinates(value.latitude, value.longitude);
+      Placemark place = placemarks[0];
 
-    print('somethign address');
+      setState(() {
+      // leave print statements for debugging
+      
+      String address = ("${place.street}");
+      print("Address place.street: $address");
+      _address = address_dict.addresses[address][0];
+      print(_address);
+      locationImageURL = address_dict.addresses[address][1];
+      //print('image url: $locationImageURL');
+      eventGrabber();
+      });
+
+    print('address init: $_address');
     });
   }
 
