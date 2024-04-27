@@ -48,10 +48,13 @@ class _MapPageState extends State<MapPage> {
   ];
 
   List<LatLng> tacLot = [
-    LatLng(32.532605, -92.660327),
-    LatLng(32.532971, -92.659742),
-    LatLng(32.532510, -92.659694),
-    LatLng(32.532384, -92.660005),
+    LatLng(32.532600, -92.660372),
+    LatLng(32.532892, -92.660100),
+    LatLng(32.533090, -92.659678),
+    LatLng(32.532750, -92.659454),
+    LatLng(32.532444, -92.659806),
+    LatLng(32.532525, -92.660041),
+    LatLng(32.532447, -92.660148)
   ];
 
   List<LatLng> tacLot2 = [
@@ -88,10 +91,12 @@ class _MapPageState extends State<MapPage> {
   ];
 
   List<LatLng> stadiumLot = [
-    LatLng(32.533074, -92.655044),
-    LatLng(32.533074, -92.654636),
-    LatLng(32.532913, -92.654661),
-    LatLng(32.532880, -92.655050),
+    LatLng(32.533070, -92.655048),
+    LatLng(32.533065, -92.654622),
+    LatLng(32.532947, -92.654614),
+    LatLng(32.532946, -92.654763),
+    LatLng(32.532891, -92.654762),
+    LatLng(32.532890, -92.655045),
   ];
 
   List<LatLng> stadiumLot2 = [
@@ -170,6 +175,120 @@ class _MapPageState extends State<MapPage> {
     LatLng(32.532745, -92.650567),
     LatLng(32.532841, -92.650567),
     LatLng(32.532847, -92.650634),
+  ];
+
+  List<LatLng> techDriveLot = [
+    LatLng(32.530340, -92.654958),
+    LatLng(32.530268, -92.653582),
+    LatLng(32.530359, -92.653559),
+    LatLng(32.530606, -92.652729),
+    LatLng(32.530602, -92.652589),
+    LatLng(32.530667, -92.652585),
+    LatLng(32.530648, -92.652219),
+    LatLng(32.529621, -92.652265),
+    LatLng(32.529739, -92.654746),
+    LatLng(32.529830, -92.654836),
+    LatLng(32.530264, -92.654962)
+  ];
+
+  List<LatLng> baseballComplex = [
+    LatLng(32.530864, -92.651128),
+    LatLng(32.530866, -92.650551),
+    LatLng(32.530698, -92.650551),
+    LatLng(32.530699, -92.650777),
+    LatLng(32.530750, -92.650779),
+    LatLng(32.530754, -92.651129),
+  ];
+
+  List<LatLng> universityParkLot3 = [
+    LatLng(32.530755, -92.650423),
+    LatLng(32.530743, -92.650169),
+    LatLng(32.530705, -92.650174),
+    LatLng(32.530700, -92.650271),
+    LatLng(32.530375, -92.650294),
+    LatLng(32.530371, -92.650366),
+    LatLng(32.530321, -92.650368),
+    LatLng(32.530321, -92.650240),
+    LatLng(32.530383, -92.650238),
+    LatLng(32.530378, -92.650120),
+    LatLng(32.530314, -92.650124),
+    LatLng(32.530312, -92.649978),
+    LatLng(32.530368, -92.649976),
+    LatLng(32.530364, -92.649859),
+    LatLng(32.530200, -92.649862),
+    LatLng(32.530204, -92.649979),
+    LatLng(32.530258, -92.649982),
+    LatLng(32.530262, -92.650444),
+  ];
+
+  List<LatLng> railroadAve = [
+    LatLng(32.529130, -92.653932),
+    LatLng(32.529155, -92.653670),
+    LatLng(32.529132, -92.653130),
+    LatLng(32.529088, -92.652635),
+    LatLng(32.529060, -92.652637),
+    LatLng(32.529057, -92.652636),
+    LatLng(32.529096, -92.653149),
+    LatLng(32.529116, -92.653510),
+    LatLng(32.529115, -92.653697),
+    LatLng(32.529095, -92.653922),
+  ];
+
+  List<LatLng> railroadAve2 = [
+    LatLng(32.529015, -92.653002),
+    LatLng(32.528980, -92.652508),
+    LatLng(32.528928, -92.652514),
+    LatLng(32.528964, -92.653010),
+  ];
+
+  List<LatLng> railroadAve3 = [
+    LatLng(32.528974, -92.654432),
+    LatLng(32.528998, -92.654184),
+    LatLng(32.529021, -92.653984),
+    LatLng(32.529041, -92.653784),
+    LatLng(32.528990, -92.653779),
+    LatLng(32.528915, -92.654412),
+  ];
+
+  List<LatLng> intramuralResidentLot = [
+    LatLng(32.528855, -92.653629),
+    LatLng(32.528840, -92.653417),
+    LatLng(32.528961, -92.653412),
+    LatLng(32.528963, -92.653136),
+    LatLng(32.528134, -92.653165),
+    LatLng(32.528156, -92.653667),
+  ];
+
+  List<LatLng> intramuralCommuterLot = [
+    LatLng(32.528780, -92.654788),
+    LatLng(32.528774, -92.654646),
+    LatLng(32.528101, -92.654686),
+    LatLng(32.528089, -92.654836),
+    LatLng(32.528199, -92.654818),
+    LatLng(32.528204, -92.654876),
+    LatLng(32.528505, -92.654861),
+    LatLng(32.528507, -92.654798),
+    LatLng(32.528641, -92.654787),
+    LatLng(32.528647, -92.654850),
+    LatLng(32.528729, -92.654847),
+    LatLng(32.528727, -92.654782),
+  ];
+
+  List<LatLng> intramuralCommuterLot2 = [
+    LatLng(32.526502, -92.654153),
+    LatLng(32.526081, -92.653414),
+    LatLng(32.525932, -92.653544),
+    LatLng(32.525925, -92.653602),
+    LatLng(32.525933, -92.653641),
+    LatLng(32.525890, -92.653678),
+    LatLng(32.526277, -92.654348),
+  ];
+
+  List<LatLng> memorialGymLot = [
+    LatLng(32.528878, -92.651724),
+    LatLng(32.528862, -92.650922),
+    LatLng(32.528694, -92.650937),
+    LatLng(32.528711, -92.651735),
   ];
 
   bool isDarkMode = false;
@@ -292,7 +411,7 @@ class _MapPageState extends State<MapPage> {
         fillColor: Colors.yellow.withOpacity(0.3),
         strokeColor: Colors.yellow,
         geodesic: true,
-        strokeWidth: 4,
+        strokeWidth: 2,
       )
     );
 
@@ -303,7 +422,7 @@ class _MapPageState extends State<MapPage> {
           fillColor: Colors.red.withOpacity(0.3),
           strokeColor: Colors.red,
           geodesic: true,
-          strokeWidth: 4,
+          strokeWidth: 2,
         )
       );
 
@@ -314,7 +433,7 @@ class _MapPageState extends State<MapPage> {
           fillColor: Colors.blue.withOpacity(0.3),
           strokeColor: Colors.blue,
           geodesic: true,
-          strokeWidth: 4,
+          strokeWidth: 2,
         )
       );
 
@@ -388,6 +507,116 @@ class _MapPageState extends State<MapPage> {
         Polygon(
           polygonId: PolygonId('2'),
           points: universityParkLot2,
+          fillColor: Colors.yellow.withOpacity(0.3),
+          strokeColor: Colors.yellow,
+          geodesic: true,
+          strokeWidth: 2,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('2'),
+          points: techDriveLot,
+          fillColor: Colors.yellow.withOpacity(0.3),
+          strokeColor: Colors.yellow,
+          geodesic: true,
+          strokeWidth: 2,
+        )
+      );
+
+    _polygon.add(
+        Polygon(
+          polygonId: PolygonId('2'),
+          points: baseballComplex,
+          fillColor: Colors.red.withOpacity(0.3),
+          strokeColor: Colors.red,
+          geodesic: true,
+          strokeWidth: 2,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('2'),
+          points: universityParkLot3,
+          fillColor: Colors.yellow.withOpacity(0.3),
+          strokeColor: Colors.yellow,
+          geodesic: true,
+          strokeWidth: 2,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('2'),
+          points: railroadAve,
+          fillColor: Colors.yellow.withOpacity(0.3),
+          strokeColor: Colors.yellow,
+          geodesic: true,
+          strokeWidth: 2,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('2'),
+          points: railroadAve2,
+          fillColor: Colors.yellow.withOpacity(0.3),
+          strokeColor: Colors.yellow,
+          geodesic: true,
+          strokeWidth: 2,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('2'),
+          points: railroadAve3,
+          fillColor: Colors.yellow.withOpacity(0.3),
+          strokeColor: Colors.yellow,
+          geodesic: true,
+          strokeWidth: 2,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('2'),
+          points: intramuralResidentLot,
+          fillColor: Colors.red.withOpacity(0.3),
+          strokeColor: Colors.red,
+          geodesic: true,
+          strokeWidth: 2,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('2'),
+          points: intramuralCommuterLot,
+          fillColor: Colors.yellow.withOpacity(0.3),
+          strokeColor: Colors.yellow,
+          geodesic: true,
+          strokeWidth: 2,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('2'),
+          points: intramuralCommuterLot2,
+          fillColor: Colors.yellow.withOpacity(0.3),
+          strokeColor: Colors.yellow,
+          geodesic: true,
+          strokeWidth: 2,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('2'),
+          points: memorialGymLot,
           fillColor: Colors.yellow.withOpacity(0.3),
           strokeColor: Colors.yellow,
           geodesic: true,
