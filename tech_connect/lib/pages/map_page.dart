@@ -215,10 +215,14 @@ class _MapPageState extends State<MapPage> {
     return Scaffold(
       appBar: AppBar( title: const Text('Campus Map'),
       toolbarHeight: 80,
-      backgroundColor: background,
+      backgroundColor: isDarkMode
+        ? Color.fromRGBO(203, 102, 102, 1)
+        : Color.fromRGBO(198, 218, 231, 1),
       ),
       drawer: Drawer(
-        backgroundColor: background,
+          backgroundColor: isDarkMode
+      ? Color.fromRGBO(203, 102, 102, 1)
+      : Color.fromRGBO(198, 218, 231, 1),
         child: Center(
           child: Column(
             
