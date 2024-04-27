@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:tech_connect/pages/org_chat.dart';
 import 'package:tech_connect/pages/other_user_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -111,7 +112,8 @@ class _OrganizationPageState extends State<OrganizationPage> {
         'email': userEmail,
         'name': userName,
         'major': userMajor,
-        'role': userRole
+        'role': userRole,
+        'attendedEvents': []
       });
     }
   }
@@ -642,6 +644,8 @@ class EventList extends StatelessWidget {
                               fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         SizedBox(height: 10),
+                        TextButton(onPressed: () {}, child: Text('Sign In')),
+                        TextButton(onPressed: () {}, child: Text('Sign Out'))
                       ])));
         });
   }

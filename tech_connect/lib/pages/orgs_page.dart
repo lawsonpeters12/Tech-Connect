@@ -169,14 +169,7 @@ class _OrgsPageState extends State<OrgsPage> {
                     delegate: SliverChildBuilderDelegate(
                         (context, index) => EventButton(
                               eventName: userEvents[index],
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => OrganizationPage(
-                                          orgName: userOrgs[index])),
-                                );
-                              },
+                              onPressed: () {},
                             ),
                         childCount: userEvents.length)),
               ],
@@ -223,7 +216,7 @@ class EventButton extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(50),
-        color: Colors.white,
+        color: Color.fromRGBO(77, 95, 128, 100),
       ),
       margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
       child: TextButton(
@@ -233,11 +226,14 @@ class EventButton extends StatelessWidget {
           children: [
             Text(
               eventName,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
             ),
             Text(
-              'Tap to view event details',
-              style: TextStyle(fontSize: 14, color: Colors.grey),
+              'View Org Page',
+              style: TextStyle(fontSize: 14, color: Colors.grey[300]),
             ),
           ],
         ),
