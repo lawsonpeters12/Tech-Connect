@@ -299,7 +299,7 @@ Widget build(BuildContext context) {
         Center(
           child: Scaffold(
             appBar: AppBar(
-              title: Text('Academic Calendar'),
+            title: const Text('Academic Calendar', style: TextStyle(fontWeight: FontWeight.bold)),
               backgroundColor: isDarkMode
                   ? Color.fromRGBO(203, 102, 102, 1)
                   : Color.fromRGBO(198, 218, 231, 1),
@@ -347,7 +347,17 @@ Widget build(BuildContext context) {
             ),
           ),
         ),
-        StreamBuilder<QuerySnapshot>(
+        Scaffold(
+          appBar: AppBar(
+            title: const Text('Alerts', style: TextStyle(fontWeight: FontWeight.bold)),
+            backgroundColor: isDarkMode
+                ? Color.fromRGBO(203, 102, 102, 1)
+                : Color.fromRGBO(198, 218, 231, 1),
+            ),
+              backgroundColor: isDarkMode
+                ? Color.fromRGBO(203, 102, 102, 1)
+                : Color.fromRGBO(198, 218, 231, 1),
+          body:StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance.collection('alerts').orderBy('timestamp',descending: true).snapshots(),
           builder:
               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -366,6 +376,7 @@ Widget build(BuildContext context) {
                     snapshot.data!.docs[index].data() as Map<String, dynamic>;
                 DateTime timestamp = data['timestamp'].toDate();
                 String message = data['message'];
+                String details = data['details'] ?? message;
 
                 return GestureDetector(
                   onLongPress: () {
@@ -373,6 +384,29 @@ Widget build(BuildContext context) {
                       showMessageOptionsPopup(
                           snapshot.data!.docs[index].id, message, false);
                     }
+                  },
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Alert Details'),
+                              IconButton(
+                                icon: Icon(Icons.close),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          ),
+                          content: Text(details),
+                          actions: [], // Remove the actions property if not needed
+                        );
+                      },
+                    );
                   },
                   child: ListTile(
                     title: Text(
@@ -387,6 +421,7 @@ Widget build(BuildContext context) {
               },
             );
           },
+        ),
         ),
       ],
     ),
