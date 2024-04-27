@@ -1,37 +1,75 @@
+// ignore_for_file: prefer_const_constructors
+
+import 'dart:async';
+import 'dart:collection';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/services.dart';
 import 'package:tech_connect/components/map_dict.dart' as address_dict;
 import 'package:tech_connect/pages/org_profile.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 
 class MapPage extends StatefulWidget{
-  const MapPage({super.key});
 
   @override
   State<MapPage> createState() => _MapPageState();
 }
 
 class _MapPageState extends State<MapPage> {
+  // created controller to display google maps 
+  Completer<GoogleMapController> _controller = Completer();
+
+  Set<Polygon> _polygon = HashSet<Polygon>();
+
+  List<LatLng> tolliverCommuter = [
+    LatLng(32.526683, -92.649363),
+    LatLng(32.526752, -92.649664),
+    LatLng(32.526200, -92.649879),
+    LatLng(32.526149, -92.649460),
+  ];
+
+  List<LatLng> tolliverResident = [
+    LatLng(32.525730, -92.649045),
+    LatLng(32.525470, -92.648331),
+    LatLng(32.525726, -92.647824),
+    LatLng(32.525984, -92.648776),
+  ];
+
+  List<LatLng> bookstoreProfessor = [
+    LatLng(32.528047, -92.649054),
+    LatLng(32.527743, -92.649199),
+    LatLng(32.527543, -92.648323),
+    LatLng(32.527853, -92.648187),  
+  ];
+
+  bool isDarkMode = false;
+
+  Future<void> getDarkModeValue() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isDarkMode = prefs.getBool('isDarkMode') ?? false;
+    });
+  }
+  
+  final LatLng northEastBound = LatLng(32.534665145170706, -92.63876772509097);
+  final LatLng southWestBound = LatLng(32.523864894532736, -92.6582692918401);
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  final LatLng northEastBound = const LatLng(32.534665145170706, -92.63876772509097);
-  final LatLng southWestBound = const LatLng(32.523864894532736, -92.6582692918401);
-
   bool buttonTextBool = false;
-  // TODO make this change on if there is an event or not
   bool currentEventBool = true;
-  String locationImageURL = '';
+  String locationImageURL = 'https://firebasestorage.googleapis.com/v0/b/techconnect-42543.appspot.com/o/images%2Ftechconnect.PNG?alt=media&token=ad8c3eff-3c7b-4a60-8939-693de6fd9558';
   late GoogleMapController mapController;
   late List events = [];
   String? _address;
-  //late String locationImageURL = 'https://firebasestorage.googleapis.com/v0/b/techconnect-42543.appspot.com/o/images%2Fltp012%40email.latech.edu-2024-02-26T22%3A03%3A04.720577Z.jpg?alt=media&token=133169be-e402-4d99-b7c1-f051a8155a6c';
+
+  final LatLng _center = LatLng(32.52741208116641, -92.64696455825013);
+  
 
   late String eventData;
 
-  final LatLng _center = const LatLng(32.52741208116641, -92.64696455825013);
  
   Future<Position> getUserCurrentLocation() async {
     await Geolocator.requestPermission().then((value){
@@ -48,7 +86,7 @@ class _MapPageState extends State<MapPage> {
   if(snapshot.docs.isNotEmpty){
     eventsQuery = snapshot.docs.map((doc) => doc.data()).toList();
   }
-  print(eventsQuery);
+  //print(eventsQuery);
   return eventsQuery;
 }
 
@@ -62,7 +100,7 @@ class _MapPageState extends State<MapPage> {
   Future<void> checkIn() async{
     // checks user in
     //print('checkin');
-    print(getImageUrl());
+    //print(getImageUrl());
   }
 
   Future<void> checkOut() async{
@@ -83,7 +121,7 @@ class _MapPageState extends State<MapPage> {
       _address = address_dict.addresses[address][0];
       print("Address _: $_address");
       locationImageURL = address_dict.addresses[address][1];
-      print('image url: $locationImageURL');
+      //print('image url: $locationImageURL');
       eventGrabber();
       });
   }
@@ -102,6 +140,8 @@ class _MapPageState extends State<MapPage> {
   @override
   void initState() {
     super.initState();
+
+    getDarkModeValue();
 
     getUserCurrentLocation().then((value) async {
 
@@ -130,7 +170,44 @@ class _MapPageState extends State<MapPage> {
 
     print('address init: $_address');
     });
-  }
+    
+    //initalize polygon
+    _polygon.add(
+      Polygon(
+        polygonId: PolygonId('1'),
+        points: tolliverCommuter,
+        fillColor: Colors.yellow.withOpacity(0.3),
+        strokeColor: Colors.yellow,
+        geodesic: true,
+        strokeWidth: 4,
+      )
+    );
+
+    _polygon.add(
+        Polygon(
+          polygonId: PolygonId('2'),
+          points: tolliverResident,
+          fillColor: Colors.red.withOpacity(0.3),
+          strokeColor: Colors.red,
+          geodesic: true,
+          strokeWidth: 4,
+        )
+      );
+
+    _polygon.add(
+        Polygon(
+          polygonId: PolygonId('3'),
+          points: bookstoreProfessor,
+          fillColor: Colors.blue.withOpacity(0.3),
+          strokeColor: Colors.blue,
+          geodesic: true,
+          strokeWidth: 4,
+        )
+      );
+    }
+    
+
+  
 
   @override
   Widget build(BuildContext context) {
@@ -189,6 +266,7 @@ class _MapPageState extends State<MapPage> {
       rotateGesturesEnabled: true,
       tiltGesturesEnabled: true,
       cameraTargetBounds: CameraTargetBounds(LatLngBounds(northeast: northEastBound, southwest: southWestBound)),
+      polygons: _polygon,
     ),
     );
   }

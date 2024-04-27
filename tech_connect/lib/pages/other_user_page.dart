@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tech_connect/user/profile_widget.dart';
 import 'package:tech_connect/user/user.dart';
@@ -18,7 +19,7 @@ class OtherUserPage extends StatefulWidget {
 
 class _OtherUserPageState extends State<OtherUserPage> {
   late Future<UserInf> otherUserFuture;
-  late bool isFriend;
+  late bool isFriend; // LateError (LateInitializationError: Field 'isFriend' has not been initialized.)
   bool isDarkMode = false;
 
   @override
@@ -72,6 +73,18 @@ class _OtherUserPageState extends State<OtherUserPage> {
     setState(() {
       isFriend = friendsList.contains(widget.otherUserEmail);
     });
+  }
+
+  // gives user feedback when they send a friend request
+  Future<void> requestSentFeedback() async {
+    // SnackBar
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Friend request sent!")));
+    // Light haptic feedback
+    await SystemChannels.platform.invokeMethod<void>(
+      'HapticFeedback.vibrate',
+      'HapticFeedbackType.lightImpact',
+    );
   }
 
   @override
@@ -165,6 +178,8 @@ class _OtherUserPageState extends State<OtherUserPage> {
                               .doc(otherUser.email)
                               .set({'incoming_friend_requests': incomingFriendRequests}, SetOptions(merge: true)); // SetOptions(merge: true) will only edit 1 field of the document. Without it, the other fields get erased.
                         }
+                        // Friend request sent!
+                        requestSentFeedback();
                       },
                       child: Text('Add Friend'),
                     ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:tech_connect/pages/org_chat.dart';
 import 'package:tech_connect/pages/other_user_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -11,12 +12,13 @@ class Member {
   final String email;
   final String name;
   final String major;
+  final String role;
 
-  Member({
-    required this.email,
-    required this.name,
-    required this.major,
-  });
+  Member(
+      {required this.email,
+      required this.name,
+      required this.major,
+      required this.role});
 }
 
 class OrganizationPage extends StatefulWidget {
@@ -93,12 +95,16 @@ class _OrganizationPageState extends State<OrganizationPage> {
 
     if (userSnapshot.exists) {
       String userName = userSnapshot.get('name');
-      String userMajor = userSnapshot.get('name');
+      String userMajor = userSnapshot.get('major');
+      String userRole = userSnapshot.get('role');
+      String userEmail = userSnapshot.get('email');
 
-      await orgDocRef
-          .collection('members')
-          .doc(userEmail)
-          .set({'email': userEmail, 'name': userName, 'major': userMajor});
+      await orgDocRef.collection('members').doc(userEmail).set({
+        'email': userEmail,
+        'name': userName,
+        'major': userMajor,
+        'role': userRole
+      });
     }
   }
 
@@ -109,6 +115,18 @@ class _OrganizationPageState extends State<OrganizationPage> {
     await orgDocRef.update({
       'join_requests': FieldValue.arrayRemove([userEmail]),
     });
+  }
+
+  // gives user feedback when they request to join
+  Future<void> requestSentFeedback() async {
+    // SnackBar
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Request sent!")));
+    // Light haptic feedback
+    await SystemChannels.platform.invokeMethod<void>(
+      'HapticFeedback.vibrate',
+      'HapticFeedbackType.lightImpact',
+    );
   }
 
   // Lists all the users in the 'join_requests' field for an organization. An admin can choose to let them join or decline the request.
@@ -300,6 +318,8 @@ class _OrganizationPageState extends State<OrganizationPage> {
                                   'join_requests':
                                       FieldValue.arrayUnion([userEmail]),
                                 });
+                                // Request sent
+                                requestSentFeedback();
                               },
                               child: Text('Request to Join'),
                             );
@@ -432,10 +452,10 @@ class OrganizationMembersPage extends StatelessWidget {
             var members = snapshot.data!.docs.map((doc) {
               var data = doc.data() as Map<String, dynamic>;
               return Member(
-                email: data['email'] ?? 'email',
-                name: data['name'] ?? 'name',
-                major: data['major'] ?? 'major',
-              );
+                  email: data['email'] ?? 'email',
+                  name: data['name'] ?? 'name',
+                  major: data['major'] ?? 'major',
+                  role: data['role'] ?? 'role');
             }).toList();
 
             return ListView.builder(
@@ -454,8 +474,11 @@ class OrganizationMembersPage extends StatelessWidget {
                     child: Column(
                       children: [
                         ListTile(
-                            title: Text(members[index].name),
-                            subtitle: Text(members[index].email)),
+                          title: Text(members[index].name),
+                          subtitle: Text(members[index].email),
+                          isThreeLine: true,
+                          trailing: Text(members[index].role),
+                        ),
                       ],
                     ));
               },

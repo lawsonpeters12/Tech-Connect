@@ -377,6 +377,15 @@ class _OrganizationChatPageState extends State<OrganizationChatPage> {
                           ),
                         ),
                       );
+                      if (isCurrentUser) {
+                        messageWidget = GestureDetector(
+                          onLongPress: () {
+                            showMessageOptionsPopup(
+                                message.id, messageData['message'], false);
+                          },
+                          child: messageWidget,
+                        );
+                      }
 
                       messageWidgets.add(messageWidget);
                     } else if (messageData['type'] == 'image') {
@@ -417,7 +426,7 @@ class _OrganizationChatPageState extends State<OrganizationChatPage> {
                         messageWidget = GestureDetector(
                           onLongPress: () {
                             showMessageOptionsPopup(
-                                message.id, messageData['message'], false);
+                                message.id, messageData['message'], true);
                           },
                           child: messageWidget,
                         );

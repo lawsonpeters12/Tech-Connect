@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:tech_connect/pages/org_chat.dart';
 import 'package:tech_connect/pages/org_profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -66,6 +65,14 @@ class _OrgsPageState extends State<OrgsPage> {
               onPressed: _routeToMyOrgsPage,
               child: Text('My Organizations'),
             ),
+            SizedBox(
+              height: 50,
+              child: Text("here"),
+            ),
+            Container(
+                child: Column(
+              children: [],
+            ))
           ],
         ),
       ),
@@ -209,7 +216,7 @@ class _MyOrgsPageState extends State<MyOrgsPage> {
     for (QueryDocumentSnapshot orgSnapshot in orgsSnapshot.docs) {
       QuerySnapshot membershipSnapshot = await orgSnapshot.reference
           .collection('members')
-          .where('user', isEqualTo: userEmail)
+          .where('email', isEqualTo: userEmail)
           .get();
 
       if (membershipSnapshot.docs.isNotEmpty) {
