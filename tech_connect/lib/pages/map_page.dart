@@ -24,7 +24,85 @@ class _MapPageState extends State<MapPage> {
 
   Set<Polygon> _polygon = HashSet<Polygon>();
 
+  Map<String, String> polygonInfo = {
+  '1': 'This is tolliverCommuter',
+  '2': 'This is tolliverResident',
+  '3': 'This is bookstoreProfessor',
+  '4': ' This is tacLot',
+  '5': 'This is tacLot2',
+  '6': 'This is stadiumCircle',
+  '7': 'This is stadiumLot',
+  '8': 'This is stadiumLot2',
+  '9': 'This is universityParkLot',
+  '10': 'This is universityParkLot2',
+  '11': 'This is techDriveLot',
+  '12': 'This is baseballComplex',
+  '13': 'This is universityParkLot3',
+  '14': 'This is railroadAve',
+  '15': 'This is railroadAve2',
+  '16': 'This is railroadAve3',
+  '17': 'This is intramuralResidentLot',
+  '18': 'This is intramuralCommuterLot',
+  '19': 'This is intramuralCommuterLot2',
+  '20': 'This is memorialGymLot',
+  };
 
+  // This function is from the geodesy package but wasn't able to import it. Returns true if LatLng value is inside a polygon 
+  static bool isGeoPointInPolygon(LatLng l, List<LatLng> polygon) {
+    bool isInPolygon = false;
+    for (int i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+      final vertexI = polygon[i];
+      final vertexJ = polygon[j];
+
+      final aboveLatitude =
+          (vertexI.latitude <= l.latitude) && (l.latitude < vertexJ.latitude);
+      final belowLatitude =
+          (vertexJ.latitude <= l.latitude) && (l.latitude < vertexI.latitude);
+      final withinLongitude = l.longitude <
+          (vertexJ.longitude - vertexI.longitude) *
+                  (l.latitude - vertexI.latitude) /
+                  (vertexJ.latitude - vertexI.latitude) +
+              vertexI.longitude;
+
+      if ((aboveLatitude || belowLatitude) && withinLongitude) {
+        isInPolygon = !isInPolygon;
+      }
+    }
+    return isInPolygon;
+  }
+
+  // If LatLng coordinate is inside of a polygon, this function shows the details of that polygon from the polygonInfo map
+  void showDetailsIfPolygon(LatLng point) {
+    for (Polygon p in _polygon) {
+      bool pointInPolygon = isGeoPointInPolygon(point, p.points);
+      if (pointInPolygon == true) {
+        String? info = polygonInfo[p.polygonId.value];
+        if (info != null) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Parking Information'),
+                    IconButton(
+                      icon: Icon(Icons.close),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ]
+                  ),
+                content: Text(info),
+                actions: [],
+              );
+            },
+          );
+        }
+      }
+    };
+  }
 
   List<LatLng> tolliverCommuter = [
     LatLng(32.526683, -92.649363),
@@ -439,7 +517,7 @@ class _MapPageState extends State<MapPage> {
 
       _polygon.add(
         Polygon(
-          polygonId: PolygonId('2'),
+          polygonId: PolygonId('4'),
           points: tacLot,
           fillColor: Colors.yellow.withOpacity(0.3),
           strokeColor: Colors.yellow,
@@ -450,7 +528,7 @@ class _MapPageState extends State<MapPage> {
 
       _polygon.add(
         Polygon(
-          polygonId: PolygonId('2'),
+          polygonId: PolygonId('5'),
           points: tacLot2,
           fillColor: Colors.yellow.withOpacity(0.3),
           strokeColor: Colors.yellow,
@@ -461,7 +539,7 @@ class _MapPageState extends State<MapPage> {
 
       _polygon.add(
         Polygon(
-          polygonId: PolygonId('2'),
+          polygonId: PolygonId('6'),
           points: stadiumCircle,
           fillColor: Colors.yellow.withOpacity(0.3),
           strokeColor: Colors.yellow,
@@ -472,7 +550,7 @@ class _MapPageState extends State<MapPage> {
 
       _polygon.add(
         Polygon(
-          polygonId: PolygonId('2'),
+          polygonId: PolygonId('7'),
           points: stadiumLot,
           fillColor: Colors.yellow.withOpacity(0.3),
           strokeColor: Colors.yellow,
@@ -483,7 +561,7 @@ class _MapPageState extends State<MapPage> {
 
       _polygon.add(
         Polygon(
-          polygonId: PolygonId('2'),
+          polygonId: PolygonId('8'),
           points: stadiumLot2,
           fillColor: Colors.yellow.withOpacity(0.3),
           strokeColor: Colors.yellow,
@@ -494,7 +572,7 @@ class _MapPageState extends State<MapPage> {
 
       _polygon.add(
         Polygon(
-          polygonId: PolygonId('2'),
+          polygonId: PolygonId('9'),
           points: universityParkLot,
           fillColor: Colors.yellow.withOpacity(0.3),
           strokeColor: Colors.yellow,
@@ -505,7 +583,7 @@ class _MapPageState extends State<MapPage> {
 
       _polygon.add(
         Polygon(
-          polygonId: PolygonId('2'),
+          polygonId: PolygonId('10'),
           points: universityParkLot2,
           fillColor: Colors.yellow.withOpacity(0.3),
           strokeColor: Colors.yellow,
@@ -516,7 +594,7 @@ class _MapPageState extends State<MapPage> {
 
       _polygon.add(
         Polygon(
-          polygonId: PolygonId('2'),
+          polygonId: PolygonId('11'),
           points: techDriveLot,
           fillColor: Colors.yellow.withOpacity(0.3),
           strokeColor: Colors.yellow,
@@ -527,7 +605,7 @@ class _MapPageState extends State<MapPage> {
 
     _polygon.add(
         Polygon(
-          polygonId: PolygonId('2'),
+          polygonId: PolygonId('12'),
           points: baseballComplex,
           fillColor: Colors.red.withOpacity(0.3),
           strokeColor: Colors.red,
@@ -538,7 +616,7 @@ class _MapPageState extends State<MapPage> {
 
       _polygon.add(
         Polygon(
-          polygonId: PolygonId('2'),
+          polygonId: PolygonId('13'),
           points: universityParkLot3,
           fillColor: Colors.yellow.withOpacity(0.3),
           strokeColor: Colors.yellow,
@@ -549,7 +627,7 @@ class _MapPageState extends State<MapPage> {
 
       _polygon.add(
         Polygon(
-          polygonId: PolygonId('2'),
+          polygonId: PolygonId('14'),
           points: railroadAve,
           fillColor: Colors.yellow.withOpacity(0.3),
           strokeColor: Colors.yellow,
@@ -560,7 +638,7 @@ class _MapPageState extends State<MapPage> {
 
       _polygon.add(
         Polygon(
-          polygonId: PolygonId('2'),
+          polygonId: PolygonId('15'),
           points: railroadAve2,
           fillColor: Colors.yellow.withOpacity(0.3),
           strokeColor: Colors.yellow,
@@ -571,7 +649,7 @@ class _MapPageState extends State<MapPage> {
 
       _polygon.add(
         Polygon(
-          polygonId: PolygonId('2'),
+          polygonId: PolygonId('16'),
           points: railroadAve3,
           fillColor: Colors.yellow.withOpacity(0.3),
           strokeColor: Colors.yellow,
@@ -582,7 +660,7 @@ class _MapPageState extends State<MapPage> {
 
       _polygon.add(
         Polygon(
-          polygonId: PolygonId('2'),
+          polygonId: PolygonId('17'),
           points: intramuralResidentLot,
           fillColor: Colors.red.withOpacity(0.3),
           strokeColor: Colors.red,
@@ -593,7 +671,7 @@ class _MapPageState extends State<MapPage> {
 
       _polygon.add(
         Polygon(
-          polygonId: PolygonId('2'),
+          polygonId: PolygonId('18'),
           points: intramuralCommuterLot,
           fillColor: Colors.yellow.withOpacity(0.3),
           strokeColor: Colors.yellow,
@@ -604,7 +682,7 @@ class _MapPageState extends State<MapPage> {
 
       _polygon.add(
         Polygon(
-          polygonId: PolygonId('2'),
+          polygonId: PolygonId('19'),
           points: intramuralCommuterLot2,
           fillColor: Colors.yellow.withOpacity(0.3),
           strokeColor: Colors.yellow,
@@ -615,7 +693,7 @@ class _MapPageState extends State<MapPage> {
 
       _polygon.add(
         Polygon(
-          polygonId: PolygonId('2'),
+          polygonId: PolygonId('20'),
           points: memorialGymLot,
           fillColor: Colors.yellow.withOpacity(0.3),
           strokeColor: Colors.yellow,
@@ -686,6 +764,7 @@ class _MapPageState extends State<MapPage> {
       tiltGesturesEnabled: true,
       cameraTargetBounds: CameraTargetBounds(LatLngBounds(northeast: northEastBound, southwest: southWestBound)),
       polygons: _polygon,
+      onTap: showDetailsIfPolygon,
     ),
     );
   }
