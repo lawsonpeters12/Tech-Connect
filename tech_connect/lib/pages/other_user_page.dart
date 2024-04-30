@@ -19,7 +19,7 @@ class OtherUserPage extends StatefulWidget {
 
 class _OtherUserPageState extends State<OtherUserPage> {
   late Future<UserInf> otherUserFuture;
-  late bool isFriend; // LateError (LateInitializationError: Field 'isFriend' has not been initialized.)
+  late bool isFriend = false;
   bool isDarkMode = false;
 
   @override
@@ -138,12 +138,33 @@ class _OtherUserPageState extends State<OtherUserPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => DirectMessagePage(otherUserEmail: otherUser.email)));
-                      },
-                      child: Text('Message'),
+                    Stack(
+                      children: [
+                        Container(
+                          width: 250,
+                          height: 50,
+                          child: 
+                            ElevatedButton(
+                              onPressed: () {
+                              Navigator.of(context).push(MaterialPageRoute(builder: (context) => DirectMessagePage(otherUserEmail: otherUser.email)));
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: appBarBackgroundColor,
+                                foregroundColor: Colors.black
+                              ),
+                              child: Text('Message'),
+                        )
+                        
+                        ),
+                        // wrap this in FutureBuilder to check for unread messages from this user
+                        Container(
+                          width: 250,
+                          height: 50,
+                          alignment: Alignment.centerLeft,
+                          child: IconButton(icon: Icon(Icons.circle_sharp), onPressed: (){},))
+                      ]
                     ),
+
                     if (!isFriend) // Don't display "add friend" button if user is already your friend
                       ElevatedButton(
                         onPressed: () async {

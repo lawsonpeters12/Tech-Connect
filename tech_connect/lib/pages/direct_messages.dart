@@ -94,9 +94,6 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
 
         _messageController.clear();
         _updateMessageStream();
-        // grab other user's info here and look it up in firestore
-        // we have the sender, just not the receiver
-        // update the other user's boolean here
       } catch (e) {
         print('Error sending message: $e');
       }
