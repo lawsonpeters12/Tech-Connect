@@ -23,6 +23,8 @@ class _CampusChatPageState extends State<CampusChatPage> {
   String currentChatTopic = "main_chat";
   late StreamController<QuerySnapshot> _messageStreamController;
   String searchString = '';
+  late bool isAdmin = false;
+
   
   File? imageFile;
   String? fileName;
@@ -34,6 +36,7 @@ class _CampusChatPageState extends State<CampusChatPage> {
     _messageStreamController = StreamController<QuerySnapshot>();
     _updateMessageStream(currentChatTopic);
     getDarkModeValue();
+    checkAdminStatus();
   }
 
   void dispose() {
@@ -99,6 +102,15 @@ class _CampusChatPageState extends State<CampusChatPage> {
         print('Error sending message: $e');
       }
     }
+  }
+
+  Future<void> checkAdminStatus() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    String userEmail = user?.email ?? '';
+    var adminDoc = await FirebaseFirestore.instance.collection('admins').doc(userEmail).get();
+    setState(() {
+      isAdmin = adminDoc.exists;
+    });
   }
 
   Future<String> _getUserDisplayName(String userEmail) async {
@@ -491,6 +503,15 @@ class _CampusChatPageState extends State<CampusChatPage> {
                             child: messageWidget,
                           );
                         }
+                        else if(isAdmin) {
+                          messageWidget = GestureDetector(
+                            onLongPress: () {
+                              showMessageOptionsPopup(
+                                  message.id, messageData['message'], true);
+                            },
+                            child: messageWidget,
+                          );
+                        }
 
                         messageWidgets.add(messageWidget);
                       } else if (messageData['type'] == 'image' && searchString == '') {
@@ -528,6 +549,15 @@ class _CampusChatPageState extends State<CampusChatPage> {
                         );
 
                         if (isCurrentUser) {
+                          messageWidget = GestureDetector(
+                            onLongPress: () {
+                              showMessageOptionsPopup(
+                                  message.id, messageData['message'], true);
+                            },
+                            child: messageWidget,
+                          );
+                        }
+                        else if(isAdmin) {
                           messageWidget = GestureDetector(
                             onLongPress: () {
                               showMessageOptionsPopup(
