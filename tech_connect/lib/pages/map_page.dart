@@ -47,24 +47,32 @@ class _MapPageState extends State<MapPage> {
     LatLng(32.527853, -92.648187),  
   ];
 
+
   bool isDarkMode = false;
+  bool buttonTextBool = false;
+  
 
   Future<void> getDarkModeValue() async {
     final prefs = await SharedPreferences.getInstance();
+   
     setState(() {
       isDarkMode = prefs.getBool('isDarkMode') ?? false;
+      buttonTextBool = prefs.getBool('buttonTextBool') ?? false;
     });
+    
   }
-  
+
+
   final LatLng northEastBound = LatLng(32.534665145170706, -92.63876772509097);
   final LatLng southWestBound = LatLng(32.523864894532736, -92.6582692918401);
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  bool buttonTextBool = false;
+
   bool currentEventBool = true;
   String locationImageURL = 'https://firebasestorage.googleapis.com/v0/b/techconnect-42543.appspot.com/o/images%2Ftechconnect.PNG?alt=media&token=ad8c3eff-3c7b-4a60-8939-693de6fd9558';
   late GoogleMapController mapController;
   late List events = [];
+  late List<bool> _selectedEvents = [];
   String? _address;
 
   final LatLng _center = LatLng(32.52741208116641, -92.64696455825013);
@@ -83,12 +91,15 @@ class _MapPageState extends State<MapPage> {
   }
 
   Future<List> queryValues() async {
-  final snapshot = await firestore.collection('eventsGlobal').where('location', isEqualTo: '$_address').get();
+  final snapshot = await firestore.collection('eventsGlobal').where('location', isEqualTo: _address).get();
   late List eventsQuery;
+  //print(snapshot.docs.isNotEmpty);
   if(snapshot.docs.isNotEmpty){
-    eventsQuery = snapshot.docs.map((doc) => doc.data()).toList();
+    eventsQuery = snapshot.docs.map((doc) => doc.data()['eventName']).toList();
+    
   }
-  //print(eventsQuery);
+  print(eventsQuery);
+  //print(snapshot.size);
   return eventsQuery;
 }
 
@@ -96,17 +107,28 @@ class _MapPageState extends State<MapPage> {
     List eventsQ = await queryValues();
     setState(() {
       events = eventsQ;
+      _selectedEvents = List.filled((eventsQ.length), false);
+      print('address: $_address');
     });
   }
 
-  Future<void> checkIn() async{
-    // checks user in
+  Future<void> checkIn(selectedEvents) async{
+    //checks user in
+    final prefs = await SharedPreferences.getInstance();
+    setState((){
+      prefs.setBool('buttonTextBool', buttonTextBool);
+    });
     //print('checkin');
     //print(getImageUrl());
   }
 
-  Future<void> checkOut() async{
+  Future<void> checkOut(selectedEvents) async{
     // checks user out
+    final prefs = await SharedPreferences.getInstance();
+    setState((){
+      prefs.setBool('buttonTextBool', buttonTextBool);
+    });
+    print(selectedEvents);
     //print('checkout');
   }
 
@@ -114,7 +136,7 @@ class _MapPageState extends State<MapPage> {
   
       List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
       Placemark place = placemarks[0];
-
+      print('address: ${place.street}');
       setState(() {
       // leave print statements for debugging
       
@@ -144,9 +166,9 @@ class _MapPageState extends State<MapPage> {
     super.initState();
     
     getDarkModeValue();
-    setState(() {
     isDarkMode ? background = Colors.red : background = Colors.white;
-    print(isDarkMode);
+    
+
     getUserCurrentLocation().then((value) async {
 
     CameraPosition cameraPosition = CameraPosition(
@@ -161,16 +183,16 @@ class _MapPageState extends State<MapPage> {
       Placemark place = placemarks[0];
       // leave print statements for debugging
       String address = ("${place.street}");
-      print("Address place.street: $address");
+      setState(() {
+        _address = address_dict.addresses[address][0];
+        locationImageURL = address_dict.addresses[address][1];
+      });
       _address = address_dict.addresses[address][0];
-      print(_address);
       locationImageURL = address_dict.addresses[address][1];
       //print('image url: $locationImageURL');
       eventGrabber();
       });
 
-    print('address init: $_address');
-    });
     
     //initalize polygon
     _polygon.add(
@@ -208,7 +230,6 @@ class _MapPageState extends State<MapPage> {
     }
     
 
-  
 
   @override
   Widget build(BuildContext context) {
@@ -228,34 +249,50 @@ class _MapPageState extends State<MapPage> {
             
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
+            
               Container(alignment: Alignment.topLeft,
               padding: const EdgeInsets.all(30.0),
-              child: Text('$_address', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0))
+              child: (_address == null) ? Text('Fetching User Location...', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0)) : Text('$_address', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0))
               ),
               const SizedBox(height: 30.0),
               (_address == null) ? CircularProgressIndicator() : Image.network(locationImageURL),
               const SizedBox(height: 30.0),
-              (_address == null) ? CircularProgressIndicator() : (events.isNotEmpty) ? Column(
-
-              children: [Text(events[0]['organization'] + 'is hosting: '),
-              Text(events[0]['event']),
-              const SizedBox(height: 30.0),
-              currentEventBool ?
-              ElevatedButton(
+              (_address == null) ? Text('') : (events.isNotEmpty) ? Column(
+              children: [ToggleButtons(direction: Axis.vertical, 
+              onPressed: (int index) {
+                setState(() {
+                  for (int i = 0; i < _selectedEvents.length; i++){
+                    _selectedEvents[i] = i == index;
+                  }
+                });
+              },
+              borderRadius: const BorderRadius.all(Radius.circular(8)),
+              selectedBorderColor: Colors.red[700],
+              selectedColor: Colors.blue,
+              color: Colors.red[400],
+              constraints: const BoxConstraints(maxHeight: 80.0, minHeight: 40.0), 
+              isSelected: _selectedEvents,
+              children: events.map((str) => Row( mainAxisAlignment: MainAxisAlignment.center,children: <Widget>[Padding(padding: const EdgeInsets.all(16.0), child:Text(str, style: TextStyle(color: Colors.black),))],)).toList(),
+              ),
+              SizedBox(height: 30.0,),
+              (events.isNotEmpty) ? ElevatedButton(
                 style: ButtonStyle(backgroundColor: buttonTextBool ? const MaterialStatePropertyAll<Color>(Colors.red) : const MaterialStatePropertyAll<Color>(Colors.green)),
-                child: buttonTextBool ? const Text("Check-Out") : const Text("Check-In"),
+                child: buttonTextBool ? const Text("Check-Out", style: TextStyle(color: Colors.black),) : const Text("Check-In", style: TextStyle(color: Colors.black),),
                 onPressed: () {
                   setState(() {
-                    buttonTextBool ? checkOut() : checkIn();
                     buttonTextBool = !buttonTextBool;
+                    buttonTextBool ? checkIn(_selectedEvents) : checkOut(_selectedEvents);
                   });
                 }
               ) : const SizedBox()
-            ]) : Text('Currently no events at $_address')
-          ],
+            ]):
+              const SizedBox(height: 30.0),
+              (events.isEmpty) ? Text('Currently no events at $_address') : Text('')
+            ]
+            )
             ),
-        )
-        ),
+            ),
+        
       body: GoogleMap(
       onMapCreated: (GoogleMapController controller) {
         mapController = controller;
