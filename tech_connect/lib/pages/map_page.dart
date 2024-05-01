@@ -73,7 +73,7 @@ class _MapPageState extends State<MapPage> {
   late GoogleMapController mapController;
   late List events = [];
   late List<bool> _selectedEvents = [];
-  String? _address;
+  late String _address = 'Fetching User Location...';
 
   final LatLng _center = LatLng(32.52741208116641, -92.64696455825013);
   
@@ -252,12 +252,15 @@ class _MapPageState extends State<MapPage> {
             
               Container(alignment: Alignment.topLeft,
               padding: const EdgeInsets.all(30.0),
-              child: (_address == null) ? Text('Fetching User Location...', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0)) : Text('$_address', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0))
+              child: Row(children: [Icon(Icons.location_history_rounded) ,Text('$_address', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0))])
               ),
               const SizedBox(height: 30.0),
-              (_address == null) ? CircularProgressIndicator() : Image.network(locationImageURL),
+              (_address == 'Fetching User Location...') ? CircularProgressIndicator() 
+              : Container(
+                padding: EdgeInsets.all(10.0),
+                child: Container(padding: EdgeInsets.all(3) ,color: Colors.black ,child:Image.network(fit: BoxFit.cover ,locationImageURL))),
               const SizedBox(height: 30.0),
-              (_address == null) ? Text('') : (events.isNotEmpty) ? Column(
+              (_address == 'Fetching User Location...') ? Text('') : (events.isNotEmpty) ? Column(
               children: [ToggleButtons(direction: Axis.vertical, 
               onPressed: (int index) {
                 setState(() {
@@ -267,12 +270,15 @@ class _MapPageState extends State<MapPage> {
                 });
               },
               borderRadius: const BorderRadius.all(Radius.circular(8)),
+              borderColor: Colors.black38,
               selectedBorderColor: Colors.red[700],
               selectedColor: Colors.blue,
               color: Colors.red[400],
-              constraints: const BoxConstraints(maxHeight: 80.0, minHeight: 40.0), 
+              constraints: const BoxConstraints(maxHeight: 50.0, minHeight: 40.0), 
               isSelected: _selectedEvents,
-              children: events.map((str) => Row( mainAxisAlignment: MainAxisAlignment.center,children: <Widget>[Padding(padding: const EdgeInsets.all(16.0), child:Text(str, style: TextStyle(color: Colors.black),))],)).toList(),
+              children: events.map((str) => Row( mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[Padding(padding: const EdgeInsets.all(10.0), 
+              child:Text(str, style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),))],)).toList(),
               ),
               SizedBox(height: 30.0,),
               (events.isNotEmpty) ? ElevatedButton(
@@ -287,7 +293,7 @@ class _MapPageState extends State<MapPage> {
               ) : const SizedBox()
             ]):
               const SizedBox(height: 30.0),
-              (events.isEmpty) ? Text('Currently no events at $_address') : Text('')
+              (events.isEmpty) ? Text('Currently no events at your location') : Text('')
             ]
             )
             ),
