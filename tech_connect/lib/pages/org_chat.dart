@@ -7,8 +7,6 @@ import 'dart:io';
 import 'dart:async';
 import 'package:profanity_filter/profanity_filter.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
-
 class OrganizationChatPage extends StatefulWidget {
   final String orgName;
 

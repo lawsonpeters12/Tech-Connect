@@ -227,8 +227,7 @@ class _FriendPageState extends State<FriendPage> {
                                       .set({
                                       'friends_list': FieldValue.arrayUnion([requestEmail])
                                   }, SetOptions(merge: true));
-                                  refreshRequests(); 
-                                  // TEST THIS
+                                  refreshRequests();
                                   requestAcceptedFeedback();
                                 },
                               ),
@@ -249,8 +248,7 @@ class _FriendPageState extends State<FriendPage> {
                                       .update({
                                       'outgoing_friend_requests': FieldValue.arrayRemove([userEmail])
                                   });
-                                  refreshRequests();
-                                  // TEST THIS 
+                                  refreshRequests(); 
                                   requestAcceptedFeedback();
                                   },
                                 ),
