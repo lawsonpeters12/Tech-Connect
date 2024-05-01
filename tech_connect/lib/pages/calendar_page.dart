@@ -1,14 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:collection';
+import 'dart:convert';
 import 'package:basic_utils/basic_utils.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'dart:collection';
 
 class Event {
   final String id;
   final String title;
+  final DateTime time; // New field to store event time
 
-  Event({required this.id, required this.title});
+  Event({required this.id, required this.title, required this.time});
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'time': time.toIso8601String(),
+    };
+  }
+
+  factory Event.fromJson(Map<String, dynamic> json) {
+    return Event(
+      id: json['id'],
+      title: json['title'],
+      time: DateTime.parse(json['time']),
+    );
+  }
 }
 
 class CalendarPage extends StatefulWidget {
@@ -36,6 +54,42 @@ class _CalendarPageState extends State<CalendarPage> {
     getDarkModeValue();
     _selectedDay = DateTime.now();
     _events = {};
+    _loadEvents();
+  }
+
+  Future<void> _loadEvents() async {
+  final prefs = await SharedPreferences.getInstance();
+  setState(() {
+    _events = Map<DateTime, List<Event>>.from(
+      json.decode(prefs.getString('events') ?? '{}').map(
+        (key, value) => MapEntry<DateTime, List<Event>>(
+          DateTime.parse(key),
+          (value as List<dynamic>)
+              .map((e) => Event.fromJson(e))
+              .toList(),
+          ),
+        ),
+      );
+    });
+  }
+
+  Future<void> _saveEvents() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      'events',
+      json.encode(
+        _events.map((key, value) => MapEntry(
+              key.toIso8601String(),
+              value.map((e) => e.toJson()).toList(),
+            )),
+      ),
+    );
+  }
+
+  @override
+  void dispose(){
+    _saveEvents();
+    super.dispose();
   }
 
   void _addEvent(DateTime day) {
@@ -43,21 +97,49 @@ class _CalendarPageState extends State<CalendarPage> {
       context: context,
       builder: (context) {
         String eventTitle = '';
+        DateTime eventTime = DateTime(day.year, day.month, day.day, 12, 0); // Default time at noon
 
         return AlertDialog(
           title: Text('Add Event'),
-          content: TextField(
-            onChanged: (value) {
-              eventTitle = value;
-            },
-            decoration: InputDecoration(hintText: 'Enter event title'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                onChanged: (value) {
+                  eventTitle = value;
+                },
+                decoration: InputDecoration(hintText: 'Enter event title'),
+              ),
+              SizedBox(height: 16),
+              ListTile(
+                title: Text('Event Time'),
+                subtitle: Text(eventTime.toString()),
+                onTap: () async {
+                  final pickedTime = await showTimePicker(
+                    context: context,
+                    initialTime: TimeOfDay.fromDateTime(eventTime),
+                  );
+                  if (pickedTime != null) {
+                    setState(() {
+                      eventTime = DateTime(
+                        day.year,
+                        day.month,
+                        day.day,
+                        pickedTime.hour,
+                        pickedTime.minute,
+                      );
+                    });
+                  }
+                },
+              ),
+            ],
           ),
           actions: [
             TextButton(
               onPressed: () {
                 setState(() {
                   final eventId = UniqueKey().toString();
-                  final event = Event(id: eventId, title: eventTitle);
+                  final event = Event(id: eventId, title: eventTitle, time: eventTime);
 
                   if (_events[day] == null) {
                     _events[day] = [event];
@@ -129,7 +211,7 @@ class _CalendarPageState extends State<CalendarPage> {
                   final event = _events[_selectedDay]![index];
 
                   return ListTile(
-                    title: Text(event.title),
+                    title: Text('${event.title} (${event.time.hour}:${event.time.minute})'),
                     trailing: IconButton(
                       icon: Icon(Icons.delete),
                       onPressed: () {
