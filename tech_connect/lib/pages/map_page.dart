@@ -421,7 +421,7 @@ class _MapPageState extends State<MapPage> {
     eventsQuery = snapshot.docs.map((doc) => doc.data()['eventName']).toList();
     
   }
-  print(eventsQuery);
+  //print(eventsQuery);
   //print(snapshot.size);
   return eventsQuery;
 }
@@ -431,7 +431,7 @@ class _MapPageState extends State<MapPage> {
     setState(() {
       events = eventsQ;
       _selectedEvents = List.filled((eventsQ.length), false);
-      print('address: $_address');
+      //print('address: $_address');
     });
   }
 
@@ -451,7 +451,7 @@ class _MapPageState extends State<MapPage> {
     setState((){
       prefs.setBool('buttonTextBool', buttonTextBool);
     });
-    print(selectedEvents);
+    //print(selectedEvents);
     //print('checkout');
   }
 
@@ -459,14 +459,14 @@ class _MapPageState extends State<MapPage> {
   
       List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
       Placemark place = placemarks[0];
-      print('address: ${place.street}');
+      //print('address: ${place.street}');
       setState(() {
       // leave print statements for debugging
       
       String address = ("${place.street}");
-      print("Address place.street: $address");
+      //print("Address place.street: $address");
       _address = address_dict.addresses[address][0];
-      print("Address _: $_address");
+      //print("Address _: $_address");
       locationImageURL = address_dict.addresses[address][1];
       //print('image url: $locationImageURL');
       eventGrabber();
