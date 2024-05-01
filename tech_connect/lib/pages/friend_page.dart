@@ -92,7 +92,7 @@ class _FriendPageState extends State<FriendPage> {
           ),
           title: Row(
             children: [
-              Text('Friend Page'),
+              Text('Friends'),
               Spacer(),
               Image.asset(
                 "images/logo.png",
