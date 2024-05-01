@@ -12,7 +12,7 @@ class OrgsPage extends StatefulWidget {
 class _OrgsPageState extends State<OrgsPage> {
   bool isDarkMode = false;
   List<String> userOrgs = [];
-  List<String> userEvents = [];
+  List<Map<String, String>> userEvents = [];
 
   Future<void> getDarkModeValue() async {
     final prefs = await SharedPreferences.getInstance();
@@ -27,6 +27,13 @@ class _OrgsPageState extends State<OrgsPage> {
     getDarkModeValue();
     _getUserOrgs();
     _getUserEvents();
+    _mounted = true;
+  }
+
+  @override
+  void dispose() {
+    _mounted = false;
+    super.dispose();
   }
 
   Future<void> _getUserOrgs() async {
@@ -50,6 +57,8 @@ class _OrgsPageState extends State<OrgsPage> {
         userOrgIds.add(orgSnapshot.id);
       }
     }
+
+    if (!_mounted) return;
 
     setState(() {
       userOrgs = userOrgIds;
@@ -76,14 +85,18 @@ class _OrgsPageState extends State<OrgsPage> {
         userOrgIds.add(orgSnapshot.id);
       }
     }
+
+    if (!_mounted) return;
     for (String orgId in userOrgIds) {
       QuerySnapshot eventSnapshot = await FirebaseFirestore.instance
-          .collection('Organizations')
-          .doc(orgId)
-          .collection('Events')
+          .collection('eventsGlobal')
+          .where('orgName', isEqualTo: orgId)
           .get();
-      List<String> orgEvents = eventSnapshot.docs
-          .map((eventDoc) => eventDoc['eventName'].toString())
+      List<Map<String, String>> orgEvents = eventSnapshot.docs
+          .map((eventDoc) => {
+                'eventName': eventDoc['eventName'].toString(),
+                'orgName': eventDoc['orgName'].toString(),
+              })
           .toList();
 
       setState(() {
@@ -91,6 +104,8 @@ class _OrgsPageState extends State<OrgsPage> {
       });
     }
   }
+
+  bool _mounted = false;
 
   void _routeToAllOrgsPage() {
     Navigator.push(
@@ -166,12 +181,25 @@ class _OrgsPageState extends State<OrgsPage> {
                   ),
                 ),
                 SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                        (context, index) => EventButton(
-                              eventName: userEvents[index],
-                              onPressed: () {},
-                            ),
-                        childCount: userEvents.length)),
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) => EventButton(
+                      eventName: userEvents[index]['eventName'] ??
+                          '', // Access eventName from the map
+                      orgName: userEvents[index]['orgName'] ??
+                          '', // Access orgName from the map
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => OrganizationPage(
+                                orgName: userEvents[index]['orgName'] ?? ''),
+                          ),
+                        );
+                      },
+                    ),
+                    childCount: userEvents.length,
+                  ),
+                ),
               ],
             )));
   }
@@ -207,9 +235,13 @@ class OrganizationButton extends StatelessWidget {
 
 class EventButton extends StatelessWidget {
   final String eventName;
+  final String orgName;
   final VoidCallback onPressed;
 
-  const EventButton({required this.eventName, required this.onPressed});
+  const EventButton(
+      {required this.eventName,
+      required this.orgName,
+      required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -239,84 +271,6 @@ class EventButton extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class EventList extends StatelessWidget {
-  final String orgName;
-
-  EventList({required this.orgName});
-
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('Organizations')
-          .doc(orgName)
-          .collection('Events')
-          .snapshots(),
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        }
-
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
-        }
-
-        final List<Widget> eventButtons =
-            snapshot.data!.docs.map((DocumentSnapshot document) {
-          final Map<String, dynamic>? data =
-              document.data() as Map<String, dynamic>?;
-
-          if (data == null || data['eventName'] == null) {
-            return SizedBox();
-          }
-
-          final String eventName = data['eventName'];
-
-          return EventButton(
-            eventName: eventName,
-            onPressed: () {
-              _showEventDetails(context, data);
-            },
-          );
-        }).toList();
-
-        return ListView(
-          children: eventButtons,
-        );
-      },
-    );
-  }
-
-  void _showEventDetails(BuildContext context, Map<String, dynamic> eventData) {
-    showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        builder: (BuildContext context) {
-          return SizedBox(
-              width: MediaQuery.of(context).size.width,
-              child: Container(
-                  padding: EdgeInsets.all(16),
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          eventData['eventName'] ?? 'name',
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                          eventData['location'] ?? 'location',
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(height: 10),
-                      ])));
-        });
   }
 }
 

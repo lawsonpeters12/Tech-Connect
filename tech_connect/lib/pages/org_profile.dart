@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -14,12 +16,14 @@ class Member {
   final String name;
   final String major;
   final String role;
+  final String volunteerHours;
 
   Member(
       {required this.email,
       required this.name,
       required this.major,
-      required this.role});
+      required this.role,
+      required this.volunteerHours});
 }
 
 class OrganizationPage extends StatefulWidget {
@@ -105,15 +109,18 @@ class _OrganizationPageState extends State<OrganizationPage> {
     if (userSnapshot.exists) {
       String userName = userSnapshot.get('name');
       String userMajor = userSnapshot.get('major');
-      String userRole = userSnapshot.get('role');
+      String userRole = 'Member';
       String userEmail = userSnapshot.get('email');
+      List<String> attendedEvents = [];
+      String volunteerHours = '0';
 
       await orgDocRef.collection('members').doc(userEmail).set({
         'email': userEmail,
         'name': userName,
         'major': userMajor,
         'role': userRole,
-        'attendedEvents': []
+        'attendedEvents': attendedEvents,
+        'volunteerHours': volunteerHours,
       });
     }
   }
@@ -219,6 +226,8 @@ class _OrganizationPageState extends State<OrganizationPage> {
       },
     );
   }
+
+  Future<void> _appendEvent() async {}
 
   // App bar displays org name, org profile picture, and an icon to view the members of the org
   @override
@@ -470,12 +479,15 @@ class OrganizationMembersPage extends StatelessWidget {
                   email: data['email'] ?? 'email',
                   name: data['name'] ?? 'name',
                   major: data['major'] ?? 'major',
-                  role: data['role'] ?? 'role');
+                  role: data['role'] ?? 'role',
+                  volunteerHours: data['volunteerHours'] ?? 'volunteerHours');
             }).toList();
 
             return ListView.builder(
               itemCount: members.length,
               itemBuilder: (context, index) {
+                var hours = members[index].volunteerHours;
+                var memName = members[index].name;
                 return GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -489,7 +501,7 @@ class OrganizationMembersPage extends StatelessWidget {
                     child: Column(
                       children: [
                         ListTile(
-                          title: Text(members[index].name),
+                          title: Text('$memName [$hours]'),
                           subtitle: Text(members[index].email),
                           isThreeLine: true,
                           trailing: Text(members[index].role),
@@ -607,7 +619,7 @@ class EventList extends StatelessWidget {
           return EventButton(
             eventName: eventName,
             onPressed: () {
-              _showEventDetails(context, data);
+              _showEventDetails(context, data, orgName);
             },
           );
         }).toList();
@@ -619,35 +631,60 @@ class EventList extends StatelessWidget {
     );
   }
 
-  void _showEventDetails(BuildContext context, Map<String, dynamic> eventData) {
+  void _showEventDetails(BuildContext context, Map<String, dynamic> eventData,
+      String orgName) async {
     showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        builder: (BuildContext context) {
-          return SizedBox(
-              width: MediaQuery.of(context).size.width,
-              child: Container(
-                  padding: EdgeInsets.all(16),
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          eventData['eventName'] ?? 'name',
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                          eventData['location'] ?? 'location',
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(height: 10),
-                        TextButton(onPressed: () {}, child: Text('Sign In')),
-                        TextButton(onPressed: () {}, child: Text('Sign Out'))
-                      ])));
-        });
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return SizedBox(
+          width: MediaQuery.of(context).size.width,
+          child: Container(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  eventData['eventName'] ?? 'name',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  eventData['location'] ?? 'location',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 10),
+                TextButton(
+                  onPressed: () async {
+                    User? currentUser = FirebaseAuth.instance.currentUser;
+                    String userEmail = currentUser?.email ?? '';
+
+                    // Reference to the user's document in the organization's 'members' subcollection
+                    DocumentReference memberRef = FirebaseFirestore.instance
+                        .collection('Organizations')
+                        .doc(orgName)
+                        .collection('members')
+                        .doc(userEmail);
+
+                    // Update the 'eventsAttended' array field to append the event name
+                    await memberRef.update({
+                      'attendedEvents':
+                          FieldValue.arrayUnion([eventData['eventName']])
+                    });
+                  },
+                  child: Text('Sign In'),
+                ),
+                TextButton(
+                  onPressed: () {},
+                  child: Text('Sign Out'),
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 }
 
