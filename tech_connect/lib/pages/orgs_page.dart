@@ -11,195 +11,29 @@ class OrgsPage extends StatefulWidget {
 
 class _OrgsPageState extends State<OrgsPage> {
   bool isDarkMode = false;
-
-  Future<void> getDarkModeValue() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      isDarkMode = prefs.getBool('isDarkMode') ?? false;
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    getDarkModeValue();
-  }
-
-  void _routeToAllOrgsPage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => AllOrgsPage()),
-    );
-  }
-
-  void _routeToMyOrgsPage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => MyOrgsPage()),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text('Organizations'),
-        backgroundColor: isDarkMode
-            ? Color.fromRGBO(167, 43, 42, 1)
-            : Color.fromRGBO(77, 95, 128, 100),
-      ),
-      backgroundColor: isDarkMode
-          ? Color.fromRGBO(203, 102, 102, 40)
-          : Color.fromRGBO(198, 218, 231, 1),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextButton(
-              onPressed: _routeToAllOrgsPage,
-              child: Text('All Organizations'),
-            ),
-            SizedBox(height: 16),
-            TextButton(
-              onPressed: _routeToMyOrgsPage,
-              child: Text('My Organizations'),
-            ),
-            SizedBox(
-              height: 50,
-              child: Text("here"),
-            ),
-            Container(
-                child: Column(
-              children: [],
-            ))
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class OrganizationButton extends StatelessWidget {
-  final String label;
-  final VoidCallback onPressed;
-
-  const OrganizationButton({
-    required this.label,
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(25),
-        color: Colors.white,
-      ),
-      margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-      child: TextButton(
-        onPressed: onPressed,
-        child: Text(label),
-      ),
-    );
-  }
-}
-
-class AllOrgsPage extends StatefulWidget {
-  @override
-  _AllOrgsPageState createState() => _AllOrgsPageState();
-}
-
-class _AllOrgsPageState extends State<AllOrgsPage> {
-  bool isDarkMode = false;
-
-  Future<void> getDarkModeValue() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      isDarkMode = prefs.getBool('isDarkMode') ?? false;
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    getDarkModeValue();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text('All Organizations'),
-        backgroundColor: isDarkMode
-            ? Color.fromRGBO(167, 43, 42, 1)
-            : Color.fromRGBO(77, 95, 128, 100),
-      ),
-      backgroundColor: isDarkMode
-          ? Color.fromRGBO(203, 102, 102, 40)
-          : Color.fromRGBO(198, 218, 231, 1),
-      body: Center(
-        child: _buildOrgsList(context),
-      ),
-    );
-  }
-
-  Widget _buildOrgsList(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-      stream:
-          FirebaseFirestore.instance.collection('Organizations').snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        } else {
-          final organizations = snapshot.data!.docs;
-          return ListView.builder(
-            itemCount: organizations.length,
-            itemBuilder: (context, index) {
-              final orgName = organizations[index].id;
-              return OrganizationButton(
-                label: orgName,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => OrganizationPage(orgName: orgName),
-                    ),
-                  );
-                },
-              );
-            },
-          );
-        }
-      },
-    );
-  }
-}
-
-class MyOrgsPage extends StatefulWidget {
-  @override
-  _MyOrgsPageState createState() => _MyOrgsPageState();
-}
-
-class _MyOrgsPageState extends State<MyOrgsPage> {
   List<String> userOrgs = [];
-  bool isDarkMode = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _getUserOrgs();
-    getDarkModeValue();
-  }
+  List<Map<String, String>> userEvents = [];
 
   Future<void> getDarkModeValue() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       isDarkMode = prefs.getBool('isDarkMode') ?? false;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getDarkModeValue();
+    _getUserOrgs();
+    _getUserEvents();
+    _mounted = true;
+  }
+
+  @override
+  void dispose() {
+    _mounted = false;
+    super.dispose();
   }
 
   Future<void> _getUserOrgs() async {
@@ -224,40 +58,343 @@ class _MyOrgsPageState extends State<MyOrgsPage> {
       }
     }
 
+    if (!_mounted) return;
+
     setState(() {
       userOrgs = userOrgIds;
     });
   }
 
+  Future<void> _getUserEvents() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    String userEmail = user.email ?? 'anonymous';
+
+    QuerySnapshot orgsSnapshot =
+        await FirebaseFirestore.instance.collection('Organizations').get();
+
+    List<String> userOrgIds = [];
+
+    for (QueryDocumentSnapshot orgSnapshot in orgsSnapshot.docs) {
+      QuerySnapshot membershipSnapshot = await orgSnapshot.reference
+          .collection('members')
+          .where('email', isEqualTo: userEmail)
+          .get();
+      if (membershipSnapshot.docs.isNotEmpty) {
+        userOrgIds.add(orgSnapshot.id);
+      }
+    }
+
+    if (!_mounted) return;
+    for (String orgId in userOrgIds) {
+      QuerySnapshot eventSnapshot = await FirebaseFirestore.instance
+          .collection('eventsGlobal')
+          .where('orgName', isEqualTo: orgId)
+          .get();
+      List<Map<String, String>> orgEvents = eventSnapshot.docs
+          .map((eventDoc) => {
+                'eventName': eventDoc['eventName'].toString(),
+                'orgName': eventDoc['orgName'].toString(),
+              })
+          .toList();
+
+      setState(() {
+        userEvents.addAll(orgEvents);
+      });
+    }
+  }
+
+  bool _mounted = false;
+
+  void _routeToAllOrgsPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => AllOrgsPage()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('My Organizations'),
+        appBar: AppBar(
+          centerTitle: true,
+          title: Text('Organizations'),
+          backgroundColor: isDarkMode
+              ? Color.fromRGBO(167, 43, 42, 1)
+              : Color.fromRGBO(77, 95, 128, 100),
+        ),
         backgroundColor: isDarkMode
-            ? Color.fromRGBO(167, 43, 42, 1)
-            : Color.fromRGBO(77, 95, 128, 100),
-      ),
-      backgroundColor: isDarkMode
-          ? Color.fromRGBO(203, 102, 102, 40)
-          : Color.fromRGBO(198, 218, 231, 1),
-      body: ListView.builder(
-        itemCount: userOrgs.length,
-        itemBuilder: (context, index) {
-          String orgName = userOrgs[index];
+            ? Color.fromRGBO(203, 102, 102, 40)
+            : Color.fromRGBO(198, 218, 231, 1),
+        body: Padding(
+            padding: EdgeInsets.all(8),
+            child: CustomScrollView(
+              slivers: <Widget>[
+                SliverToBoxAdapter(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(25),
+                      color: Color.fromRGBO(77, 95, 128, 100),
+                    ),
+                    margin:
+                        const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                    child: TextButton(
+                      onPressed: _routeToAllOrgsPage,
+                      child: Text(
+                        'View All Orgs',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: Container(
+                    child: Text(
+                      'Your Organizations',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    ),
+                  ),
+                ),
+                SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                        (context, index) => OrganizationButton(
+                              label: userOrgs[index],
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => OrganizationPage(
+                                          orgName: userOrgs[index])),
+                                );
+                              },
+                            ),
+                        childCount: userOrgs.length)),
+                SliverToBoxAdapter(
+                  child: Container(
+                    child: Text(
+                      'Your Events',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    ),
+                  ),
+                ),
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) => EventButton(
+                      eventName: userEvents[index]['eventName'] ??
+                          '', // Access eventName from the map
+                      orgName: userEvents[index]['orgName'] ??
+                          '', // Access orgName from the map
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => OrganizationPage(
+                                orgName: userEvents[index]['orgName'] ?? ''),
+                          ),
+                        );
+                      },
+                    ),
+                    childCount: userEvents.length,
+                  ),
+                ),
+              ],
+            )));
+  }
+}
 
-          return OrganizationButton(
-            label: orgName,
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => OrganizationPage(orgName: orgName)),
+class OrganizationButton extends StatelessWidget {
+  final String label;
+  final VoidCallback onPressed;
+
+  const OrganizationButton({
+    required this.label,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(25),
+        color: Color.fromRGBO(77, 95, 128, 100),
+      ),
+      margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+      child: TextButton(
+        onPressed: onPressed,
+        child: Text(
+          label,
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+    );
+  }
+}
+
+class EventButton extends StatelessWidget {
+  final String eventName;
+  final String orgName;
+  final VoidCallback onPressed;
+
+  const EventButton(
+      {required this.eventName,
+      required this.orgName,
+      required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(50),
+        color: Color.fromRGBO(77, 95, 128, 100),
+      ),
+      margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+      child: TextButton(
+        onPressed: onPressed,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              eventName,
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
+            ),
+            Text(
+              'View Org Page',
+              style: TextStyle(fontSize: 14, color: Colors.grey[300]),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class AllOrgsPage extends StatefulWidget {
+  @override
+  _AllOrgsPageState createState() => _AllOrgsPageState();
+}
+
+class _AllOrgsPageState extends State<AllOrgsPage> {
+  bool isDarkMode = false;
+  String searchString = '';
+
+  Future<void> getDarkModeValue() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isDarkMode = prefs.getBool('isDarkMode') ?? false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getDarkModeValue();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: Text('All Organizations'),
+          backgroundColor: isDarkMode
+              ? Color.fromRGBO(167, 43, 42, 1)
+              : Color.fromRGBO(77, 95, 128, 100),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.search),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text('Search Organizations'),
+                      content: TextField(
+                        onChanged: (value) {
+                          setState(() {
+                            searchString = value;
+                          });
+                        },
+                        decoration: InputDecoration(
+                          hintText: 'Search',
+                        ),
+                      ),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              searchString = '';
+                            });
+                            Navigator.pop(context);
+                          },
+                          child: Text('Clear Search'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Text('Search'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+            ),
+          ],
+        ),
+        backgroundColor: isDarkMode
+            ? Color.fromRGBO(203, 102, 102, 40)
+            : Color.fromRGBO(198, 218, 231, 1),
+        body: Padding(
+            padding: EdgeInsets.all(16),
+            child: Container(
+                width: MediaQuery.of(context).size.width,
+                child: _buildOrgsList(context))));
+  }
+
+  Widget _buildOrgsList(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
+      stream:
+          FirebaseFirestore.instance.collection('Organizations').snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          final organizations = snapshot.data!.docs;
+
+          final filteredOrgs = organizations.where((org) {
+            final orgName = org.id.toLowerCase();
+            final searchLowerCase = searchString.toLowerCase();
+            return orgName.contains(searchLowerCase);
+          }).toList();
+
+          return ListView.builder(
+            itemCount: filteredOrgs.length,
+            itemBuilder: (context, index) {
+              final orgName = filteredOrgs[index].id;
+              return OrganizationButton(
+                label: orgName,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => OrganizationPage(orgName: orgName),
+                    ),
+                  );
+                },
               );
             },
           );
-        },
-      ),
+        }
+      },
     );
   }
 }

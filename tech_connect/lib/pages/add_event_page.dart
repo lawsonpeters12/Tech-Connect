@@ -123,9 +123,20 @@ class _AddEventPageState extends State<AddEventPage> {
       CollectionReference eventsRef =
           orgsRef.doc(widget.orgName).collection('Events');
 
+      CollectionReference globalEvents =
+          FirebaseFirestore.instance.collection('eventsGlobal');
+
       await eventsRef
           .doc(eventName)
           .set({'eventName': eventName, 'location': location, 'date': date});
+
+      await globalEvents.doc(eventName).set({
+        'orgName': widget.orgName,
+        'eventName': eventName,
+        'location': location,
+        'date': date
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Event added successfully'),
