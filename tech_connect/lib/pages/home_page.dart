@@ -53,7 +53,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  TextStyle headerStyle = const TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0);
+  TextStyle headerStyle = const TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
   TextStyle bodyStyle = const TextStyle(fontSize: 20.0);
 
   List events = [];
@@ -276,7 +276,7 @@ Widget build(BuildContext context) {
     appBar: AppBar(
       backgroundColor: isDarkMode
           ? const Color.fromRGBO(167, 43, 42, 1)
-          : const Color.fromRGBO(77, 95, 128, 1),
+          : const Color.fromRGBO(77, 95, 128, 100),
       title: const Text('Home Page'),
       leading: Container(),
       actions: [
