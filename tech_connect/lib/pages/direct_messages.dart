@@ -7,6 +7,7 @@ import 'dart:io';
 import 'dart:async';
 import 'package:profanity_filter/profanity_filter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tech_connect/pages/other_user_page.dart';
 
 
 class DirectMessagePage extends StatefulWidget {
@@ -62,9 +63,9 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
   }
 
   void _sendMessage() async {
-    // update unread message status for the user theyre sending the message to
+    // get the doc of the other user, set unread to true
     String message = _messageController.text;
-    String censoredMessage = profanityFilter.censorString(message);
+    String censoredMessage = profanityFilter.censor(message);
     
     if (censoredMessage.isNotEmpty) {
       if(censoredMessage != message){
@@ -334,6 +335,14 @@ void _getConversationID() {
       appBar: AppBar(
         title: Text(otherUserName),
         backgroundColor: appBarBackgroundColor,
+        leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context);
+              // this pushes another instance of otheruserpage on top of the stack and causes the page to duplicate idk dude i just want this to refresh
+              //Navigator.pop(context, MaterialPageRoute(builder: (context) => OtherUserPage(otherUserEmail: widget.otherUserEmail)));
+          },
+        ),
         actions: [
           IconButton(
             icon: Icon(Icons.search),

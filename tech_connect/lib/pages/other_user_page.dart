@@ -185,7 +185,6 @@ class _OtherUserPageState extends State<OtherUserPage> {
                               // remove unreadFlag
                               readMessage();
                               Navigator.of(context).push(MaterialPageRoute(builder: (context) => DirectMessagePage(otherUserEmail: otherUser.email)));
-                              
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: appBarBackgroundColor,
@@ -195,9 +194,8 @@ class _OtherUserPageState extends State<OtherUserPage> {
                         )
                         
                         ),
-                        // wrap this in FutureBuilder to check for unread messages from this user
                         FutureBuilder(
-                          future: getUnreadStatus(), // i need to get the unread status of the current otherUser only
+                          future: getUnreadStatus(),
                           builder: (context, snapshot) {
                             if (snapshot.connectionState == ConnectionState.waiting) {
                               return  CircularProgressIndicator();
