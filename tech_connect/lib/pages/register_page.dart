@@ -51,7 +51,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context){
     return Scaffold(
-      backgroundColor: Color.fromRGBO(198, 218, 231, 100),
+      backgroundColor: Color.fromRGBO(198, 218, 231, 1),
       body: SingleChildScrollView(
       physics: NeverScrollableScrollPhysics(),
       child: 
@@ -65,10 +65,9 @@ class _RegisterPageState extends State<RegisterPage> {
                 
                 const SizedBox(height:100),
                 // logo
-                const Icon(
-                  Icons.person_4,
-                  size: 100, 
-                ),
+                Container(
+                  width: 100, 
+                  child: Image.asset("images/logo.png"),),
                 
                 // create account
                 const SizedBox(height: 50),
