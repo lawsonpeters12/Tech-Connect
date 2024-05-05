@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tech_connect/pages/org_chat.dart';
 import 'package:tech_connect/pages/other_user_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
