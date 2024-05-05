@@ -1838,8 +1838,8 @@ class _MapPageState extends State<MapPage> {
       appBar: AppBar( title: const Text('Campus Map'),
       toolbarHeight: 80,
       backgroundColor: isDarkMode
-        ? Color.fromRGBO(203, 102, 102, 1)
-        : Color.fromRGBO(198, 218, 231, 1),
+        ? Color.fromRGBO(167, 43, 42, 1)
+        : Color.fromRGBO(77, 95, 128, 100),
       ),
       drawer: Drawer(
           backgroundColor: isDarkMode
