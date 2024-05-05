@@ -76,6 +76,30 @@ class _AddEventPageState extends State<AddEventPage> {
     );
   }
 
+    void _sendMessage(eventName) async {
+
+      CollectionReference messages =
+          FirebaseFirestore.instance.collection('messages');
+
+      // Get server timestamp before adding the message
+      Timestamp serverTimestamp = Timestamp.now();
+
+      try {
+        await messages.add({
+          'user': widget.orgName,
+          'message': eventName,
+          'timestamp': serverTimestamp,
+          'chat_topic': 'Campus Events',
+          'type': "text",
+          'sender_display_name': widget.orgName
+        });
+
+      } catch (e) {
+        print('Error sending message: $e');
+      }
+    }
+  
+
   void _saveEvent() {
     String eventName = _eventNameController.text;
     String location = _locationController.text;
@@ -83,6 +107,7 @@ class _AddEventPageState extends State<AddEventPage> {
     // Check if eventName is not empty
     if (eventName.isNotEmpty) {
       // Save event to Firestore
+      _sendMessage(eventName);
       addEventToOrganization(eventName, location, date);
       // Navigate back to previous screen
       Navigator.pop(context);
