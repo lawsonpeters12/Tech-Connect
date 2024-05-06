@@ -890,7 +890,7 @@ class _MapPageState extends State<MapPage> {
   late GoogleMapController mapController;
   late List events = [];
   late List<bool> _selectedEvents = [];
-  late String _address = 'Fetching User Location...';
+  late String _address = 'Getting Location...';
 
   final LatLng _center = LatLng(32.52741208116641, -92.64696455825013);
   
