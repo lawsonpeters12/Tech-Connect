@@ -5,10 +5,17 @@ packages:
     dependency: transitive
     description:
       name: _flutterfire_internals
+<<<<<<<<< Temporary merge branch 1
       sha256: "3dee3db3468c5f4640a4e8aa9c1e22561c298976d8c39ed2fdd456a9a3db26e1"
       url: "https://pub.dev"
     source: hosted
     version: "1.3.32"
+=========
+      sha256: "4eec93681221723a686ad580c2e7d960e1017cf1a4e0a263c2573c2c6b0bf5cd"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.3.25"
+>>>>>>>>> Temporary merge branch 2
   archive:
     dependency: transitive
     description:
@@ -85,26 +92,47 @@ packages:
     dependency: "direct main"
     description:
       name: cloud_firestore
+<<<<<<<<< Temporary merge branch 1
       sha256: "58ea77912e355cfd4e49f858e01d5ab4f99c7181ebd545b3fbeae25d6677dff6"
       url: "https://pub.dev"
     source: hosted
     version: "4.17.2"
+=========
+      sha256: "31cfa4d65d6e9ea837234fffe121304034c30c9214c06207b4a35867e3757900"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.15.8"
+>>>>>>>>> Temporary merge branch 2
   cloud_firestore_platform_interface:
     dependency: transitive
     description:
       name: cloud_firestore_platform_interface
+<<<<<<<<< Temporary merge branch 1
       sha256: "9cb7d350c08c3d4987d34f418037aca3882649cdad5158440b4b932232edcf82"
       url: "https://pub.dev"
     source: hosted
     version: "6.2.2"
+=========
+      sha256: a0097a26569b015faf8142e159e855241609ea9a1738b5fd1c40bfe8411b41a0
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.1.9"
+>>>>>>>>> Temporary merge branch 2
   cloud_firestore_web:
     dependency: transitive
     description:
       name: cloud_firestore_web
+<<<<<<<<< Temporary merge branch 1
       sha256: "28db029962ebdcb8caf80f0c109f359ebcefa983b85fb62e5a220b1a577d84b5"
       url: "https://pub.dev"
     source: hosted
     version: "3.12.2"
+=========
+      sha256: ed680ece29a5750985119c09cdc276b460c3a2fa80e8c12f9b7241f6b4a7ca16
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.10.8"
+>>>>>>>>> Temporary merge branch 2
   collection:
     dependency: transitive
     description:
@@ -181,10 +209,10 @@ packages:
     dependency: "direct main"
     description:
       name: file_picker
-      sha256: "29c90806ac5f5fb896547720b73b17ee9aed9bba540dc5d91fe29f8c5745b10a"
+      sha256: d1d0ac3966b36dc3e66eeefb40280c17feb87fa2099c6e22e6a1fc959327bd03
       url: "https://pub.dev"
     source: hosted
-    version: "8.0.3"
+    version: "8.0.0+1"
   file_selector_linux:
     dependency: transitive
     description:
@@ -221,34 +249,62 @@ packages:
     dependency: "direct main"
     description:
       name: firebase_auth
+<<<<<<<<< Temporary merge branch 1
       sha256: "63b4401c95ddb00fb272872c451147e33509e80eed43937369910ef6c34c00b7"
       url: "https://pub.dev"
     source: hosted
     version: "4.19.4"
+=========
+      sha256: "17b841e1b000c3441b8ffceca88f468e078d0443db9643e77541bdfb7a3fd16b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.17.8"
+>>>>>>>>> Temporary merge branch 2
   firebase_auth_platform_interface:
     dependency: transitive
     description:
       name: firebase_auth_platform_interface
+<<<<<<<<< Temporary merge branch 1
       sha256: "4e204f9ef43d83ac9e7a324a9317e4dd2a1ddda2aa72b67bc6cc364f0b8492dc"
       url: "https://pub.dev"
     source: hosted
     version: "7.2.5"
+=========
+      sha256: f294ceef40409a36c819a14280ca864fe487b44033e5276443377c66cb448310
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.1.8"
+>>>>>>>>> Temporary merge branch 2
   firebase_auth_web:
     dependency: transitive
     description:
       name: firebase_auth_web
+<<<<<<<<< Temporary merge branch 1
       sha256: "809a2eb444d1a07c0a680b205b86d713bc7171a4b2627fd6c01cf05f2b6f93cd"
       url: "https://pub.dev"
     source: hosted
     version: "5.11.4"
+=========
+      sha256: "1f231da900fe7ff9f2974f8adcbdb3363c410c24725978afa5dc33e1e7e62e06"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.9.8"
+>>>>>>>>> Temporary merge branch 2
   firebase_core:
     dependency: "direct main"
     description:
       name: firebase_core
+<<<<<<<<< Temporary merge branch 1
       sha256: "4aef2a23d0f3265545807d68fbc2f76a6b994ca3c778d88453b99325abd63284"
       url: "https://pub.dev"
     source: hosted
     version: "2.30.1"
+=========
+      sha256: "53316975310c8af75a96e365f9fccb67d1c544ef0acdbf0d88bbe30eedd1c4f9"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.27.0"
+>>>>>>>>> Temporary merge branch 2
   firebase_core_platform_interface:
     dependency: transitive
     description:
@@ -261,34 +317,62 @@ packages:
     dependency: transitive
     description:
       name: firebase_core_web
+<<<<<<<<< Temporary merge branch 1
       sha256: "67f2fcc600fc78c2f731c370a3a5e6c87ee862e3a2fba6f951eca6d5dafe5c29"
       url: "https://pub.dev"
     source: hosted
     version: "2.16.0"
+=========
+      sha256: c8e1d59385eee98de63c92f961d2a7062c5d9a65e7f45bdc7f1b0b205aab2492
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.11.5"
+>>>>>>>>> Temporary merge branch 2
   firebase_storage:
     dependency: "direct main"
     description:
       name: firebase_storage
+<<<<<<<<< Temporary merge branch 1
       sha256: "9125c6e017833f51eef84f4feff2b7d6de20c36a9aa9f80fd3e9092b2a5b01a8"
       url: "https://pub.dev"
     source: hosted
     version: "11.7.4"
+=========
+      sha256: ce1b0efe8dc111058c5f079b2f2ce84906d030d0fd2eef70c42ca1253c67039a
+      url: "https://pub.dev"
+    source: hosted
+    version: "11.6.9"
+>>>>>>>>> Temporary merge branch 2
   firebase_storage_platform_interface:
     dependency: transitive
     description:
       name: firebase_storage_platform_interface
+<<<<<<<<< Temporary merge branch 1
       sha256: "3d18f72b6059b20438266d5efed466a6a78dfe4366b619945d54963b61ea72bd"
       url: "https://pub.dev"
     source: hosted
     version: "5.1.19"
+=========
+      sha256: "4a2b64d4dac096390a0b7f2e7b6d086d0546c4a1bf7ee3fc4b5ae4cc41005c46"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.1.12"
+>>>>>>>>> Temporary merge branch 2
   firebase_storage_web:
     dependency: transitive
     description:
       name: firebase_storage_web
+<<<<<<<<< Temporary merge branch 1
       sha256: "53fcd9d5bbe5539f9d69b337e632e67658882857736aa1dcc996b34daaafb113"
       url: "https://pub.dev"
     source: hosted
     version: "3.9.4"
+=========
+      sha256: "4153814db8d59138e816d9f016736e4095c45675a2c18f2868d11ffd8cc6a4ca"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.7.3"
+>>>>>>>>> Temporary merge branch 2
   fixnum:
     dependency: transitive
     description:
@@ -476,10 +560,17 @@ packages:
     dependency: "direct main"
     description:
       name: google_maps_flutter
+<<<<<<<<< Temporary merge branch 1
       sha256: c1972cbad779bc5346c49045f26ae45550a0958b1cbca5b524dd3c8954995d28
       url: "https://pub.dev"
     source: hosted
     version: "2.6.1"
+=========
+      sha256: ae66fef3e71261d7df2eff29b2a119e190b2884325ecaa55321b1e17b5504066
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.5.3"
+>>>>>>>>> Temporary merge branch 2
   google_maps_flutter_android:
     dependency: transitive
     description:
@@ -548,34 +639,41 @@ packages:
     dependency: "direct main"
     description:
       name: image_picker
-      sha256: fe9ee64ccb8d599a5dfb0e21cc6652232c610bcf667af4e79b9eb175cc30a7a5
+      sha256: "1f498d086203360cca099d20ffea2963f48c39ce91bdd8a3b6d4a045786b02c8"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.0"
+    version: "1.0.8"
   image_picker_android:
     dependency: transitive
     description:
       name: image_picker_android
-      sha256: "8e75431a62b7feb4fd55cb4a5c6f0ac4564460ec5dc09f9c4a0d50a5ce7c4cb9"
+      sha256: "844c6da4e4f2829dffdab97816bca09d0e0977e8dcef7450864aba4e07967a58"
       url: "https://pub.dev"
     source: hosted
-    version: "0.8.10"
+    version: "0.8.9+6"
   image_picker_for_web:
     dependency: transitive
     description:
       name: image_picker_for_web
+<<<<<<<<< Temporary merge branch 1
       sha256: "5d6eb13048cd47b60dbf1a5495424dea226c5faf3950e20bf8120a58efb5b5f3"
       url: "https://pub.dev"
     source: hosted
     version: "3.0.4"
+=========
+      sha256: e2423c53a68b579a7c37a1eda967b8ae536c3d98518e5db95ca1fe5719a730a3
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.2"
+>>>>>>>>> Temporary merge branch 2
   image_picker_ios:
     dependency: transitive
     description:
       name: image_picker_ios
-      sha256: f74064bc548b5164a033ec05638e23c91be1a249c255e0f56319dddffd759794
+      sha256: "917a5cadd67d052554cfb258595e54217de53fac5b52939426e26319a02e6297"
       url: "https://pub.dev"
     source: hosted
-    version: "0.8.10+1"
+    version: "0.8.9+2"
   image_picker_linux:
     dependency: transitive
     description:
@@ -664,6 +762,9 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.1"
+=========
+    version: "4.8.1"
+>>>>>>>>> Temporary merge branch 2
   lints:
     dependency: transitive
     description:
@@ -1130,10 +1231,17 @@ packages:
     dependency: transitive
     description:
       name: win32
+<<<<<<<<< Temporary merge branch 1
       sha256: "0eaf06e3446824099858367950a813472af675116bf63f008a4c2a75ae13e9cb"
       url: "https://pub.dev"
     source: hosted
     version: "5.5.0"
+=========
+      sha256: "464f5674532865248444b4c3daca12bd9bf2d7c47f759ce2617986e7229494a8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.2.0"
+>>>>>>>>> Temporary merge branch 2
   xdg_directories:
     dependency: transitive
     description:

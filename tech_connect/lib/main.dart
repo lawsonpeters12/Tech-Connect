@@ -58,10 +58,10 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(dividerColor: Colors.black),
       // home: AuthPage(),
-       //home: UserPage(),
-       //home: EditUserPage(),
-      //home: AuthPage(),
-      home: FirstPage()
+      //home: UserPage(),
+      //home: EditUserPage(),
+      home: AuthPage(),
+      //home: FirstPage()
     );
   }
 }

@@ -6,6 +6,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'dart:async';
 import 'package:profanity_filter/profanity_filter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tech_connect/pages/other_user_page.dart';
 
 
 class DirectMessagePage extends StatefulWidget {
@@ -26,10 +28,23 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
   String searchString = '';
   List<String> conversationID = [];
   final ProfanityFilter profanityFilter = ProfanityFilter();
+  bool isDarkMode = false;
 
 
   File? imageFile;
   String? fileName;
+
+  Color pageBackgroundColor = Color.fromRGBO(198, 218, 231, 1);
+  Color appBarBackgroundColor = Color.fromRGBO(77, 95, 128, 100);
+
+  Future<void> getDarkModeValue() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isDarkMode = prefs.getBool('isDarkMode') ?? false;
+      pageBackgroundColor = isDarkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1);
+      appBarBackgroundColor = isDarkMode ? Color.fromRGBO(167, 43, 42, 1) : Color.fromRGBO(77, 95, 128, 100);
+    });
+  }
 
   @override
   void initState() {
@@ -38,6 +53,7 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
     _getOtherUserDisplayName();
     _getConversationID();
     _updateMessageStream();
+    getDarkModeValue();
 
   }
 
@@ -47,8 +63,9 @@ class _DirectMessagePageState extends State<DirectMessagePage> {
   }
 
   void _sendMessage() async {
+    // get the doc of the other user, set unread to true
     String message = _messageController.text;
-    String censoredMessage = profanityFilter.censorString(message);
+    String censoredMessage = profanityFilter.censor(message);
     
     if (censoredMessage.isNotEmpty) {
       if(censoredMessage != message){
@@ -317,6 +334,15 @@ void _getConversationID() {
     return Scaffold(
       appBar: AppBar(
         title: Text(otherUserName),
+        backgroundColor: appBarBackgroundColor,
+        leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context);
+              // this pushes another instance of otheruserpage on top of the stack and causes the page to duplicate idk dude i just want this to refresh
+              //Navigator.pop(context, MaterialPageRoute(builder: (context) => OtherUserPage(otherUserEmail: widget.otherUserEmail)));
+          },
+        ),
         actions: [
           IconButton(
             icon: Icon(Icons.search),
@@ -359,6 +385,7 @@ void _getConversationID() {
           ),
         ],
       ),
+      backgroundColor: pageBackgroundColor,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

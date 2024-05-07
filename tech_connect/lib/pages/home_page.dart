@@ -19,6 +19,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late bool isAdmin = false;
+  //late Future<bool> unreadStatus;
 
   @override
   void initState() {
@@ -28,6 +29,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     createGoogleUser();
     checkAdminStatus();
     eventGrabber();
+    //unreadStatus = getUnreadStatus(); // might be able to get rid of these
   }
 
   @override
@@ -51,7 +53,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  TextStyle headerStyle = const TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0);
+  TextStyle headerStyle = const TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
   TextStyle bodyStyle = const TextStyle(fontSize: 20.0);
 
   List events = [];
@@ -250,13 +252,31 @@ Future<void> addAlert() async {
     });
   }
 
+Future<bool> getUnreadStatus() async {
+  bool test = false;
+  User? currentUser = FirebaseAuth.instance.currentUser;
+  String userEmail = currentUser?.email ?? '';
+  DocumentSnapshot userDoc = await FirebaseFirestore.instance
+    .collection('users')
+    .doc(userEmail)
+    .get();
+  Map<String, dynamic>? userData = userDoc.data() as Map<String, dynamic>?;
+  List<dynamic> friendsList = userData?['friend_list_test'] ?? [];
+  for (var i = 0; i < friendsList.length; i++){
+    if(friendsList[i]['unread'] == true){
+      test = true;
+    }
+  }
+  return test;
+}
+
 @override
 Widget build(BuildContext context) {
   return Scaffold(
     appBar: AppBar(
       backgroundColor: isDarkMode
           ? const Color.fromRGBO(167, 43, 42, 1)
-          : const Color.fromRGBO(77, 95, 128, 1),
+          : const Color.fromRGBO(77, 95, 128, 100),
       title: const Text('Home Page'),
       leading: Container(),
       actions: [
@@ -271,15 +291,40 @@ Widget build(BuildContext context) {
           },
         ),
         Spacer(),
-        IconButton(
-          icon: const Icon(Icons.send_outlined),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const FriendPage()),
-            );
-          },
-        ),
+        // stack might not be neededif we want to stick with a chat icon or a "send" icon (the message icon led to the friends page anyway)
+        Stack(
+        children: [
+          FutureBuilder(future: getUnreadStatus(), builder: (context, snapshot) {
+            // might get rid of loading circle for this
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return  CircularProgressIndicator();
+            } 
+            else {
+              bool unreadStatus = snapshot.data ?? false;
+              if(unreadStatus){
+                return IconButton(
+                  onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => const FriendPage()));},
+                  icon: Icon(Icons.mark_chat_unread_outlined)
+                );
+              }
+              else {
+                return IconButton(
+                  onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => const FriendPage()));},
+                  icon: Icon(Icons.chat_bubble_outline)
+                );
+              }
+            }  
+          }),
+          // IconButton(
+          //   icon: const Icon(Icons.send_outlined),
+          //   onPressed: () {
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(builder: (context) => const FriendPage()),
+          //     );
+          //   },
+          // ),
+      ]),
         const SizedBox(width: 20),
       ],
       bottom: TabBar(

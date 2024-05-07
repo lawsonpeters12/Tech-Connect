@@ -20,7 +20,7 @@ class _CampusChatPageState extends State<CampusChatPage> {
 
   TextEditingController _messageController = TextEditingController();
   late Future<void> _initializeControllerFuture;
-  String currentChatTopic = "main_chat";
+  String currentChatTopic = "Main Chat";
   late StreamController<QuerySnapshot> _messageStreamController;
   String searchString = '';
   late bool isAdmin = false;
@@ -143,17 +143,25 @@ class _CampusChatPageState extends State<CampusChatPage> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    _updateChatTopic("main_chat");
+                    _updateChatTopic("Main Chat");
                     Navigator.pop(context);
                   },
                   child: Text('Main Chat'),
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    _updateChatTopic("lost_item_chat");
+                    _updateChatTopic("Lost Item Chat");
                     Navigator.pop(context);
                   },
                   child: Text('Lost Item Chat'),
+                  
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    _updateChatTopic("Campus Events");
+                    Navigator.pop(context);
+                  },
+                  child: Text('Campus Events'),
                 ),
               ],
             ),
@@ -360,9 +368,7 @@ class _CampusChatPageState extends State<CampusChatPage> {
             SizedBox(width: 16),
             Center(
               child: Text(
-                currentChatTopic == "main_chat"
-                    ? 'Main Chat'
-                    : 'Lost and Found',
+                currentChatTopic,
                 style: TextStyle(color: Colors.white),
               ),
             ),

@@ -7,7 +7,6 @@ import 'package:tech_connect/user/user.dart';
 import 'package:tech_connect/pages/direct_messages.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tech_connect/user/numbers_widget.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class OtherUserPage extends StatefulWidget {
   final String otherUserEmail;
@@ -19,7 +18,7 @@ class OtherUserPage extends StatefulWidget {
 
 class _OtherUserPageState extends State<OtherUserPage> {
   late Future<UserInf> otherUserFuture;
-  late bool isFriend; // LateError (LateInitializationError: Field 'isFriend' has not been initialized.)
+  late bool isFriend = false;
   bool isDarkMode = false;
 
   @override
@@ -87,6 +86,43 @@ class _OtherUserPageState extends State<OtherUserPage> {
     );
   }
 
+  Future<bool> getUnreadStatus() async {
+    bool test = false;
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    String userEmail = currentUser?.email ?? '';
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance
+      .collection('users')
+      .doc(userEmail)
+      .get();
+    Map<String, dynamic>? userData = userDoc.data() as Map<String, dynamic>?;
+    List<dynamic> friendsList = userData?['friend_list_test'] ?? [];
+    for (var i = 0; i < friendsList.length; i++){
+      if(friendsList[i]['unread'] == true && friendsList[i]['friend'] == widget.otherUserEmail){
+        test = true;
+      }
+    }
+    return test;
+  }
+
+  void readMessage() async {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    String userEmail = currentUser?.email ?? '';
+    DocumentReference docRef = await FirebaseFirestore.instance
+      .collection('users')
+      .doc(userEmail);
+
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance
+      .collection('users')
+      .doc(userEmail)
+      .get();
+  Map<String, dynamic>? userData = userDoc.data() as Map<String, dynamic>?;
+  List<dynamic> friendsList = userData?['friend_list_test'] ?? [];
+  int index = friendsList.indexWhere((friend) => friend['friend'] == widget.otherUserEmail);
+  friendsList[index]['unread'] = false;
+  await docRef.update({'friend_list_test': friendsList});
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -138,12 +174,54 @@ class _OtherUserPageState extends State<OtherUserPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => DirectMessagePage(otherUserEmail: otherUser.email)));
-                      },
-                      child: Text('Message'),
+                    Stack(
+                      children: [
+                        Container(
+                          width: 250,
+                          height: 50,
+                          child: 
+                            ElevatedButton(
+                              onPressed: () {
+                              // remove unreadFlag
+                              readMessage();
+                              Navigator.of(context).push(MaterialPageRoute(builder: (context) => DirectMessagePage(otherUserEmail: otherUser.email)));
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: appBarBackgroundColor,
+                                foregroundColor: Colors.white
+                              ),
+                              child: Text('Message'),
+                        )
+                        
+                        ),
+                        FutureBuilder(
+                          future: getUnreadStatus(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return  CircularProgressIndicator();
+                            }
+                            else{ 
+                              bool unreadStatus = snapshot.data ?? false;
+                              if (unreadStatus) {
+                                return Container(
+                                  width: 250,
+                                  height: 50,
+                                  alignment: Alignment.centerLeft,
+                                  child: IconButton(icon: Icon(Icons.circle_sharp), onPressed: (){},)
+                                  );
+                              }
+                              else {
+                                return Container(
+                                  width: 250,
+                                  height: 50,
+                                  alignment: Alignment.centerLeft,);
+                              }
+                            }
+                          }
+                        )
+                      ]
                     ),
+
                     if (!isFriend) // Don't display "add friend" button if user is already your friend
                       ElevatedButton(
                         onPressed: () async {

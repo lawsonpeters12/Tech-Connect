@@ -703,6 +703,168 @@ class _MapPageState extends State<MapPage> {
       LatLng(32.525163, -92.645236),
     ];
 
+    List <LatLng> BoghardProfessor = [
+      LatLng(32.526122, -92.645335),
+      LatLng(32.526083, -92.645305),
+      LatLng(32.526126, -92.646099),
+      LatLng(32.526160, -92.646127)
+    ];
+
+    List <LatLng> BoghardAdamsProfessor = [
+      LatLng(32.526215, -92.646295),
+      LatLng(32.526248, -92.646257),
+      LatLng(32.526602, -92.646230),
+      LatLng(32.526534, -92.646272),
+    ];
+
+    List <LatLng> BoghardAdamsProfessor2 = [
+      LatLng(32.526688, -92.646456),
+      LatLng(32.526665, -92.646498),
+      LatLng(32.526343, -92.646527),
+      LatLng(32.526371, -92.646485),
+    ];
+
+    List <LatLng> BoghardAdamsProfessor3 = [
+      LatLng(32.526253, -92.646368),
+      LatLng(32.526256, -92.646343),
+      LatLng(32.526797, -92.646300),
+      LatLng(32.526797, -92.646326),
+    ];
+
+    List <LatLng> BoghardAdamsProfessor4 = [
+      LatLng(32.526797, -92.646381),
+      LatLng(32.526796, -92.646402),
+      LatLng(32.526311, -92.646441),
+      LatLng(32.526306, -92.646416),
+    ];
+    
+    List <LatLng> AdamsCommuter = [
+      LatLng(32.525124, -92.646620),
+      LatLng(32.525154, -92.646576),
+      LatLng(32.524457, -92.646626),
+      LatLng(32.524430, -92.646665)
+    ];
+    
+    List <LatLng> AdamsCommuter2 = [
+      LatLng(32.524228, -92.646574),
+      LatLng(32.524233, -92.646600),
+      LatLng(32.525080, -92.646534),
+      LatLng(32.525078, -92.646507)
+    ];
+
+    List <LatLng> AdamsCommuter3 = [
+      LatLng(32.524226, -92.646523),
+      LatLng(32.524224, -92.646497),
+      LatLng(32.525067, -92.646432),
+      LatLng(32.525073, -92.646458)
+    ];
+
+    List <LatLng> AdamsCommuter4 = [
+      LatLng(32.524411, -92.646419),
+      LatLng(32.524412, -92.646397),
+      LatLng(32.524180, -92.646412),
+      LatLng(32.524184, -92.646439)
+    ];
+
+    List <LatLng> AdamsCommuter5 = [
+      LatLng(32.524778, -92.646367),
+      LatLng(32.524746, -92.646409),
+      LatLng(32.524604, -92.646419),
+      LatLng(32.524633, -92.646379)
+    ];
+
+    List <LatLng> AdamsCommuter6 = [
+      LatLng(32.525021, -92.646390),
+      LatLng(32.525054, -92.646344),
+      LatLng(32.524987, -92.646345),
+      LatLng(32.524955, -92.646394)
+    ];
+
+    List <LatLng> AdamsCommuter7 = [
+      LatLng(32.524889, -92.646401),
+      LatLng(32.524914, -92.646354),
+      LatLng(32.524846, -92.646359),
+      LatLng(32.524812, -92.646404)
+    ];
+
+    List <LatLng> AdamsCommuter8 = [
+      LatLng(32.525229, -92.646608),
+      LatLng(32.525260, -92.646567),
+      LatLng(32.525993, -92.646516),
+      LatLng(32.525963, -92.646555)
+    ];
+
+    List <LatLng> CarsonTaylorProfessor = [
+      LatLng(32.525871, -92.646284),
+      LatLng(32.525834, -92.646333),
+      LatLng(32.525273, -92.646369),
+      LatLng(32.525303, -92.646327)
+    ];
+
+    List <LatLng> GrahamCommuter = [
+      LatLng(32.524384, -92.646207),
+      LatLng(32.524335, -92.645512),
+      LatLng(32.524421, -92.645540),
+      LatLng(32.524473, -92.646209),
+    ];
+
+    List <LatLng> GrahamCommuter2 = [
+      LatLng(32.524512, -92.646158),
+      LatLng(32.524492, -92.645588),
+      LatLng(32.524576, -92.645593),
+      LatLng(32.524600, -92.646155)
+    ];
+    
+    List <LatLng> DudleyHallResident = [
+      LatLng(32.525137, -92.647755),
+      LatLng(32.525147, -92.647897),
+      LatLng(32.524608, -92.647949),
+      LatLng(32.524600, -92.647804)
+    ];
+
+    List <LatLng> DavisonCommuter = [
+      LatLng(32.524675, -92.649050),
+      LatLng(32.524672, -92.648929),
+      LatLng(32.524424, -92.648923),
+      LatLng(32.524427, -92.649046)
+    ];
+
+    List <LatLng> DavisonCommuter2 = [
+      LatLng(32.524262, -92.648724),
+      LatLng(32.524227, -92.648197),
+      LatLng(32.524326, -92.648147),
+      LatLng(32.524342, -92.648682)
+    ];
+
+    List <LatLng> DavisonGravelCommuter = [
+      LatLng(32.524359, -92.648794),
+      LatLng(32.524353, -92.648974),
+      LatLng(32.524312, -92.648973),
+      LatLng(32.524315, -92.650047),
+      LatLng(32.524073, -92.649970),
+      LatLng(32.523785, -92.649973),
+      LatLng(32.523771, -92.649602),
+      LatLng(32.523568, -92.649383),
+      LatLng(32.523850, -92.648866),
+      LatLng(32.524203, -92.648879),
+      LatLng(32.524218, -92.648788),
+    ];
+
+    List <LatLng> DavisonProfessor = [
+      LatLng(32.524732, -92.648781),
+      LatLng(32.524477, -92.648795),
+      LatLng(32.524736, -92.648834),
+      LatLng(32.524476, -92.648832)
+    ];
+
+    List <LatLng> BioMedProfessor = [
+      LatLng(32.524739, -92.649143),
+      LatLng(32.524744, -92.649200),
+      LatLng(32.524444, -92.649188),
+      LatLng(32.524444, -92.649145)
+    ];
+
+
   bool isDarkMode = false;
   bool buttonTextBool = false;
   
@@ -724,11 +886,11 @@ class _MapPageState extends State<MapPage> {
 
 
   bool currentEventBool = true;
-  String locationImageURL = 'https://firebasestorage.googleapis.com/v0/b/techconnect-42543.appspot.com/o/images%2Ftechconnect.PNG?alt=media&token=ad8c3eff-3c7b-4a60-8939-693de6fd9558';
+  String locationImageURL = 'https://firebasestorage.googleapis.com/v0/b/techconnect-42543.appspot.com/o/images%2Ficon.png?alt=media&token=3f3f483f-6964-416a-8009-84c70e72a41b';
   late GoogleMapController mapController;
   late List events = [];
   late List<bool> _selectedEvents = [];
-  late String _address = 'Fetching User Location...';
+  late String _address = 'Getting Location...';
 
   final LatLng _center = LatLng(32.52741208116641, -92.64696455825013);
   
@@ -1421,17 +1583,263 @@ class _MapPageState extends State<MapPage> {
           strokeWidth: 2,
         )
       );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('35'),
+          points: BoghardProfessor,
+          fillColor: Colors.blue.withOpacity(0.3),
+          strokeColor: Colors.blue,
+          geodesic: true,
+          strokeWidth: 4,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('36'),
+          points: BoghardAdamsProfessor,
+          fillColor: Colors.blue.withOpacity(0.3),
+          strokeColor: Colors.blue,
+          geodesic: true,
+          strokeWidth: 4,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('37'),
+          points: BoghardAdamsProfessor2,
+          fillColor: Colors.blue.withOpacity(0.3),
+          strokeColor: Colors.blue,
+          geodesic: true,
+          strokeWidth: 4,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('38'),
+          points: BoghardAdamsProfessor3,
+          fillColor: Colors.blue.withOpacity(0.3),
+          strokeColor: Colors.blue,
+          geodesic: true,
+          strokeWidth: 4,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('39'),
+          points: BoghardAdamsProfessor4,
+          fillColor: Colors.blue.withOpacity(0.3),
+          strokeColor: Colors.blue,
+          geodesic: true,
+          strokeWidth: 4,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('40'),
+          points: AdamsCommuter,
+          fillColor: Colors.red.withOpacity(0.3),
+          strokeColor: Colors.red,
+          geodesic: true,
+          strokeWidth: 4,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('41'),
+          points: AdamsCommuter2,
+          fillColor: Colors.yellow.withOpacity(0.3),
+          strokeColor: Colors.yellow,
+          geodesic: true,
+          strokeWidth: 4,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('42'),
+          points: AdamsCommuter3,
+          fillColor: Colors.yellow.withOpacity(0.3),
+          strokeColor: Colors.yellow,
+          geodesic: true,
+          strokeWidth: 4,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('43'),
+          points: AdamsCommuter4,
+          fillColor: Colors.yellow.withOpacity(0.3),
+          strokeColor: Colors.yellow,
+          geodesic: true,
+          strokeWidth: 4,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('44'),
+          points: AdamsCommuter5,
+          fillColor: Colors.yellow.withOpacity(0.3),
+          strokeColor: Colors.yellow,
+          geodesic: true,
+          strokeWidth: 4,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('45'),
+          points: AdamsCommuter6,
+          fillColor: Colors.yellow.withOpacity(0.3),
+          strokeColor: Colors.yellow,
+          geodesic: true,
+          strokeWidth: 4,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('46'),
+          points: CarsonTaylorProfessor,
+          fillColor: Colors.blue.withOpacity(0.3),
+          strokeColor: Colors.blue,
+          geodesic: true,
+          strokeWidth: 4,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('47'),
+          points: GrahamCommuter,
+          fillColor: Colors.red.withOpacity(0.3),
+          strokeColor: Colors.red,
+          geodesic: true,
+          strokeWidth: 4,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('48'),
+          points: GrahamCommuter2,
+          fillColor: Colors.red.withOpacity(0.3),
+          strokeColor: Colors.red,
+          geodesic: true,
+          strokeWidth: 4,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('49'),
+          points: AdamsCommuter7,
+          fillColor: Colors.yellow.withOpacity(0.3),
+          strokeColor: Colors.yellow,
+          geodesic: true,
+          strokeWidth: 4,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('50'),
+          points: AdamsCommuter8,
+          fillColor: Colors.red.withOpacity(0.3),
+          strokeColor: Colors.red,
+          geodesic: true,
+          strokeWidth: 4,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('51'),
+          points: DudleyHallResident,
+          fillColor: Colors.red.withOpacity(0.3),
+          strokeColor: Colors.red,
+          geodesic: true,
+          strokeWidth: 4,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('52'),
+          points: DavisonCommuter,
+          fillColor: Colors.yellow.withOpacity(0.3),
+          strokeColor: Colors.yellow,
+          geodesic: true,
+          strokeWidth: 4,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('53'),
+          points: DavisonCommuter2,
+          fillColor: Colors.yellow.withOpacity(0.3),
+          strokeColor: Colors.yellow,
+          geodesic: true,
+          strokeWidth: 4,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('54'),
+          points: DavisonProfessor,
+          fillColor: Colors.blue.withOpacity(0.3),
+          strokeColor: Colors.blue,
+          geodesic: true,
+          strokeWidth: 4,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('55'),
+          points: DavisonGravelCommuter,
+          fillColor: Colors.yellow.withOpacity(0.3),
+          strokeColor: Colors.yellow,
+          geodesic: true,
+          strokeWidth: 4,
+        )
+      );
+
+      _polygon.add(
+        Polygon(
+          polygonId: PolygonId('56'),
+          points: BioMedProfessor,
+          fillColor: Colors.blue.withOpacity(0.3),
+          strokeColor: Colors.blue,
+          geodesic: true,
+          strokeWidth: 4,
+        )
+      );
+      
+
     }
 
     
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar( title: const Text('Campus Map'),
       toolbarHeight: 80,
       backgroundColor: isDarkMode
-        ? Color.fromRGBO(203, 102, 102, 1)
-        : Color.fromRGBO(198, 218, 231, 1),
+        ? Color.fromRGBO(167, 43, 42, 1)
+        : Color.fromRGBO(77, 95, 128, 100),
       ),
       drawer: Drawer(
           backgroundColor: isDarkMode
