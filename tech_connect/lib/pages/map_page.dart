@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:collection';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -868,13 +869,14 @@ class _MapPageState extends State<MapPage> {
   bool isDarkMode = false;
   bool buttonTextBool = false;
   
+  String? tappedEvent;
 
   Future<void> getDarkModeValue() async {
     final prefs = await SharedPreferences.getInstance();
    
     setState(() {
       isDarkMode = prefs.getBool('isDarkMode') ?? false;
-      buttonTextBool = prefs.getBool('buttonTextBool') ?? false;
+      //buttonTextBool = prefs.getBool('buttonTextBool') ?? false;
     });
     
   }
@@ -913,7 +915,6 @@ class _MapPageState extends State<MapPage> {
   //print(snapshot.docs.isNotEmpty);
   if(snapshot.docs.isNotEmpty){
     eventsQuery = snapshot.docs.map((doc) => doc.data()['eventName']).toList();
-    
   }
   //print(eventsQuery);
   //print(snapshot.size);
@@ -931,13 +932,23 @@ class _MapPageState extends State<MapPage> {
 
   Future<void> checkIn(selectedEvents) async{
     //checks user in
-    final prefs = await SharedPreferences.getInstance();
-    setState((){
-      prefs.setBool('buttonTextBool', buttonTextBool);
-    });
-    //print('checkin');
-    //print(getImageUrl());
-  }
+    //final prefs = await SharedPreferences.getInstance();
+    User? user = FirebaseAuth.instance.currentUser;
+    String userEmail = user?.email ?? 'anonymous';
+
+    
+    try{
+        FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+        CollectionReference eventsGlobalref = firestore.collection('eventsGlobal');
+
+        await eventsGlobalref.doc(tappedEvent).update({
+          'attended' : FieldValue.arrayUnion([userEmail])
+        });
+    } catch(e){
+      print('error as hell');
+    }}
+
 
   Future<void> checkOut(selectedEvents) async{
     // checks user out
@@ -946,7 +957,7 @@ class _MapPageState extends State<MapPage> {
       prefs.setBool('buttonTextBool', buttonTextBool);
     });
     //print(selectedEvents);
-    //print('checkout');
+    print('checkout');
   }
 
   Future<void> getAddressFromLatLng(double latitude, double longitude) async {
@@ -1829,7 +1840,6 @@ class _MapPageState extends State<MapPage> {
 
     }
 
-    
 
 
   @override
@@ -1867,6 +1877,8 @@ class _MapPageState extends State<MapPage> {
                 setState(() {
                   for (int i = 0; i < _selectedEvents.length; i++){
                     _selectedEvents[i] = i == index;
+                    tappedEvent = events[index].toString();
+                    print(tappedEvent);
                   }
                 });
               },
@@ -1883,12 +1895,14 @@ class _MapPageState extends State<MapPage> {
               ),
               SizedBox(height: 30.0,),
               (events.isNotEmpty) ? ElevatedButton(
-                style: ButtonStyle(backgroundColor: buttonTextBool ? const MaterialStatePropertyAll<Color>(Colors.red) : const MaterialStatePropertyAll<Color>(Colors.green)),
-                child: buttonTextBool ? const Text("Check-Out", style: TextStyle(color: Colors.black),) : const Text("Check-In", style: TextStyle(color: Colors.black),),
+                style: ButtonStyle(backgroundColor: buttonTextBool ? const MaterialStatePropertyAll<Color>(Color.fromARGB(255, 76, 110, 77)) : const MaterialStatePropertyAll<Color>(Colors.green)),
+                child: buttonTextBool ? const Text("Checked-in", style: TextStyle(color: Colors.black),) : const Text("Check-In", style: TextStyle(color: Colors.black),),
                 onPressed: () {
                   setState(() {
-                    buttonTextBool = !buttonTextBool;
-                    buttonTextBool ? checkIn(_selectedEvents) : checkOut(_selectedEvents);
+                    (buttonTextBool == false) ? checkIn(_selectedEvents) : checkOut(_selectedEvents);
+                    buttonTextBool = true;
+                    
+                    // User? user = FirebaseAuth.instance.current;
                   });
                 }
               ) : const SizedBox()

@@ -41,16 +41,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   bool isLoading = false;
   bool isDarkMode = false;
 
-  String event1 = 'Last day to register for Spring graduation';
-  String event2 = 'Easter Holiday Begins';
-  String event3 = 'Easter Holiday Ends';
-  String event4 = 'Deadline for completing “I” grade work from Winter';
-  String event5 = 'Deadline for faculty submission of “I” grade work from Winter';
-  String event6 = 'Advising begins for currently enrolled students';
-  String event7 = 'Last day to drop courses or resign with “W” grades';
-  String event8 = 'Early Web Registration for Summer & Fall Quarter 2024';
-  String event9 = 'Early Web Registration for Veterans and Degree Candidate Seniors ≥ 110 hours';
-
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   TextStyle headerStyle = const TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
@@ -162,79 +152,6 @@ Future<void> addAlert() async {
     }
   }
 }
-
-  Future<List<String>> extractData() async {
-    final url = Uri.parse('https://events.latech.edu/academic-calendar/all');
-
-    final response = await http.Client().get(url);
-
-    var document = parser.parse(response.body);
-    List<String> data = document.getElementsByClassName("lw_events_title").map((e) => e.innerHtml).toList();
-
-    print(data);
-
-    if (response.statusCode == 200) {
-      try {
-        var responseEvent1 = document
-            .getElementsByClassName('lw_cal_event_list')[1]
-            .children[3];
-        print(responseEvent1.text.trim());
-
-        var responseInfo1 = document
-            .getElementsByClassName('lw_events_time')[0]
-            .children[0]
-            .children[0]
-            .children[0];
-
-        print(responseInfo1.text.trim());
-
-        var responseEvent2 = document
-            .getElementsByClassName('lw_events_title')[0]
-            .children[1]
-            .children[0]
-            .children[0];
-
-        print(responseEvent2.text.trim());
-
-        var responseInfo2 = document
-            .getElementsByClassName('lw_events_time')[0]
-            .children[0]
-            .children[0]
-            .children[0];
-
-        print(responseInfo2.text.trim());
-
-        var responseEvent3 = document
-            .getElementsByClassName('lw_events_title')[0]
-            .children[2]
-            .children[0]
-            .children[0];
-
-        print(responseEvent3.text.trim());
-
-        var responseInfo3 = document
-            .getElementsByClassName('lw_events_time')[0]
-            .children[0]
-            .children[0]
-            .children[0];
-
-        print(responseInfo3.text.trim());
-
-        return [
-          responseEvent1.text.trim(),
-          responseInfo1.text.trim(),
-          responseEvent2.text.trim(),
-          responseInfo2.text.trim(),
-          responseEvent3.text.trim(),
-          responseInfo3.text.trim(),
-        ];
-      } catch (e) {
-        return ['', '', 'ERROR!', '', '', ''];
-      }
-    } else {
-      return ['', '', 'ERROR: ${response.statusCode}.', '', '', ''];
-    }
-  }
 
   Future<List> queryValues() async {
   final snapshot = await firestore.collection('academic_calendar_events2').orderBy('date', descending: false).get();
@@ -371,6 +288,7 @@ Widget build(BuildContext context) {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
+                                        const Divider(),
                                         Text(
                                           events[i]['formatted_date'],
                                           style: headerStyle,
