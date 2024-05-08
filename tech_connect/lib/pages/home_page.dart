@@ -208,7 +208,6 @@ Widget build(BuildContext context) {
           },
         ),
         Spacer(),
-        // stack might not be neededif we want to stick with a chat icon or a "send" icon (the message icon led to the friends page anyway)
         Stack(
         children: [
           FutureBuilder(future: getUnreadStatus(), builder: (context, snapshot) {
@@ -221,13 +220,13 @@ Widget build(BuildContext context) {
               if(unreadStatus){
                 return IconButton(
                   onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => const FriendPage()));},
-                  icon: Icon(Icons.mark_chat_unread_outlined)
+                  icon: Icon(Icons.person_outlined)
                 );
               }
               else {
                 return IconButton(
                   onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => const FriendPage()));},
-                  icon: Icon(Icons.chat_bubble_outline)
+                  icon: Icon(Icons.person_outlined)
                 );
               }
             }  
