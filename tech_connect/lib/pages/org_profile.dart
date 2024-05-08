@@ -36,11 +36,12 @@ class OrganizationPage extends StatefulWidget {
 }
 
 class _OrganizationPageState extends State<OrganizationPage> {
+  bool isDarkMode = false;
+  Color pageBackgroundColor = Color.fromRGBO(198, 218, 231, 1);
+  Color appBarBackgroundColor = Color.fromRGBO(77, 95, 128, 100);
   late Future<DocumentSnapshot> orgSnapshot;
   late Future<bool> isMember;
   late Future<bool> isAdmin;
-
-  bool isDarkMode = false;
 
   @override
   void initState() {
@@ -58,6 +59,8 @@ class _OrganizationPageState extends State<OrganizationPage> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       isDarkMode = prefs.getBool('isDarkMode') ?? false;
+      pageBackgroundColor = isDarkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1);
+      appBarBackgroundColor = isDarkMode ? Color.fromRGBO(167, 43, 42, 1) : Color.fromRGBO(77, 95, 128, 100);
     });
   }
 
@@ -122,6 +125,7 @@ class _OrganizationPageState extends State<OrganizationPage> {
         'attendedEvents': attendedEvents,
         'volunteerHours': volunteerHours,
       });
+      giveFeedback("Request Accepted!");
     }
   }
 
@@ -132,14 +136,15 @@ class _OrganizationPageState extends State<OrganizationPage> {
     await orgDocRef.update({
       'join_requests': FieldValue.arrayRemove([userEmail]),
     });
+    giveFeedback("Request Denied...");
   }
 
-  // gives user feedback when they request to join
-  Future<void> requestSentFeedback() async {
+  // gives user feedback with a specific message
+  Future<void> giveFeedback(String message) async {
     // SnackBar
     ScaffoldMessenger.of(context).removeCurrentSnackBar();
     ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text("Request sent!")));
+        .showSnackBar(SnackBar(content: Text(message)));
     // Light haptic feedback
     await SystemChannels.platform.invokeMethod<void>(
       'HapticFeedback.vibrate',
@@ -162,6 +167,7 @@ class _OrganizationPageState extends State<OrganizationPage> {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return AlertDialog(
+              backgroundColor: pageBackgroundColor,
               title: Text('Join Requests'),
               content: SizedBox(
                 width: double.maxFinite,
@@ -274,13 +280,9 @@ class _OrganizationPageState extends State<OrganizationPage> {
             },
           ),
         ],
-        backgroundColor: isDarkMode
-            ? Color.fromRGBO(167, 43, 42, 1)
-            : Color.fromRGBO(77, 95, 128, 100),
+        backgroundColor: appBarBackgroundColor
       ),
-      backgroundColor: isDarkMode
-          ? Color.fromRGBO(203, 102, 102, 40)
-          : Color.fromRGBO(198, 218, 231, 1),
+      backgroundColor: pageBackgroundColor,
       // Org description is stored and retrieved from the Firestore.
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -343,7 +345,7 @@ class _OrganizationPageState extends State<OrganizationPage> {
                                       FieldValue.arrayUnion([userEmail]),
                                 });
                                 // Request sent
-                                requestSentFeedback();
+                                giveFeedback("Request Sent!");
                               },
                               child: Text('Request to Join'),
                             );
@@ -370,6 +372,10 @@ class _OrganizationPageState extends State<OrganizationPage> {
                           bool isMember = snapshot.data ?? false;
                           if (isMember) {
                             return ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                backgroundColor: appBarBackgroundColor,
+                                ),
                               onPressed: () {
                                 Navigator.push(
                                   context,
@@ -404,6 +410,10 @@ class _OrganizationPageState extends State<OrganizationPage> {
                           bool isAdmin = snapshot.data ?? false;
                           if (isAdmin) {
                             return ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                backgroundColor: appBarBackgroundColor,
+                                ),
                               onPressed: () => showJoinRequestsPopup(context),
                               child: Text('View Join Requests'),
                             );
@@ -420,6 +430,10 @@ class _OrganizationPageState extends State<OrganizationPage> {
                   alignment: WrapAlignment.center,
                   children: [
                     ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                backgroundColor: appBarBackgroundColor,
+                                ),
                       onPressed: () {
                         Navigator.push(
                             context,
@@ -451,6 +465,9 @@ class _OrganizationPageState extends State<OrganizationPage> {
 // Lists all the members of the org and directs to their profiles if you click on their email
 class OrganizationMembersPage extends StatelessWidget {
   final String orgName;
+  // make dynamic
+  Color pageBackgroundColor = Color.fromRGBO(198, 218, 231, 1);
+  Color appBarBackgroundColor = Color.fromRGBO(77, 95, 128, 100);
 
   OrganizationMembersPage({required this.orgName});
 
@@ -459,7 +476,9 @@ class OrganizationMembersPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('$orgName Members'),
+        backgroundColor: appBarBackgroundColor,
       ),
+      backgroundColor: pageBackgroundColor,
       body: StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection('Organizations')
@@ -699,7 +718,7 @@ class EventButton extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(50),
-        color: Colors.white,
+        color: Color.fromRGBO(77, 95, 128, 100),
       ),
       margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
       child: TextButton(
@@ -709,11 +728,11 @@ class EventButton extends StatelessWidget {
           children: [
             Text(
               eventName,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
             ),
             Text(
               'Tap to view event details',
-              style: TextStyle(fontSize: 14, color: Colors.grey),
+              style: TextStyle(fontSize: 14, color: const Color.fromARGB(255, 214, 214, 214)),
             ),
           ],
         ),

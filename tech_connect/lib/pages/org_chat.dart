@@ -6,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'dart:async';
 import 'package:profanity_filter/profanity_filter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OrganizationChatPage extends StatefulWidget {
   final String orgName;
@@ -17,6 +18,9 @@ class OrganizationChatPage extends StatefulWidget {
 }
 
 class _OrganizationChatPageState extends State<OrganizationChatPage> {
+  bool isDarkMode = false;
+  Color pageBackgroundColor = Color.fromRGBO(198, 218, 231, 1);
+  Color appBarBackgroundColor = Color.fromRGBO(77, 95, 128, 100);
   TextEditingController _messageController = TextEditingController();
   late Future<void> _initializeControllerFuture;
   late StreamController<QuerySnapshot> _messageStreamController;
@@ -26,11 +30,21 @@ class _OrganizationChatPageState extends State<OrganizationChatPage> {
   File? imageFile;
   String? fileName;
 
+  Future<void> getDarkModeValue() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isDarkMode = prefs.getBool('isDarkMode') ?? false;
+      pageBackgroundColor = isDarkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1);
+      appBarBackgroundColor = isDarkMode ? Color.fromRGBO(167, 43, 42, 1) : Color.fromRGBO(77, 95, 128, 100);
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     _messageStreamController = StreamController<QuerySnapshot>();
     _updateMessageStream();
+    getDarkModeValue();
   }
 
   void dispose() {
@@ -254,6 +268,7 @@ class _OrganizationChatPageState extends State<OrganizationChatPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.orgName),
+        backgroundColor: appBarBackgroundColor,
         actions: [
           IconButton(
             icon: Icon(Icons.search),
@@ -296,6 +311,7 @@ class _OrganizationChatPageState extends State<OrganizationChatPage> {
           ),
         ],
       ),
+      backgroundColor: pageBackgroundColor,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
