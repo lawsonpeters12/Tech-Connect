@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tech_connect/user/profile_widget.dart';
+import 'package:tech_connect/user/other_profile_widget.dart';
 import 'package:tech_connect/user/user.dart';
 import 'package:tech_connect/pages/direct_messages.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -160,7 +160,7 @@ class _OtherUserPageState extends State<OtherUserPage> {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(top: 16.0), 
-                  child: ProfileWidget(
+                  child: OtherProfileWidget(
                     imagePath: otherUser.imagePath,
                     onClicked: () {},
                   ),
