@@ -673,7 +673,7 @@ class EventList extends StatelessWidget {
                           FieldValue.arrayUnion([eventData['eventName']])
                     });
                   },
-                  child: Text('Sign In'),
+                  child: Text('Register'),
                 ),
                 TextButton(
                   onPressed: () {},
