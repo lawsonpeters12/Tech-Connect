@@ -1840,6 +1840,24 @@ class _MapPageState extends State<MapPage> {
 
     }
 
+  Future<bool> isAttended(toggledButton) async{
+    User? user = FirebaseAuth.instance.currentUser;
+    String userEmail = user?.email ?? 'anonymous';
+
+    //eventsQuery = snapshot.docs.map((doc) => doc.data()['eventName']).toList();
+    late List something;
+    final snapshot = await firestore.collection('eventsGlobal').where('attended', arrayContains: userEmail).get();
+    if(snapshot.docs.isNotEmpty){
+      something = snapshot.docs.map((doc) => doc.data()['eventName']).toList();
+      //print(something);
+    }
+
+    if(something.contains(toggledButton)){
+      return true;
+    }
+    return false;
+    
+  }
 
 
   @override
@@ -1873,14 +1891,19 @@ class _MapPageState extends State<MapPage> {
               const SizedBox(height: 30.0),
               (_address == 'Fetching User Location...') ? Text('') : (events.isNotEmpty) ? Column(
               children: [ToggleButtons(direction: Axis.vertical, 
-              onPressed: (int index) {
+              onPressed: (int index) async{
                 setState(() {
                   for (int i = 0; i < _selectedEvents.length; i++){
                     _selectedEvents[i] = i == index;
                     tappedEvent = events[index].toString();
-                    print(tappedEvent);
+                    //buttonTextBool = isAttended(tappedEvent) as bool;
+                    //print(tappedEvent);
                   }
                 });
+              buttonTextBool = await isAttended(tappedEvent);
+              setState(() {
+                buttonTextBool = buttonTextBool;
+              });
               },
               borderRadius: const BorderRadius.all(Radius.circular(8)),
               borderColor: Colors.black38,
