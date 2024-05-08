@@ -91,39 +91,50 @@ class _OrganizationPageState extends State<OrganizationPage> {
     return (admins != null && admins.contains(userEmail));
   }
 
-  Future<void> acceptJoinRequest(String userEmail) async {
-    DocumentReference orgDocRef = FirebaseFirestore.instance
-        .collection('Organizations')
-        .doc(widget.orgName);
-    await orgDocRef.update({
-      'join_requests': FieldValue.arrayRemove([userEmail]),
+Future<void> acceptJoinRequest(String userEmail) async {
+  DocumentReference orgDocRef = FirebaseFirestore.instance
+      .collection('Organizations')
+      .doc(widget.orgName);
+  await orgDocRef.update({
+    'join_requests': FieldValue.arrayRemove([userEmail]),
+  });
+
+  DocumentReference userDocRef = FirebaseFirestore.instance
+      .collection('users')
+      .doc(userEmail);
+
+  DocumentSnapshot<Map<String, dynamic>> userSnapshot =
+      await userDocRef.get() as DocumentSnapshot<Map<String, dynamic>>;
+
+  if (userSnapshot.exists) {
+    String userName = userSnapshot.get('name');
+    String userMajor = userSnapshot.get('major');
+    String userRole = 'Member';
+    List<String> attendedEvents = [];
+    String volunteerHours = '0';
+
+    List<String> userOrganizations = List<String>.from(userSnapshot.get('organizations') ?? []);
+    userOrganizations.add(widget.orgName);
+
+    await userDocRef.set({
+      'name': userName,
+      'major': userMajor,
+      'role': userRole,
+      'attendedEvents': attendedEvents,
+      'volunteerHours': volunteerHours,
+      'organizations': userOrganizations, 
     });
 
-    //Get user document from users collectino for user's displayed information
-    DocumentSnapshot<Map<String, dynamic>> userSnapshot =
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(userEmail)
-            .get();
-
-    if (userSnapshot.exists) {
-      String userName = userSnapshot.get('name');
-      String userMajor = userSnapshot.get('major');
-      String userRole = 'Member';
-      String userEmail = userSnapshot.get('email');
-      List<String> attendedEvents = [];
-      String volunteerHours = '0';
-
-      await orgDocRef.collection('members').doc(userEmail).set({
-        'email': userEmail,
-        'name': userName,
-        'major': userMajor,
-        'role': userRole,
-        'attendedEvents': attendedEvents,
-        'volunteerHours': volunteerHours,
-      });
-    }
+    await orgDocRef.collection('members').doc(userEmail).set({
+      'email': userEmail,
+      'name': userName,
+      'major': userMajor,
+      'role': userRole,
+      'attendedEvents': attendedEvents,
+      'volunteerHours': volunteerHours,
+    });
   }
+}
 
   Future<void> declineJoinRequest(String userEmail) async {
     DocumentReference orgDocRef = FirebaseFirestore.instance

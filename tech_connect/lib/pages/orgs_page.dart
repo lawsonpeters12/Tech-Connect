@@ -36,74 +36,53 @@ class _OrgsPageState extends State<OrgsPage> {
     super.dispose();
   }
 
-  Future<void> _getUserOrgs() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user == null) return; // Return if user is not logged in
+Future<void> _getUserOrgs() async {
+  User? user = FirebaseAuth.instance.currentUser;
+  String userEmail = user?.email ?? 'anonymous';
 
-    String userEmail = user.email ?? 'anonymous';
+  DocumentSnapshot userDoc = await FirebaseFirestore.instance
+      .collection('users')
+      .doc(userEmail)
+      .get();
 
-    QuerySnapshot orgsSnapshot =
-        await FirebaseFirestore.instance.collection('Organizations').get();
+  List<dynamic> userOrgsData = userDoc.get('organizations') ?? [];
+  List<String> userOrgList = userOrgsData.cast<String>(); 
+  print(userOrgsData);
 
-    List<String> userOrgIds = [];
+  setState(() {
+    userOrgs = userOrgList;
+  });
+}
 
-    for (QueryDocumentSnapshot orgSnapshot in orgsSnapshot.docs) {
-      QuerySnapshot membershipSnapshot = await orgSnapshot.reference
-          .collection('members')
-          .where('email', isEqualTo: userEmail)
-          .get();
+Future<void> _getUserEvents() async {
+  User? user = FirebaseAuth.instance.currentUser;
+  String userEmail = user?.email ?? 'anonymous';
 
-      if (membershipSnapshot.docs.isNotEmpty) {
-        userOrgIds.add(orgSnapshot.id);
-      }
-    }
+  DocumentSnapshot userDoc = await FirebaseFirestore.instance
+      .collection('users')
+      .doc(userEmail)
+      .get();
 
-    if (!_mounted) return;
+  List<dynamic> userOrgsData = userDoc.get('organizations') ?? [];
+  List<String> userOrgList = userOrgsData.cast<String>();
 
-    setState(() {
-      userOrgs = userOrgIds;
-    });
-  }
+  QuerySnapshot eventsSnapshot = await FirebaseFirestore.instance
+      .collection('eventsGlobal')
+      .where('orgName', whereIn: userOrgList)
+      .get();
 
-  Future<void> _getUserEvents() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
+  List<Map<String, String>> orgEvents = eventsSnapshot.docs
+      .map((eventDoc) => {
+            'eventName': eventDoc['eventName'].toString(),
+            'orgName': eventDoc['orgName'].toString(),
+          })
+      .toList();
 
-    String userEmail = user.email ?? 'anonymous';
+  setState(() {
+    userEvents = orgEvents;
+  });
+}
 
-    QuerySnapshot orgsSnapshot =
-        await FirebaseFirestore.instance.collection('Organizations').get();
-
-    List<String> userOrgIds = [];
-
-    for (QueryDocumentSnapshot orgSnapshot in orgsSnapshot.docs) {
-      QuerySnapshot membershipSnapshot = await orgSnapshot.reference
-          .collection('members')
-          .where('email', isEqualTo: userEmail)
-          .get();
-      if (membershipSnapshot.docs.isNotEmpty) {
-        userOrgIds.add(orgSnapshot.id);
-      }
-    }
-
-    if (!_mounted) return;
-    for (String orgId in userOrgIds) {
-      QuerySnapshot eventSnapshot = await FirebaseFirestore.instance
-          .collection('eventsGlobal')
-          .where('orgName', isEqualTo: orgId)
-          .get();
-      List<Map<String, String>> orgEvents = eventSnapshot.docs
-          .map((eventDoc) => {
-                'eventName': eventDoc['eventName'].toString(),
-                'orgName': eventDoc['orgName'].toString(),
-              })
-          .toList();
-
-      setState(() {
-        userEvents.addAll(orgEvents);
-      });
-    }
-  }
 
   bool _mounted = false;
 
