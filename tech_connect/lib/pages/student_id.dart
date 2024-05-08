@@ -22,6 +22,7 @@ class _StudentIDState extends State<StudentID> {
   late UserInf user;
   Color pageBackgroundColor = Color.fromRGBO(198, 218, 231, 1);
   Color appBarBackgroundColor = Color.fromRGBO(77, 95, 128, 100);
+
   Future<void> getDarkModeValue() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -30,6 +31,7 @@ class _StudentIDState extends State<StudentID> {
       appBarBackgroundColor = isDarkMode ? Color.fromRGBO(167, 43, 42, 1) : Color.fromRGBO(77, 95, 128, 100);
     });
   }
+
 ValueNotifier<dynamic> result = ValueNotifier(null);
 
 void nfcFeedback(String message) async {

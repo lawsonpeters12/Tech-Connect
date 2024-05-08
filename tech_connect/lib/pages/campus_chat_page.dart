@@ -131,45 +131,6 @@ class _CampusChatPageState extends State<CampusChatPage> {
     return 'anonymous';
   }
 
-  void _showChatTopicsPopup() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Select Chat Topic'),
-          content: Container(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    _updateChatTopic("Main Chat");
-                    Navigator.pop(context);
-                  },
-                  child: Text('Main Chat'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    _updateChatTopic("Lost Item Chat");
-                    Navigator.pop(context);
-                  },
-                  child: Text('Lost Item Chat'),
-                  
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    _updateChatTopic("Campus Events");
-                    Navigator.pop(context);
-                  },
-                  child: Text('Campus Events'),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
 
 // Function creates a dialog with a textbox containing the message the user wants to edit. If the message is saved, the change is saved to the Firestore using the message's id from Firestore.
   void showEditMessagePopup(String messageId, String currentMessage) {
@@ -359,12 +320,6 @@ class _CampusChatPageState extends State<CampusChatPage> {
       appBar: AppBar(
         title: Row(
           children: [
-            IconButton(
-              icon: Icon(Icons.menu),
-              onPressed: () {
-                _showChatTopicsPopup();
-              },
-            ),
             SizedBox(width: 16),
             Center(
               child: Text(
@@ -423,6 +378,47 @@ class _CampusChatPageState extends State<CampusChatPage> {
       backgroundColor: isDarkMode
           ? Color.fromRGBO(203, 102, 102, 40)
           : Color.fromRGBO(198, 218, 231, 1),
+          drawer: Drawer(
+  child: ListView(
+    children: [
+      Container(
+        height: 100,
+        color: Colors.grey,
+        child: Center(
+          child: Text(
+            'Select Chat Topic',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ),
+      ListTile(
+        title: Text('Main Chat'),
+        onTap: () {
+          _updateChatTopic("Main Chat");
+          Navigator.pop(context);
+        },
+      ),
+      ListTile(
+        title: Text('Lost Item Chat'),
+        onTap: () {
+          _updateChatTopic("Lost Item Chat");
+          Navigator.pop(context);
+        },
+      ),
+      ListTile(
+        title: Text('Campus Events'),
+        onTap: () {
+          _updateChatTopic("Campus Events");
+          Navigator.pop(context);
+        },
+      ),
+    ],
+  ),
+),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
