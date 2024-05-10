@@ -330,14 +330,14 @@ Widget build(BuildContext context) {
               return CircularProgressIndicator();
             }
 
-            return ListView.builder(
-              itemCount: snapshot.data!.docs.length,
-              itemBuilder: (context, index) {
-                Map<String, dynamic> data =
-                    snapshot.data!.docs[index].data() as Map<String, dynamic>;
-                DateTime timestamp = data['timestamp'].toDate();
-                String message = data['message'];
-                String details = data['details'] ?? message;
+          return ListView.separated(
+            itemCount: snapshot.data!.docs.length,
+            separatorBuilder: (BuildContext context, int index) => Divider(),
+            itemBuilder: (context, index) {
+              Map<String, dynamic> data = snapshot.data!.docs[index].data() as Map<String, dynamic>;
+              DateTime timestamp = data['timestamp'].toDate();
+              String message = data['message'];
+              String details = data['details'] ?? message;
 
                 return GestureDetector(
                   onLongPress: () {
@@ -367,8 +367,8 @@ Widget build(BuildContext context) {
                             height: 250,
                               child: SingleChildScrollView(
                                 child: Text(details),
-                            ),
                           ),
+                        ),
                         );
                       },
                     );
@@ -378,18 +378,17 @@ Widget build(BuildContext context) {
                       message,
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text(DateFormat('EEEE, MMMM d h:mm a')
-                        .format(timestamp)), // Format timestamp as desired
                   ),
-                );
-              },
-            );
-          },
-        ),
-        ),
-      ],
+                  subtitle: Text(DateFormat('EEEE, MMMM d h:mm a').format(timestamp)),
+                ),
+              );
+            },
+          );
+        },
+      ),
     ),
+  ],
+),
   );
 }
 }
