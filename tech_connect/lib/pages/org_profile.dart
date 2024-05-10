@@ -746,26 +746,29 @@ class EventButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(50),
-        color: Color.fromRGBO(77, 95, 128, 100),
-      ),
-      margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-      child: TextButton(
-        onPressed: onPressed,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              eventName,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-            ),
-            Text(
-              'Tap to view event details',
-              style: TextStyle(fontSize: 14, color: const Color.fromARGB(255, 214, 214, 214)),
-            ),
-          ],
+    return Padding(
+      padding: const EdgeInsets.all(3.0),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(50),
+          color: Color.fromRGBO(77, 95, 128, 100),
+        ),
+        margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+        child: TextButton(
+          onPressed: onPressed,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                eventName,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+              Text(
+                'Tap to view event details',
+                style: TextStyle(fontSize: 14, color: const Color.fromARGB(255, 214, 214, 214)),
+              ),
+            ],
+          ),
         ),
       ),
     );
