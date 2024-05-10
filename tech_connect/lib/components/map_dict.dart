@@ -1,11 +1,12 @@
 Map<dynamic, dynamic> addresses = {
   null : ['Fetching Location...', 'placeholderimage'],
+  
   "418 Dan Reneau Dr" : ["IESB", 'https://firebasestorage.googleapis.com/v0/b/techconnect-42543.appspot.com/o/images%2FIESE-Building.jpg?alt=media&token=86c1701c-d8bc-412f-8a4f-ce10f49bbb1a'],
   "419 Dan Reneau Dr" : ["IESB", 'https://firebasestorage.googleapis.com/v0/b/techconnect-42543.appspot.com/o/images%2FIESE-Building.jpg?alt=media&token=86c1701c-d8bc-412f-8a4f-ce10f49bbb1a'],
   "512 Dan Reneau Dr" : ["IESB", 'https://firebasestorage.googleapis.com/v0/b/techconnect-42543.appspot.com/o/images%2FIESE-Building.jpg?alt=media&token=86c1701c-d8bc-412f-8a4f-ce10f49bbb1a'],
   "405 Dan Reneau Dr" : ["IESB", 'https://firebasestorage.googleapis.com/v0/b/techconnect-42543.appspot.com/o/images%2FIESE-Building.jpg?alt=media&token=86c1701c-d8bc-412f-8a4f-ce10f49bbb1a'],
   "311 W Texas Ave" : ["IESB", 'https://firebasestorage.googleapis.com/v0/b/techconnect-42543.appspot.com/o/images%2FIESE-Building.jpg?alt=media&token=86c1701c-d8bc-412f-8a4f-ce10f49bbb1a'],
-
+  "404 W Texas Ave" : ["IESB", 'https://firebasestorage.googleapis.com/v0/b/techconnect-42543.appspot.com/o/images%2FIESE-Building.jpg?alt=media&token=86c1701c-d8bc-412f-8a4f-ce10f49bbb1a'],
   
   "599 Dan Reneau Dr" : ["Nethken", 'https://firebasestorage.googleapis.com/v0/b/techconnect-42543.appspot.com/o/images%2Fnethk.JPG?alt=media&token=75503a64-f868-48a6-bd50-e97ae9dc21a0'],
   "Nethken Hall" : ["Nethken", 'https://firebasestorage.googleapis.com/v0/b/techconnect-42543.appspot.com/o/images%2Fnethk.JPG?alt=media&token=75503a64-f868-48a6-bd50-e97ae9dc21a0'],
