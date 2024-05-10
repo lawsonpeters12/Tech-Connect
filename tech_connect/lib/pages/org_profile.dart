@@ -445,19 +445,34 @@ Future<void> acceptJoinRequest(String userEmail) async {
                   alignment: WrapAlignment.center,
                   children: [
                     // Add Event only if the user is an admin
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
+                    FutureBuilder<bool>(
+                      future: isAdmin,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return CircularProgressIndicator();
+                        } else {
+                          bool isAdmin = snapshot.data ?? false;
+                          if (isAdmin) {
+                            return ElevatedButton(
+                              style: ElevatedButton.styleFrom(
                                 foregroundColor: Colors.white,
                                 backgroundColor: appBarBackgroundColor,
-                                ),
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
+                              ),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
                                     AddEventPage(orgName: widget.orgName)));
+                                },
+                              child: Text('Add Event'),
+                            );
+                          } else {
+                            return SizedBox.shrink();
+                          }
+                        }
                       },
-                      child: Text('Add Event'),
                     ),
                   ],
                 ),
