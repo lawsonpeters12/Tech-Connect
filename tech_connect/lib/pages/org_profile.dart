@@ -59,8 +59,12 @@ class _OrganizationPageState extends State<OrganizationPage> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       isDarkMode = prefs.getBool('isDarkMode') ?? false;
-      pageBackgroundColor = isDarkMode ? Color.fromRGBO(203, 102, 102, 40) : Color.fromRGBO(198, 218, 231, 1);
-      appBarBackgroundColor = isDarkMode ? Color.fromRGBO(167, 43, 42, 1) : Color.fromRGBO(77, 95, 128, 100);
+      pageBackgroundColor = isDarkMode
+          ? Color.fromRGBO(203, 102, 102, 40)
+          : Color.fromRGBO(198, 218, 231, 1);
+      appBarBackgroundColor = isDarkMode
+          ? Color.fromRGBO(167, 43, 42, 1)
+          : Color.fromRGBO(77, 95, 128, 100);
     });
   }
 
@@ -94,51 +98,51 @@ class _OrganizationPageState extends State<OrganizationPage> {
     return (admins != null && admins.contains(userEmail));
   }
 
-Future<void> acceptJoinRequest(String userEmail) async {
-  DocumentReference orgDocRef = FirebaseFirestore.instance
-      .collection('Organizations')
-      .doc(widget.orgName);
-  await orgDocRef.update({
-    'join_requests': FieldValue.arrayRemove([userEmail]),
-  });
-
-  DocumentReference userDocRef = FirebaseFirestore.instance
-      .collection('users')
-      .doc(userEmail);
-
-  DocumentSnapshot<Map<String, dynamic>> userSnapshot =
-      await userDocRef.get() as DocumentSnapshot<Map<String, dynamic>>;
-
-  if (userSnapshot.exists) {
-    String userName = userSnapshot.get('name');
-    String userMajor = userSnapshot.get('major');
-    String userRole = 'Member';
-    List<String> attendedEvents = [];
-    String volunteerHours = '0';
-
-    List<String> userOrganizations = List<String>.from(userSnapshot.get('organizations') ?? []);
-    userOrganizations.add(widget.orgName);
-
-    await userDocRef.set({
-      'name': userName,
-      'major': userMajor,
-      'role': userRole,
-      'attendedEvents': attendedEvents,
-      'volunteerHours': volunteerHours,
-      'organizations': userOrganizations, 
+  Future<void> acceptJoinRequest(String userEmail) async {
+    DocumentReference orgDocRef = FirebaseFirestore.instance
+        .collection('Organizations')
+        .doc(widget.orgName);
+    await orgDocRef.update({
+      'join_requests': FieldValue.arrayRemove([userEmail]),
     });
 
-    await orgDocRef.collection('members').doc(userEmail).set({
-      'email': userEmail,
-      'name': userName,
-      'major': userMajor,
-      'role': userRole,
-      'attendedEvents': attendedEvents,
-      'volunteerHours': volunteerHours,
-    });
-    giveFeedback("Request Accepted!");
+    DocumentReference userDocRef =
+        FirebaseFirestore.instance.collection('users').doc(userEmail);
+
+    DocumentSnapshot<Map<String, dynamic>> userSnapshot =
+        await userDocRef.get() as DocumentSnapshot<Map<String, dynamic>>;
+
+    if (userSnapshot.exists) {
+      String userName = userSnapshot.get('name');
+      String userMajor = userSnapshot.get('major');
+      String userRole = 'Member';
+      List<String> attendedEvents = [];
+      String volunteerHours = '0';
+
+      List<String> userOrganizations =
+          List<String>.from(userSnapshot.get('organizations') ?? []);
+      userOrganizations.add(widget.orgName);
+
+      await userDocRef.set({
+        'name': userName,
+        'major': userMajor,
+        'role': userRole,
+        'attendedEvents': attendedEvents,
+        'volunteerHours': volunteerHours,
+        'organizations': userOrganizations,
+      });
+
+      await orgDocRef.collection('members').doc(userEmail).set({
+        'email': userEmail,
+        'name': userName,
+        'major': userMajor,
+        'role': userRole,
+        'attendedEvents': attendedEvents,
+        'volunteerHours': volunteerHours,
+      });
+      giveFeedback("Request Accepted!");
+    }
   }
-}
 
   Future<void> declineJoinRequest(String userEmail) async {
     DocumentReference orgDocRef = FirebaseFirestore.instance
@@ -251,48 +255,47 @@ Future<void> acceptJoinRequest(String userEmail) async {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: FutureBuilder(
-          future: orgSnapshot,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
-            } else {
-              var data = snapshot.data!.data() as Map<String, dynamic>;
-              var profilePictureUrl = data['profile_picture'] ??
-                  'https://firebasestorage.googleapis.com/v0/b/techconnect-42543.appspot.com/o/images%2Ftechconnect.PNG?alt=media&token=ad8c3eff-3c7b-4a60-8939-693de6fd9558';
-              return Row(
-                children: [
-                  ClipOval(
-                    child: Image.network(
-                      profilePictureUrl,
-                      width: 40,
-                      height: 40,
-                      fit: BoxFit.cover,
+          title: FutureBuilder(
+            future: orgSnapshot,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator();
+              } else {
+                var data = snapshot.data!.data() as Map<String, dynamic>;
+                var profilePictureUrl = data['profile_picture'] ??
+                    'https://firebasestorage.googleapis.com/v0/b/techconnect-42543.appspot.com/o/images%2Ftechconnect.PNG?alt=media&token=ad8c3eff-3c7b-4a60-8939-693de6fd9558';
+                return Row(
+                  children: [
+                    ClipOval(
+                      child: Image.network(
+                        profilePictureUrl,
+                        width: 40,
+                        height: 40,
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                  ),
-                  SizedBox(width: 8),
-                  Text(widget.orgName),
-                ],
-              );
-            }
-          },
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.group),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      OrganizationMembersPage(orgName: widget.orgName),
-                ),
-              );
+                    SizedBox(width: 8),
+                    Text(widget.orgName),
+                  ],
+                );
+              }
             },
           ),
-        ],
-        backgroundColor: appBarBackgroundColor
-      ),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.group),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        OrganizationMembersPage(orgName: widget.orgName),
+                  ),
+                );
+              },
+            ),
+          ],
+          backgroundColor: appBarBackgroundColor),
       backgroundColor: pageBackgroundColor,
       // Org description is stored and retrieved from the Firestore.
       body: Padding(
@@ -345,9 +348,8 @@ Future<void> acceptJoinRequest(String userEmail) async {
                           if (!isMember) {
                             return ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: appBarBackgroundColor,
-                                foregroundColor: Colors.white
-                              ),
+                                  backgroundColor: appBarBackgroundColor,
+                                  foregroundColor: Colors.white),
                               onPressed: () async {
                                 User? user = FirebaseAuth.instance.currentUser;
                                 String userEmail = user?.email ?? 'anonymous';
@@ -390,7 +392,7 @@ Future<void> acceptJoinRequest(String userEmail) async {
                               style: ElevatedButton.styleFrom(
                                 foregroundColor: Colors.white,
                                 backgroundColor: appBarBackgroundColor,
-                                ),
+                              ),
                               onPressed: () {
                                 Navigator.push(
                                   context,
@@ -428,7 +430,7 @@ Future<void> acceptJoinRequest(String userEmail) async {
                               style: ElevatedButton.styleFrom(
                                 foregroundColor: Colors.white,
                                 backgroundColor: appBarBackgroundColor,
-                                ),
+                              ),
                               onPressed: () => showJoinRequestsPopup(context),
                               child: Text('View Join Requests'),
                             );
@@ -461,11 +463,11 @@ Future<void> acceptJoinRequest(String userEmail) async {
                               ),
                               onPressed: () {
                                 Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                    AddEventPage(orgName: widget.orgName)));
-                                },
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => AddEventPage(
+                                            orgName: widget.orgName)));
+                              },
                               child: Text('Add Event'),
                             );
                           } else {
@@ -695,17 +697,20 @@ class EventList extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
+                Center(
+                    child: Text(
                   eventData['eventName'] ?? 'name',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
+                )),
                 SizedBox(height: 10),
-                Text(
+                Center(
+                    child: Text(
                   eventData['location'] ?? 'location',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
+                )),
                 SizedBox(height: 10),
-                TextButton(
+                Center(
+                    child: TextButton(
                   onPressed: () async {
                     User? currentUser = FirebaseAuth.instance.currentUser;
                     String userEmail = currentUser?.email ?? '';
@@ -723,12 +728,8 @@ class EventList extends StatelessWidget {
                           FieldValue.arrayUnion([eventData['eventName']])
                     });
                   },
-                  child: Text('Register'),
-                ),
-                TextButton(
-                  onPressed: () {},
-                  child: Text('Sign Out'),
-                )
+                  child: Text('RSVP'),
+                )),
               ],
             ),
           ),
@@ -761,11 +762,16 @@ class EventButton extends StatelessWidget {
             children: [
               Text(
                 eventName,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
               ),
               Text(
                 'Tap to view event details',
-                style: TextStyle(fontSize: 14, color: const Color.fromARGB(255, 214, 214, 214)),
+                style: TextStyle(
+                    fontSize: 14,
+                    color: const Color.fromARGB(255, 214, 214, 214)),
               ),
             ],
           ),
