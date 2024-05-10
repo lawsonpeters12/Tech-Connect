@@ -319,7 +319,7 @@ Widget build(BuildContext context) {
                 ? Color.fromRGBO(203, 102, 102, 1)
                 : Color.fromRGBO(198, 218, 231, 1),
           body:StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance.collection('alerts').orderBy('timestamp',descending: true).snapshots(),
+          stream: FirebaseFirestore.instance.collection('alerts2').orderBy('timestamp',descending: true).snapshots(),
           builder:
               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if (snapshot.hasError) {
@@ -363,8 +363,12 @@ Widget build(BuildContext context) {
                               ),
                             ],
                           ),
-                          content: Text(details),
-                          actions: [], // Remove the actions property if not needed
+                          content: Container(
+                            height: 250,
+                              child: SingleChildScrollView(
+                                child: Text(details),
+                            ),
+                          ),
                         );
                       },
                     );

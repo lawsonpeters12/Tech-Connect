@@ -7,6 +7,7 @@ import 'dart:io';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:profanity_filter/profanity_filter.dart';
+import 'package:tech_connect/pages/org_profile.dart';
 
 class CampusChatPage extends StatefulWidget {
   const CampusChatPage({Key? key}) : super(key: key);
@@ -496,7 +497,21 @@ class _CampusChatPageState extends State<CampusChatPage> {
                           ),
                         );
 
-                        if (isCurrentUser) {
+                        if(messageData['chat_topic'] == "Campus Events") {
+                          messageWidget = GestureDetector(
+                            onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => OrganizationPage(orgName: messageData['user'])
+                                  ),
+                                );
+                            },
+                            child: messageWidget,
+                          );
+                        }
+
+                        else if (isCurrentUser) {
                           messageWidget = GestureDetector(
                             onLongPress: () {
                               showMessageOptionsPopup(
@@ -603,7 +618,7 @@ class _CampusChatPageState extends State<CampusChatPage> {
                   ),
                   IconButton(
                     icon: Icon(Icons.camera_alt),
-                    onPressed: _showCameraOptions,
+                    onPressed: _openGallery,
                   ),
                   IconButton(
                     icon: Icon(Icons.send),
