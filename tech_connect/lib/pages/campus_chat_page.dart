@@ -404,9 +404,9 @@ class _CampusChatPageState extends State<CampusChatPage> {
         },
       ),
       ListTile(
-        title: Text('Lost Item Chat'),
+        title: Text('Lost and Found'),
         onTap: () {
-          _updateChatTopic("Lost Item Chat");
+          _updateChatTopic("Lost and Found");
           Navigator.pop(context);
         },
       ),
