@@ -65,10 +65,10 @@ class _FriendPageState extends State<FriendPage> {
   }
 
   // gives user feedback when they accept a friend request
-  Future<void> requestAcceptedFeedback() async {
+  Future<void> requestFeedback(String message) async {
     // SnackBar
     ScaffoldMessenger.of(context).removeCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Friend request accepted!")));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
     // Light haptic feedback
     await SystemChannels.platform.invokeMethod<void>(
       'HapticFeedback.vibrate',
@@ -228,7 +228,7 @@ class _FriendPageState extends State<FriendPage> {
                                       'friends_list': FieldValue.arrayUnion([requestEmail])
                                   }, SetOptions(merge: true));
                                   refreshRequests();
-                                  requestAcceptedFeedback();
+                                  requestFeedback("Friend Request Accepted!");
                                 },
                               ),
                               IconButton(
@@ -249,7 +249,7 @@ class _FriendPageState extends State<FriendPage> {
                                       'outgoing_friend_requests': FieldValue.arrayRemove([userEmail])
                                   });
                                   refreshRequests(); 
-                                  requestAcceptedFeedback();
+                                  requestFeedback("Friend Request Denied...");
                                   },
                                 ),
                               ],
@@ -270,10 +270,23 @@ class _FriendPageState extends State<FriendPage> {
 }
 
 class MySearchDelegate extends SearchDelegate {
+
+Future<List<String>> getUserEmails() async {
+  List<String> userEmails = [];
+  QuerySnapshot<Map<String, dynamic>> querySnapshot =
+  await FirebaseFirestore.instance.collection('users').get();
+
+  for (QueryDocumentSnapshot<Map<String, dynamic>> doc in querySnapshot.docs) {
+    Map<String, dynamic> userData = doc.data();
+    userEmails.add(userData['email']);
+  }
+  return userEmails;
+}
+
   @override
   ThemeData appBarTheme(BuildContext context) {
     return Theme.of(context).copyWith(
-      scaffoldBackgroundColor: Color.fromRGBO(198, 218, 231, 100),
+      scaffoldBackgroundColor: Color.fromRGBO(198, 218, 231, 1),
     );
   }
 
@@ -315,7 +328,7 @@ class MySearchDelegate extends SearchDelegate {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return CircularProgressIndicator();
         } else {
-          List<String> searchResults = snapshot.data!;
+          List<String> searchResults = snapshot.data ?? [];
           List<String> suggestions = searchResults.where((searchResult) {
             final result = searchResult.toLowerCase();
             final input = query.toLowerCase();
@@ -344,18 +357,5 @@ class MySearchDelegate extends SearchDelegate {
         }
       },
     );
-  }
-
-  Future<List<String>> getUserEmails() async {
-    List<String> userEmails = [];
-
-    QuerySnapshot<Map<String, dynamic>> querySnapshot =
-    await FirebaseFirestore.instance.collection('users').get();
-
-    for (QueryDocumentSnapshot<Map<String, dynamic>> doc in querySnapshot.docs) {
-      Map<String, dynamic> userData = doc.data();
-      userEmails.add(userData['email']);
-    }
-    return userEmails;
   }
 }

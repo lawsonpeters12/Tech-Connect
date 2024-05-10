@@ -75,10 +75,10 @@ class _OtherUserPageState extends State<OtherUserPage> {
   }
 
   // gives user feedback when they send a friend request
-  Future<void> requestSentFeedback() async {
+  Future<void> giveUserFeedback(String message) async {
     // SnackBar
     ScaffoldMessenger.of(context).removeCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Friend request sent!")));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
     // Light haptic feedback
     await SystemChannels.platform.invokeMethod<void>(
       'HapticFeedback.vibrate',
@@ -181,11 +181,7 @@ class _OtherUserPageState extends State<OtherUserPage> {
                           height: 50,
                           child: 
                             ElevatedButton(
-                              onPressed: () {
-                              // remove unreadFlag
-                              readMessage();
-                              Navigator.of(context).push(MaterialPageRoute(builder: (context) => DirectMessagePage(otherUserEmail: otherUser.email)));
-                              },
+                              onPressed: () {},
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: appBarBackgroundColor,
                                 foregroundColor: Colors.white
@@ -222,8 +218,12 @@ class _OtherUserPageState extends State<OtherUserPage> {
                       ]
                     ),
 
-                    if (!isFriend) // Don't display "add friend" button if user is already your friend
+                    if (!isFriend) // Don't display "add friend" button if user is already your friend, display remove friend button
                       ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: appBarBackgroundColor,
+                          foregroundColor: Colors.white
+                        ),
                         onPressed: () async {
                         // Update the current user's document in Firestore
                         User? currentUser = FirebaseAuth.instance.currentUser;
@@ -257,10 +257,54 @@ class _OtherUserPageState extends State<OtherUserPage> {
                               .set({'incoming_friend_requests': incomingFriendRequests}, SetOptions(merge: true)); // SetOptions(merge: true) will only edit 1 field of the document. Without it, the other fields get erased.
                         }
                         // Friend request sent!
-                        requestSentFeedback();
+                        giveUserFeedback("Friend Request Sent!");
                       },
                       child: Text('Add Friend'),
                     ),
+
+                    if(isFriend)
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: appBarBackgroundColor,
+                          foregroundColor: Colors.white
+                        ),
+                        onPressed: () async {
+                        // Update the current user's document in Firestore
+                        User? currentUser = FirebaseAuth.instance.currentUser;
+                        String userEmail = currentUser?.email ?? '';
+                        DocumentSnapshot currentUserDoc = await FirebaseFirestore.instance.collection('users')
+                            .doc(userEmail)
+                            .get();
+
+                        Map<String, dynamic>? currentUserData = currentUserDoc.data() as Map<String, dynamic>?;
+
+                        List<dynamic> currentUserFriendsList = currentUserData?['friends_list'] ?? [];
+                        currentUserFriendsList.remove(otherUser.email);
+                        // remove friend
+                        await FirebaseFirestore.instance.collection('users')
+                          .doc(userEmail)
+                          .set({'friends_list': currentUserFriendsList}, SetOptions(merge: true)); // SetOptions(merge: true) will only edit 1 field of the document. Without it, the other fields get erased.
+
+                        // Remove current user from other user's friends list
+                        DocumentSnapshot otherUserDoc = await FirebaseFirestore.instance.collection('users')
+                            .doc(otherUser.email)
+                            .get();
+
+                        Map<String, dynamic>? otherUserData = otherUserDoc.data() as Map<String, dynamic>?;
+
+                        List<dynamic> otherUserFriendList = otherUserData?['friends_list'] ?? [];
+                        if (!otherUserFriendList.contains(userEmail)) {
+                          otherUserFriendList.remove(userEmail);
+                          await FirebaseFirestore.instance.collection('users')
+                              .doc(otherUser.email)
+                              .set({'friends_list': otherUserFriendList}, SetOptions(merge: true)); // SetOptions(merge: true) will only edit 1 field of the document. Without it, the other fields get erased.
+                        }
+                        // Friend request sent!
+                        giveUserFeedback("Friend Removed...");
+                      },
+                      child: Text('Remove Friend'),
+                    ),
+
                   ],
                 ),
               ],

@@ -344,6 +344,10 @@ Future<void> acceptJoinRequest(String userEmail) async {
                           bool isMember = snapshot.data ?? false;
                           if (!isMember) {
                             return ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: appBarBackgroundColor,
+                                foregroundColor: Colors.white
+                              ),
                               onPressed: () async {
                                 User? user = FirebaseAuth.instance.currentUser;
                                 String userEmail = user?.email ?? 'anonymous';
@@ -440,6 +444,7 @@ Future<void> acceptJoinRequest(String userEmail) async {
                 Wrap(
                   alignment: WrapAlignment.center,
                   children: [
+                    // Add Event only if the user is an admin
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                                 foregroundColor: Colors.white,

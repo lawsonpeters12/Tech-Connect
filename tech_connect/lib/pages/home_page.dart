@@ -29,7 +29,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     createGoogleUser();
     checkAdminStatus();
     eventGrabber();
-    //unreadStatus = getUnreadStatus(); // might be able to get rid of these
   }
 
   @override
@@ -169,22 +168,22 @@ Future<void> addAlert() async {
     });
   }
 
-Future<bool> getUnreadStatus() async {
-  bool test = false;
-  User? currentUser = FirebaseAuth.instance.currentUser;
+// get friend requests
+Future<bool> getFriendRequestStatus() async {
+  User? currentUser = FirebaseAuth.instance.currentUser; 
   String userEmail = currentUser?.email ?? '';
-  DocumentSnapshot userDoc = await FirebaseFirestore.instance
-    .collection('users')
+  DocumentSnapshot friendRequests = await FirebaseFirestore.instance
+    .collection('friend_requests')
     .doc(userEmail)
     .get();
-  Map<String, dynamic>? userData = userDoc.data() as Map<String, dynamic>?;
-  List<dynamic> friendsList = userData?['friend_list_test'] ?? [];
-  for (var i = 0; i < friendsList.length; i++){
-    if(friendsList[i]['unread'] == true){
-      test = true;
-    }
+  Map<String, dynamic>? requestData = friendRequests.data() as Map<String, dynamic>?;
+  List<dynamic> requestList = requestData?['incoming_friend_requests'] ?? [];
+  if (requestList.length <= 0){
+    return false;
   }
-  return test;
+  else {
+    return true;
+  }
 }
 
 @override
@@ -210,17 +209,17 @@ Widget build(BuildContext context) {
         Spacer(),
         Stack(
         children: [
-          FutureBuilder(future: getUnreadStatus(), builder: (context, snapshot) {
+          FutureBuilder(future: getFriendRequestStatus(), builder: (context, snapshot) {
             // might get rid of loading circle for this
             if (snapshot.connectionState == ConnectionState.waiting) {
               return  CircularProgressIndicator();
             } 
             else {
-              bool unreadStatus = snapshot.data ?? false;
-              if(unreadStatus){
+              bool friendRequestStatus = snapshot.data ?? false;
+              if(friendRequestStatus){
                 return IconButton(
                   onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => const FriendPage()));},
-                  icon: Icon(Icons.person_outlined)
+                  icon: Icon(Icons.person_add_outlined)
                 );
               }
               else {
