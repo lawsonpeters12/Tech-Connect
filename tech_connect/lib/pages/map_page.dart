@@ -964,7 +964,7 @@ class _MapPageState extends State<MapPage> {
   
       List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
       Placemark place = placemarks[0];
-      //print('address: ${place.street}');
+      print('address: ${place.street}');
       setState(() {
       // leave print statements for debugging
       
