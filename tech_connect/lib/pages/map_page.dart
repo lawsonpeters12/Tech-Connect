@@ -926,7 +926,7 @@ class _MapPageState extends State<MapPage> {
     setState(() {
       events = eventsQ;
       _selectedEvents = List.filled((eventsQ.length), false);
-      //print('address: $_address');
+      print('address: $_address');
     });
   }
 
@@ -1903,6 +1903,7 @@ class _MapPageState extends State<MapPage> {
               buttonTextBool = await isAttended(tappedEvent);
               setState(() {
                 buttonTextBool = buttonTextBool;
+                
               });
               },
               borderRadius: const BorderRadius.all(Radius.circular(8)),

@@ -327,12 +327,12 @@ Widget build(BuildContext context) {
             }
 
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
+              return const CircularProgressIndicator();
             }
 
           return ListView.separated(
             itemCount: snapshot.data!.docs.length,
-            separatorBuilder: (BuildContext context, int index) => Divider(),
+            separatorBuilder: (BuildContext context, int index) => const Divider(),
             itemBuilder: (context, index) {
               Map<String, dynamic> data = snapshot.data!.docs[index].data() as Map<String, dynamic>;
               DateTime timestamp = data['timestamp'].toDate();
@@ -354,9 +354,9 @@ Widget build(BuildContext context) {
                           title: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Alert Details'),
+                              const Text('Alert Details'),
                               IconButton(
-                                icon: Icon(Icons.close),
+                                icon: const Icon(Icons.close),
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
